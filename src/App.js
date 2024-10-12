@@ -1,26 +1,39 @@
-import React, { Component } from "react";
-import logo from "./logo.svg";
+import {Layout} from 'antd';
+import React, {Component} from "react";
+import {BrowserRouter, Route, Routes} from "react-router-dom";
+
 import "./App.css";
+import {eel} from "./eel.js";
+import {EmbeddingDetectionPage} from "./pages/EmbeddingDetectionPage";
+import {EmbeddingDetectionResultPage} from "./pages/EmbeddingDetectionResultPage";
+import {EmbeddedFileDetailsPage} from "./pages/EmbeddedFileDetailsPage";
 
-import { eel } from "./eel.js";
+const {Header, Footer, Content} = Layout;
 
+// noinspection JSUnresolvedReference
 class App extends Component {
   constructor(props) {
     super(props);
     eel.set_host("ws://localhost:8888");
-    eel.hello();
   }
+
   render() {
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Welcome to React</h1>
-        </header>
-        <p className="App-intro">
-          To get started, edit <code>src/App.js</code> and save to reload.
-        </p>
-      </div>
+        <Layout className="App">
+          <Header className="App-header">Doc Embedding Detector</Header>
+          <Content className="App-content">
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<EmbeddingDetectionPage/>}/>
+                <Route path="/result/:resultId"
+                       element={<EmbeddingDetectionResultPage/>}/>
+                <Route path="/result/:resultId/*"
+                       element={<EmbeddedFileDetailsPage/>}/>
+              </Routes>
+            </BrowserRouter>
+          </Content>
+          <Footer className="App-footer">Footer</Footer>
+        </Layout>
     );
   }
 }

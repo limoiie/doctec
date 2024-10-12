@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "doctec"
+version = "0.1.0"
+description = ""
+authors = ["limoiie <limo.iie4@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.10,<3.14"
+Eel = "^0.17.0"
+pyinstaller = "^6.10.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

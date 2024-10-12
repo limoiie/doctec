@@ -24,3 +24,7 @@ yarn-error.log*
 /dist
 /react-eel-app.spec
 __pycache__
+
+# ide
+/.idea
+/.vscode
