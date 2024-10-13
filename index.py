@@ -9,6 +9,12 @@ data = [
         "id": "1001",
         "targetDirs": ["/home/user1/docs"],
         "date": "2023-10-12T17:30:19Z",
+        "progress": {
+            "status": "completed",  # or "in-progress" or "failed"
+            "error": None,  # error message in string if status is "failed"
+            "totalFiles": 3,  # total number of files to be processed
+            "processedFiles": 3,  # number of files processed
+        },
         "detectedFiles": [
             {
                 "filepath": "/home/user1/docs/doc1.doc",
@@ -39,6 +45,12 @@ data = [
         "id": "1002",
         "targetDirs": ["/home/user2/docs"],
         "date": "2023-10-12T17:30:19Z",
+        "progress": {
+            "status": "in-progress",
+            "error": None,
+            "totalFiles": 3,
+            "processedFiles": 0,
+        },
         "detectedFiles": [],
     },
 ]
