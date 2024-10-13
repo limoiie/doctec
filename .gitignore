@@ -28,3 +28,4 @@ __pycache__
 # ide
 /.idea
 /.vscode
+/.venv
