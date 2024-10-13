@@ -14,7 +14,7 @@ export function EmbeddingDetectionPage() {
     eel.detectEmbeddedFiles(targetDirs)(
         function (resultId) {
           // redirect to results page
-          navigate('/results/' + resultId.toString());
+          navigate('/result/' + resultId.toString());
         }
     )
   }

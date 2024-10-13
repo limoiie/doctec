@@ -33,7 +33,6 @@ export function EmbeddingDetectionHistoryPage({pageNo = 0, pageSize = 0}: {
       <div>
         <p>Embedding Detection History</p>
         <div className="History">
-
           {
               state.state === 'loaded' &&
               results &&
