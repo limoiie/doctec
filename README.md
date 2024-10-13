@@ -1,6 +1,4 @@
-# React Eel GUI App
-
-![](./sample.png)
+# Doctec
 
 ## Install
 
@@ -9,6 +7,12 @@ You’ll need to have Python >= 3.6, Eel, pyinstaller.
 ```
 $ python3 -m pip install eel
 $ python3 -m pip install pyinstaller
+```
+
+You'll need yarn to install the dependencies and build the app.
+
+```
+$ npm install -g yarn
 ```
 
 ## Develop on GUI

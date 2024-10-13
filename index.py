@@ -58,7 +58,14 @@ data = [
 
 # noinspection PyPep8Naming
 @eel.expose
-def fetchEmbeddingDetectionResults(page_no: int = 0, page_filesize: int = -1):
+def fetchEmbeddingDetectionResults(page_no: int = 0, page_size: int = -1):
+    """
+    Fetch the embedding detection results by page.
+
+    :param page_no:
+    :param page_size:
+    :return:
+    """
     # TODO: load from database
     return data
 
@@ -66,6 +73,12 @@ def fetchEmbeddingDetectionResults(page_no: int = 0, page_filesize: int = -1):
 # noinspection PyPep8Naming
 @eel.expose
 def fetchEmbeddingDetectionResultById(result_id: str):
+    """
+    Fetch the embedding detection result by id.
+
+    :param result_id:
+    :return:
+    """
     # TODO: load from database
     for item in data:
         if item["id"] == result_id:
@@ -75,9 +88,31 @@ def fetchEmbeddingDetectionResultById(result_id: str):
 
 # noinspection PyPep8Naming
 @eel.expose
-def detectEmbeddedFiles(targetDir: list[str]):
+def detectEmbeddedFiles(targetDirs: list[str]):
+    """
+    Launch the detection.
+
+    :param targetDirs:
+    :return:
+    """
     # TODO: launch the detection in parallel, and return the result id
-    return None
+    # step 1: create a subprocess to run the detector.exe in parallel
+    # step 2: create an embeddingDetectionResult like follows and insert into db:
+    # {
+    #     "id": "xxxx",  # randomly generated
+    #     "targetDirs": ["/home/user2/docs"],
+    #     "date": "2023-10-12T17:30:19Z",  # ISO 8601 format
+    #     "progress": {
+    #         "status": "in-progress",
+    #         "error": None,
+    #         "totalFiles": 3,
+    #         "processedFiles": 0,
+    #     },
+    #     "detectedFiles": [],
+    # }
+    #
+    # step 3: return the result id randomly generated
+    return "1001"
 
 
 if __name__ == "__main__":
