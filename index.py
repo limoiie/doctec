@@ -1,8 +1,7 @@
 # coding: utf-8
-import eel
-import json
 import sys
 
+import eel
 
 # FIXME: this is dummy data, remove it when the database is ready
 data = [
@@ -45,12 +44,14 @@ data = [
 ]
 
 
+# noinspection PyPep8Naming
 @eel.expose
 def fetchEmbeddingDetectionResults(page_no: int = 0, page_filesize: int = -1):
     # TODO: load from database
     return data
 
 
+# noinspection PyPep8Naming
 @eel.expose
 def fetchEmbeddingDetectionResultById(result_id: str):
     # TODO: load from database
@@ -60,6 +61,7 @@ def fetchEmbeddingDetectionResultById(result_id: str):
     return None
 
 
+# noinspection PyPep8Naming
 @eel.expose
 def detectEmbeddedFiles(targetDir: list[str]):
     # TODO: launch the detection in parallel, and return the result id
@@ -67,10 +69,12 @@ def detectEmbeddedFiles(targetDir: list[str]):
 
 
 if __name__ == "__main__":
-    eel._start_args["mode"] = "edge"
+    # NOTE: uncomment the following line if you have only Microsoft Edge installed
+    getattr(eel, "_start_args")["mode"] = "edge"
+
     if sys.argv[1] == "--develop":
         eel.init("client")
-        eel.start({"port": 3000}, host="localhost", port=8888)
+        eel.start("http://localhost:3000", host="localhost", port=8888)
     else:
         eel.init("build")
         eel.start("index.html")

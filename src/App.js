@@ -7,6 +7,7 @@ import {eel} from "./eel.js";
 import {EmbeddingDetectionPage} from "./pages/EmbeddingDetectionPage";
 import {EmbeddingDetectionResultPage} from "./pages/EmbeddingDetectionResultPage";
 import {EmbeddedFileDetailsPage} from "./pages/EmbeddedFileDetailsPage";
+import {EmbeddingDetectionHistoryPage} from "./pages/EmbeddingDetectionHistoryPage";
 
 const {Header, Footer, Content} = Layout;
 
@@ -20,11 +21,12 @@ class App extends Component {
   render() {
     return (
         <Layout className="App">
-          <Header className="App-header">Doc Embedding Detector</Header>
+          <Header className="App-header"><a href="/">Doc Embedding Detector</a></Header>
           <Content className="App-content">
             <BrowserRouter>
               <Routes>
                 <Route path="/" element={<EmbeddingDetectionPage/>}/>
+                <Route path="/history" element={<EmbeddingDetectionHistoryPage/>}/>
                 <Route path="/result/:resultId"
                        element={<EmbeddingDetectionResultPage/>}/>
                 <Route path="/result/:resultId/*"
