@@ -43,10 +43,11 @@ export function EmbeddingDetectionResultList({results}: {
   results: EmbeddingDetectionResult[]
 }) {
   const dataSource = results.map((e: EmbeddingDetectionResult, i) => {
+    console.log('progress', e.progress)
     return {
       'key': i,
       'resultId': e.id,
-      'targetDirs': e.targetDirs,
+      'targetDirs': e.cfg.targetDirs,
       'date': e.date.toISOString(),
       'nDetectedFiles': e.detectedFiles.length,
       'progress': e.progress

@@ -3,6 +3,26 @@ export type LoadState = {
   error: string | null,
 }
 
+export class EmbDetectionConfig {
+  uuid: string
+  targetDirs: string[]
+  maxDepth: number
+
+  constructor(uuid: string, targetDirs: string[], maxDepth: number) {
+    this.uuid = uuid
+    this.targetDirs = targetDirs
+    this.maxDepth = maxDepth
+  }
+
+  static fromObject(object: Object): EmbDetectionConfig {
+    return new EmbDetectionConfig(
+        object.uuid,
+        object.targetDirs,
+        object.maxDepth
+    );
+  }
+}
+
 export class EmbeddedFile {
   filepath: string
   filesize: number
@@ -42,13 +62,13 @@ export class EmbeddedFile {
 }
 
 export class EmbeddingDetectionProgress {
-  status: 'completed' | 'in-progress' | 'failed'
+  status: 'pending' | 'completed' | 'in-progress' | 'failed' | 'cancelled'
   error: string | null
   totalFiles: number
   processedFiles: number
 
   constructor(
-      status: 'completed' | 'in-progress' | 'failed',
+      status: 'pending' | 'completed' | 'in-progress' | 'failed' | 'cancelled',
       error: string | null,
       totalFiles: number,
       processedFiles: number
@@ -71,20 +91,20 @@ export class EmbeddingDetectionProgress {
 
 export class EmbeddingDetectionResult {
   id: string
-  targetDirs: string[]
+  cfg: EmbDetectionConfig
   date: Date
   detectedFiles: EmbeddedFile[]
   progress: EmbeddingDetectionProgress
 
   constructor(
       id: string,
-      targetDirs: string[],
+      cfg: EmbDetectionConfig,
       date: Date,
       detectedFiles: EmbeddedFile[] = [],
       progress: EmbeddingDetectionProgress
   ) {
     this.id = id
-    this.targetDirs = targetDirs
+    this.cfg = cfg
     this.date = date
     this.detectedFiles = detectedFiles
     this.progress = progress
@@ -99,7 +119,7 @@ export class EmbeddingDetectionResult {
   static fromObject(object: Object): EmbeddingDetectionResult {
     return new EmbeddingDetectionResult(
         object.id,
-        object.targetDirs,
+        EmbDetectionConfig.fromObject(object.cfg),
         new Date(object.date),
         EmbeddedFile.fromObjects(object.detectedFiles),
         EmbeddingDetectionProgress.fromObject(object.progress)
