@@ -40,7 +40,8 @@ export function EmbeddingDetectionResultPage() {
                 {'title': resultId}]
               }/>
               <p>Embedding Detection Result Id: {result.id}</p>
-              <p>Target Directories: {result.targetDirs}</p>
+              <p>Configuration: {JSON.stringify(result.cfg)}</p>
+              <p>Error: {result.progress.error}</p>
               <p>Embedded Files:</p>
               <EmbeddedFileList files={result.detectedFiles} nestedPath={resultId}/>
             </div>

@@ -11,7 +11,7 @@ export function EmbeddingDetectionPage() {
 
   function detect() {
     // noinspection JSUnresolvedReference
-    eel.detectEmbeddedFiles(targetDirs)(
+    eel.detectEmbeddedFiles(targetDirs.split(';'))(
         function (resultId) {
           // redirect to results page
           navigate('/result/' + resultId.toString());

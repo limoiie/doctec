@@ -14,4 +14,4 @@ class EmbExtractor:
 class _EmbExtractorWrapper(EmbExtractor):
     @abstractmethod
     def extract(self, path: str, out: str) -> Iterable[str]:
-        pass
+        raise NotImplementedError()
