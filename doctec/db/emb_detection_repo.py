@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime, UTC
-from typing import Dict
+from typing import Dict, List
 
 from doctec.tasks.emb_detection_types import (
     EmbeddedFile,
@@ -83,7 +83,13 @@ class EmbDetectionRepo:
             ),
         }
 
-    def init_run(self, cfg: EmbDetectionConfig):
+    def init_run(self, cfg: EmbDetectionConfig) -> EmbDetectionResult:
+        """
+        Initialize a new embedding detection run.
+
+        :param cfg: the configuration of the detection run
+        :return: the initialized result object
+        """
         res = EmbDetectionResult(
             id=uuid.uuid4().hex,
             cfg=cfg,
@@ -100,15 +106,17 @@ class EmbDetectionRepo:
         self.dummy_db[res.id] = res
         return res
 
-    def fetch_all_results(self, page_no: int = 0, page_size: int = -1):
+    def fetch_all_results(
+        self, page_no: int = 0, page_size: int = -1
+    ) -> List[EmbDetectionResult]:
         # FIXME
         return list(self.dummy_db.values())
 
-    def fetch_one_result_by_id(self, result_id: str):
+    def fetch_one_result_by_id(self, result_id: str) -> EmbDetectionResult:
         # FIXME
         return self.dummy_db.get(result_id)
 
-    def is_cancelled(self, result_id: str):
+    def is_cancelled(self, result_id: str) -> bool:
         # FIXME
         return (
             self.dummy_db[result_id].progress.status
