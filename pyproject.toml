@@ -6,9 +6,10 @@ authors = ["limoiie <limo.iie4@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = ">=3.10,<3.14"
+python = ">=3.10,<3.13"
 Eel = "^0.17.0"
 pyinstaller = "^6.10.0"
+pythonnet = "^3.0.4"
 
 
 [build-system]

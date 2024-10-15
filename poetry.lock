@@ -116,6 +116,20 @@ files = [
 pycparser = "*"
 
 [[package]]
+name = "clr-loader"
+version = "0.2.6"
+description = "Generic pure Python loader for .NET runtimes"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "clr_loader-0.2.6-py3-none-any.whl", hash = "sha256:79bbfee4bf6ac2f4836d89af2c39e0c32dce5d0c062596185aef380f317507a6"},
+    {file = "clr_loader-0.2.6.tar.gz", hash = "sha256:019348ae6b6a83c7a406d14537c277cecf7a3a53b263ec342c81ded5845a67ee"},
+]
+
+[package.dependencies]
+cffi = ">=1.13"
+
+[[package]]
 name = "eel"
 version = "0.17.0"
 description = "For little HTML GUI applications, with easy Python/JS interop"
@@ -417,6 +431,20 @@ files = [
 diagrams = ["jinja2", "railroad-diagrams"]
 
 [[package]]
+name = "pythonnet"
+version = "3.0.4"
+description = ".NET and Mono integration for Python"
+optional = false
+python-versions = "<3.13,>=3.7"
+files = [
+    {file = "pythonnet-3.0.4-py3-none-any.whl", hash = "sha256:a63979eb66293368659849e0a7e0c55cc064c153b62cd540b614ac36895cc598"},
+    {file = "pythonnet-3.0.4.tar.gz", hash = "sha256:c92fbcfddd16575f7e75a643302271658b606d8557df7f0132ac240e03cc3a8f"},
+]
+
+[package.dependencies]
+clr-loader = ">=0.2.6,<0.3.0"
+
+[[package]]
 name = "pywin32-ctypes"
 version = "0.2.3"
 description = "A (partial) reimplementation of pywin32 using ctypes/cffi"
@@ -532,5 +560,5 @@ testing = ["coverage[toml]", "zope.event", "zope.testing"]
 
 [metadata]
 lock-version = "2.0"
-python-versions = ">=3.10,<3.14"
-content-hash = "42ceb30d1ee23d2853381821a20b32f1810c72edc1df05fe1c6439834aab0916"
+python-versions = ">=3.10,<3.13"
+content-hash = "6ec779d54ec1a7279fa37e97f5a221c920bacbacd5a49800a383d97c275a0ee2"

@@ -1,5 +1,15 @@
+import os
 from abc import abstractmethod
 from typing import Iterable
+
+import clr
+
+# noinspection PyUnresolvedReferences
+clr.AddReference(
+    os.path.relpath(
+        __file__, "../../resources/pkgs/OfficeExtractor/OfficeExtractor.dll"
+    )
+)
 
 
 class EmbExtractor:
@@ -14,4 +24,11 @@ class EmbExtractor:
 class _EmbExtractorWrapper(EmbExtractor):
     @abstractmethod
     def extract(self, path: str, out: str) -> Iterable[str]:
-        raise NotImplementedError()
+        # noinspection PyUnresolvedReferences,PyPackageRequirements
+        from OfficeExtractor import Extractor
+
+        extractor = Extractor()
+        extractor.SaveToFolder(path, out)
+
+        for file in os.listdir(out):
+            yield os.path.join(out, file)
