@@ -1,3 +1,5 @@
+import {splitFilePath} from "./utils";
+
 export type LoadState = {
   state: 'loading' | 'loaded' | 'error',
   error: string | null,
@@ -32,7 +34,7 @@ export class EmbeddedFile {
   constructor(filepath: string, filesize: number, embeddedFiles: EmbeddedFile[] = []) {
     this.filepath = filepath
     this.filesize = filesize
-    this.filename = filepath.split('/').pop()
+    this.filename = splitFilePath(filepath).name
     this.embeddedFiles = embeddedFiles
   }
 

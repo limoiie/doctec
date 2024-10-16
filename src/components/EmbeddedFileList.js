@@ -9,7 +9,7 @@ const columns = [
     render: (filename, record) => {
       return (
           <Tooltip title="Details">
-            <a href={"/result/" + record.nestedPath + "/" + filename}>{filename}</a>
+            <a href={"/result/" + record.nestedPath + "/" + filename}>{record.filepath}</a>
           </Tooltip>
       )
     }
@@ -34,6 +34,7 @@ export function EmbeddedFileList({files, nestedPath}: {
     return {
       'key': i,
       'filename': e.filename,
+      'filepath': e.filepath,
       'filesize': e.filesize,
       'nEmbeddedFiles': e.embeddedFiles.length,
       'data': e,
