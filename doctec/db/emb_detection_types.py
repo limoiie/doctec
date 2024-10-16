@@ -29,7 +29,7 @@ class EmbeddingDetectionProgress:
 @dataclass
 class EmbeddedFile:
     filepath: str
-    md5: str
+    md5:str
     filesize: int
     embeddedFiles: List["EmbeddedFile"]
 

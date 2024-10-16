@@ -2,7 +2,7 @@
 
 ## Install
 
-You’ll need to have Python >= 3.6, Eel, pyinstaller.
+You’ll need to have Python >= 3.10, Eel, pyinstaller.
 
 ```
 $ python3 -m pip install eel
