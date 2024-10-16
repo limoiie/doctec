@@ -6,8 +6,8 @@ import clr
 
 # noinspection PyUnresolvedReferences
 clr.AddReference(
-    os.path.relpath(
-        __file__, "../../resources/pkgs/OfficeExtractor/OfficeExtractor.dll"
+    os.path.abspath(
+        "./resources/pkgs/OfficeExtractor/OfficeExtractor.dll"
     )
 )
 
@@ -25,7 +25,7 @@ class _EmbExtractorWrapper(EmbExtractor):
     @abstractmethod
     def extract(self, path: str, out: str) -> Iterable[str]:
         # noinspection PyUnresolvedReferences,PyPackageRequirements
-        from OfficeExtractor import Extractor
+        from OfficeExtractor import Extractor # type: ignore
 
         extractor = Extractor()
         extractor.SaveToFolder(path, out)
