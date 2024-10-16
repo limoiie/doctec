@@ -32,7 +32,9 @@ def fetchEmbeddingDetectionResultById(result_id: str):
     :param result_id:
     :return: the embedding detection result in JSON format
     """
-    result = APP.emb_det_repo.fetch_one_result_by_id(result_id)
+    print("result_id:", result_id)
+    result = APP.emb_det_repo.fetch_one_result_by_id(result_id)     # 1001
+    print("result:",type(result))
     return as_jsonlike_dict(result)
 
 

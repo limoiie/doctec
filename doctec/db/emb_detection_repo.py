@@ -1,7 +1,15 @@
 import uuid
-from datetime import datetime, UTC
+from datetime import datetime, timezone
 from typing import Dict, List
+from peewee import *
 
+from doctec.db.db_model import (
+    db,
+    Task,
+    TaskFileMapping,
+    FileMetadata,
+    ParentChildRelationship
+)
 from doctec.tasks.emb_detection_types import (
     EmbeddedFile,
     EmbeddingDetectionStatus,
@@ -12,76 +20,9 @@ from doctec.tasks.emb_detection_types import (
 
 
 class EmbDetectionRepo:
-    dummy_db: Dict[str, EmbDetectionResult]
-
     def __init__(self):
-        # TODO: use the real database
-        self.dummy_db = {
-            "1001": EmbDetectionResult(
-                id="1001",
-                cfg=EmbDetectionConfig(
-                    uuid="16001010101",
-                    targetDirs=["/home/user1/docs"],
-                ),
-                date="2023-10-12T17:30:19Z",
-                progress=EmbeddingDetectionProgress(
-                    status=EmbeddingDetectionStatus.COMPLETED,
-                    error="",
-                    totalFiles=3,
-                    processedFiles=3,
-                ),
-                detectedFiles=[
-                    EmbeddedFile(
-                        filepath="/home/user1/docs/doc1.doc",
-                        filesize=1000,
-                        embeddedFiles=[
-                            EmbeddedFile(
-                                filepath="nested1-1.doc",
-                                filesize=100,
-                                embeddedFiles=[],
-                            ),
-                            EmbeddedFile(
-                                filepath="nested1-2.doc",
-                                filesize=100,
-                                embeddedFiles=[
-                                    EmbeddedFile(
-                                        filepath="nested2-1.doc",
-                                        filesize=100,
-                                        embeddedFiles=[],
-                                    )
-                                ],
-                            ),
-                        ],
-                    ),
-                    EmbeddedFile(
-                        filepath="/home/user1/docs/doc2.doc",
-                        filesize=1000,
-                        embeddedFiles=[
-                            EmbeddedFile(
-                                filepath="nested1-1.doc",
-                                filesize=100,
-                                embeddedFiles=[],
-                            )
-                        ],
-                    ),
-                ],
-            ),
-            "1002": EmbDetectionResult(
-                id="1002",
-                cfg=EmbDetectionConfig(
-                    uuid="16002121312",
-                    targetDirs=["/home/user2/docs"],
-                ),
-                date="2023-10-12T17:30:19Z",
-                progress=EmbeddingDetectionProgress(
-                    status=EmbeddingDetectionStatus.IN_PROGRESS,
-                    error="",
-                    totalFiles=3,
-                    processedFiles=0,
-                ),
-                detectedFiles=[],
-            ),
-        }
+        self.db = db
+        self.db.connect()
 
     def init_run(self, cfg: EmbDetectionConfig) -> EmbDetectionResult:
         """
@@ -93,7 +34,7 @@ class EmbDetectionRepo:
         res = EmbDetectionResult(
             id=uuid.uuid4().hex,
             cfg=cfg,
-            date=datetime.now(UTC).isoformat(),
+            date=datetime.now(timezone.utc).isoformat(),
             progress=EmbeddingDetectionProgress(
                 status=EmbeddingDetectionStatus.PENDING,
                 error="",
@@ -109,11 +50,78 @@ class EmbDetectionRepo:
     def fetch_all_results(
         self, page_no: int = 0, page_size: int = -1
     ) -> List[EmbDetectionResult]:
-        # FIXME
-        return list(self.dummy_db.values())
+        results = {}
+
+        # 第一步：在 Task 表中查找所有 id
+        tasks = Task.select()
+        for task in tasks:
+            task_id = str(task.id)
+
+            cfg = EmbDetectionConfig(
+                uuid=task.uuid,
+                targetDirs=[task.targetDirs]
+            )
+            progress = EmbeddingDetectionProgress(
+                status=task.status,
+                error=task.error,
+                totalFiles=task.totalFiles,
+                processedFiles=task.processedFiles
+            )
+            results[task_id] = EmbDetectionResult(
+                id=task_id,
+                cfg=cfg,
+                date=task.date,
+                progress=progress,
+                detectedFiles=[]
+            )
+
+            # 第二步：根据 task_id 查找所有关联的 file_md5
+            files_info = (FileMetadata
+                          .select(FileMetadata)
+                          .join(TaskFileMapping, on=(FileMetadata.md5 == TaskFileMapping.file_md5))
+                          .join(Task, on=(TaskFileMapping.task_id == Task.id))
+                          .where(Task.id == task_id))
+
+            # 第三步：找到所有内嵌文件
+            detected_files = []
+
+            for file_info in files_info:
+                detected_file = self.fetch_one_embedded_file(file_info.id)
+                detected_files.append(detected_file)
+
+            results[task_id].detectedFiles = detected_files
+
+        print('Fetched:', results)
+        return results
+
+    def fetch_one_embedded_file(self, file_id) -> EmbeddedFile:
+        # find the parent node :A
+        parent_file = FileMetadata.get(FileMetadata.id == file_id)
+        # {'id': 5, 'filepath': 'P', 'md5': 'p', 'filesize': 250, 'is_embedded': 0, 'embedded_description': None, 'is_nested': 0, 'nested_description': None}
+        # find the children node: B, C
+        child_relationships = ParentChildRelationship.select().where(
+            ParentChildRelationship.parent_file_id == file_id)
+
+        embedded_files = []
+
+        # Traverse all children node
+        for rel in child_relationships:
+            child_file = FileMetadata.get(FileMetadata.id == rel.child_file_id)
+            embedded_files.append(
+                self.fetch_one_embedded_file(child_file.id))
+
+        result = EmbeddedFile(
+            filepath=parent_file.filepath,
+            md5=parent_file.md5,
+            filesize=parent_file.filesize,
+            embeddedFiles=embedded_files
+        )
+        print("result:", result)
+        return result
 
     def fetch_one_result_by_id(self, result_id: str) -> EmbDetectionResult:
         # FIXME
+
         return self.dummy_db.get(result_id)
 
     def is_cancelled(self, result_id: str) -> bool:
