@@ -5,7 +5,8 @@ import eel
 
 from doctec.ctx import AppContext
 from doctec.tasks.emb_detection_types import EmbDetectionConfig
-from doctec.utils import as_jsonlike_dict
+from doctec.utils.loggings import init_logging
+from doctec.utils.utils import as_jsonlike_dict
 
 
 # noinspection PyPep8Naming
@@ -57,6 +58,8 @@ def detectEmbeddedFiles(targetDirs: list[str]):
 
 
 if __name__ == "__main__":
+    init_logging(level='INFO')
+
     with AppContext() as APP:
         # NOTE: uncomment the following line if you have only Microsoft Edge installed
         getattr(eel, "_start_args")["mode"] = "edge"

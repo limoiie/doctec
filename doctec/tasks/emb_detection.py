@@ -13,6 +13,9 @@ from doctec.tasks.emb_detection_types import (
     EmbeddingDetectionStatus,
     EmbDetectionResult,
 )
+from doctec.utils.loggings import get_logger
+
+_LOGGER = get_logger(__name__)
 
 
 @dataclass
@@ -27,6 +30,8 @@ class EmbDetectionJob(BaseJob[EmbDetectionConfig, EmbDetectionResult]):
             for root, dirs, files in os.walk(target_dir):
                 for file in files:
                     collected.append(str(os.path.join(root, file)))
+
+        _LOGGER.info(f"Task#{self.res.id} collected: {collected}")
 
         repo.update_result_progress(
             self.res.id,
@@ -55,16 +60,19 @@ class EmbDetectionJob(BaseJob[EmbDetectionConfig, EmbDetectionResult]):
             self.res.id, status=EmbeddingDetectionStatus.COMPLETED
         )
 
+        _LOGGER.info(f"Task#{self.res.id} finished: {self.res}")
+
     def _wait_for_results(self, futures: List[Tuple[str, Future]], repo):
         for filepath, future in futures:
             try:
                 detected_file: EmbeddedFile = future.result()
 
                 # update result
-                self.res.detectedFiles.append(detected_file)
                 repo.add_detected_file(self.res.id, detected_file)
 
             except Exception as e:
+                _LOGGER.error(f"Task#{self.res.id} failed: {e}")
+
                 self.res.progress.error += (
                     f"Error raised while processing {filepath}: {e}. "
                 )
