@@ -10,11 +10,9 @@
       "$ref": "FileBodyData.schema.json#"
     },
     "created": {
-      "format": "date-time",
       "type": "string"
     },
     "modified": {
-      "format": "date-time",
       "type": "string"
     },
     "creator": {

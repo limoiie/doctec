@@ -4,7 +4,7 @@
       "type": "integer"
     },
     "runUuid": {
-      "type": "integer"
+      "type": "string"
     },
     "detectedFiles": {
       "items": {

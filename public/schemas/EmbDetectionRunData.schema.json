@@ -7,13 +7,11 @@
       "$ref": "EmbDetectionConfigData.schema.json#"
     },
     "launchedDate": {
-      "format": "date-time",
       "type": "string"
     },
     "finishedDate": {
       "anyOf": [
         {
-          "format": "date-time",
           "type": "string"
         },
         {
@@ -25,7 +23,14 @@
       "type": "string"
     },
     "error": {
-      "type": "string"
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
     },
     "nTotal": {
       "type": "integer"

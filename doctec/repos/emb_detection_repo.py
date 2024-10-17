@@ -185,8 +185,8 @@ class EmbDetectionRepo:
         metadata = FileMetadata.create(
             path=filepath,
             data=data,
-            created=os.path.getctime(filepath),
-            modified=os.path.getmtime(filepath),
+            created=datetime.fromtimestamp(os.path.getctime(filepath)),
+            modified=datetime.fromtimestamp(os.path.getmtime(filepath)),
             creator=creator,
             modifier=modifier,
         )
