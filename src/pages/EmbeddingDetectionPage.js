@@ -1,17 +1,18 @@
 import {Button, Input, Space} from "antd";
 import {useState} from "react";
-
-import {eel} from "../eel.js";
 import {useNavigate} from "react-router-dom";
 
+import {eel} from "../eel.js";
+import type {EmbDetectionConfigData} from "../types/EmbDetectionConfigData.schema"
+
 export function EmbeddingDetectionPage() {
-  const [targetDirs, setTargetDirs] = useState(null);
+  const [targetDirs, setTargetDirs] = useState("C:\\Projects\\samples");
 
   let navigate = useNavigate();
 
   function detect() {
     // noinspection JSUnresolvedReference
-    eel.detectEmbeddedFiles(targetDirs.split(';'))(
+    eel.detectEmbeddedFiles({ targetDirs: targetDirs.split(';'), maxDepth: 5 })(
         function (runUuid) {
           // redirect to results page
           navigate('/run/' + runUuid);

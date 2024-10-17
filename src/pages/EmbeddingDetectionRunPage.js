@@ -5,10 +5,10 @@ import {useParams} from "react-router-dom";
 import {eel} from "../eel.js";
 import {LoadStatus} from "../types";
 import {EmbeddedFileTree} from "../components/EmbeddedFileTree";
-import {
+import type {
   EmbDetectionResultDataWithoutRun
 } from "../types/EmbDetectionResultDataWithoutRun.schema";
-import {EmbDetectionRunData} from "../types/EmbDetectionRunData.schema";
+import type {EmbDetectionRunData} from "../types/EmbDetectionRunData.schema";
 
 export function EmbeddingDetectionRunPage() {
   const [status: LoadStatus, setStatus] = useState({state: 'loading'});
@@ -47,6 +47,10 @@ export function EmbeddingDetectionRunPage() {
 
   return (
       <div>
+        <h2>Embedding Detection Run#{runUuid}</h2>
+        <p> {JSON.stringify(status)} </p>
+        <p> {JSON.stringify(run)} </p>
+        <p> {JSON.stringify(result)} </p>
         {
             status.state === 'loaded' &&
             run &&
