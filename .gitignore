@@ -29,3 +29,6 @@ __pycache__
 /.idea
 /.vscode
 /.venv
+
+# db files
+*.db
