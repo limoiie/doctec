@@ -3,9 +3,6 @@ from typing import Dict, List
 
 import eel
 
-# noinspection PyUnresolvedReferences
-from playhouse.shortcuts import model_to_dict
-
 from doctec import schemas
 from doctec.ctx import AppContext
 from doctec.models import init_db
@@ -25,12 +22,12 @@ def fetchEmbeddingDetectionRuns(
     :return: a list of embedding detection results in JSON format
     """
     runs = APP.emb_det_repo.fetch_runs(page_no, page_size)
-    return [schemas.EmbDetectionRunData.from_pw_model(run) for run in runs]
+    return [schemas.EmbDetectionRunData.from_pw_model(run).model_dump() for run in runs]
 
 
 # noinspection PyPep8Naming
 @eel.expose
-def fetchEmbeddingDetectionRunByUuId(run_uuid: str) -> schemas.EmbDetectionRunData:
+def fetchEmbeddingDetectionRunByUuid(run_uuid: str) -> schemas.EmbDetectionRunData:
     """
     Fetch the embedding detection run by id.
 
@@ -38,7 +35,7 @@ def fetchEmbeddingDetectionRunByUuId(run_uuid: str) -> schemas.EmbDetectionRunDa
     :return: the embedding detection run in JSON format
     """
     run = APP.emb_det_repo.fetch_one_run_by_id(run_uuid)
-    return schemas.EmbDetectionRunData.from_pw_model(run)
+    return schemas.EmbDetectionRunData.from_pw_model(run).model_dump()
 
 
 # noinspection PyPep8Naming
@@ -53,7 +50,7 @@ def fetchEmbeddingDetectionResultByRunUuid(
     :return: the embedding detection result in JSON format
     """
     result = APP.emb_det_repo.fetch_one_result_by_run_id(run_id)
-    return schemas.EmbDetectionResultDataWithoutRun.from_pw_model(result)
+    return schemas.EmbDetectionResultDataWithoutRun.from_pw_model(result).model_dump()
 
 
 # noinspection PyPep8Naming

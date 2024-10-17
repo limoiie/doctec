@@ -176,7 +176,7 @@ class EmbDetectionRepo:
             md5=md5.hexdigest(),
             size=os.path.getsize(filepath),
             kind=os.path.splitext(filepath)[1],
-            body="todo",
+            data=b"todo",
         )
 
     @staticmethod

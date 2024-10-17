@@ -72,10 +72,10 @@ class EmbDetectionConfigData(SchemaBaseModel):
 class EmbDetectionRunData(SchemaBaseModel):
     uuid: str
     cfg: EmbDetectionConfigData
-    launchedDate: datetime.datetime
-    finishedDate: Optional[datetime.datetime]
+    launchedDate: str
+    finishedDate: Optional[str]
     status: str
-    error: str
+    error: Optional[str]
     nTotal: int
     nProcessed: int
 
@@ -84,8 +84,8 @@ class EmbDetectionRunData(SchemaBaseModel):
         return EmbDetectionRunData(
             uuid=m.uuid.hex if isinstance(m.uuid, UUID) else m.uuid,
             cfg=EmbDetectionConfigData.from_pw_model(m.cfg),
-            launchedDate=m.launchedDate,
-            finishedDate=m.finishedDate,
+            launchedDate=str(m.launchedDate),
+            finishedDate=str(m.finishedDate),
             status=m.status.value,
             error=m.error,
             nTotal=m.nTotal,
@@ -112,8 +112,8 @@ class FileMetadataData(SchemaBaseModel):
     id: int
     path: str
     data: FileBodyData
-    created: datetime.datetime
-    modified: datetime.datetime
+    created: str
+    modified: str
     creator: str
     modifier: str
 
@@ -123,8 +123,8 @@ class FileMetadataData(SchemaBaseModel):
             id=m.id,
             path=m.path,
             data=FileBodyData.from_pw_model(m.data),
-            created=m.created,
-            modified=m.modified,
+            created=str(m.created),
+            modified=str(m.modified),
             creator=m.creator,
             modifier=m.modifier,
         )
@@ -148,7 +148,7 @@ class EmbeddedFileData(SchemaBaseModel):
 
 class EmbDetectionResultDataWithoutRun(SchemaBaseModel):
     id: int
-    runUuid: int
+    runUuid: str
     detectedFiles: list[EmbeddedFileData]
 
     @classmethod
