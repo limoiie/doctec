@@ -76,18 +76,23 @@ class EmbDetectionJob(BaseJob[EmbDetectionConfig, EmbDetectionResult]):
                 detected_file: EmbeddedFile = future.result()
                 self._repo.add_detected_file(self.res.id, detected_file)
             except Exception as e:
-                _LOGGER.error(f"TaskRun#{self.res.run.uuid} failed: {e}")
+                _LOGGER.error(f"TaskRun#{self.res.run.uuid} failed while detecting {filepath}: {e}")
                 failed.append((filepath, repr(e)))
 
-            # update result progress
             n_processed += 1
             self._repo.update_run(self.res.run.uuid, n_processed=n_processed)
+        
+        if failed:
+            _LOGGER.error(f"TaskRun#{self.res.run.uuid} failed:\n{failed}")
+            self._repo.update_run(self.res.run.uuid, error=repr(failed))
 
-        self._repo.update_run(self.res.run.uuid, error=repr(failed) if failed else None)
         if not self._repo.is_run_cancelled(self.res.run.uuid):
+            _LOGGER.info(f"TaskRun#{self.res.run.uuid} completed")
             self._repo.update_run(
                 self.res.run.uuid, status=EmbDetectionStatus.COMPLETED
             )
+        else:
+            _LOGGER.warnning(f"TaskRun#{self.res.run.uuid} cancelled")
 
     def _detect_embedding_iteratively(
         self,
@@ -105,6 +110,8 @@ class EmbDetectionJob(BaseJob[EmbDetectionConfig, EmbDetectionResult]):
         :param early_break: A function that returns True if the detection should be stopped early
         :return: The detected embedded file
         """
+        _LOGGER.debug(f"Detecting embedding at {filepath}")
+
         metadata = self._repo.create_file_metadata(filepath, creator="-", modifier="-")
         file = self._repo.create_embedded_file(self.res, metadata, parent=parent)
         if early_break() or depth <= 0:
@@ -116,4 +123,6 @@ class EmbDetectionJob(BaseJob[EmbDetectionConfig, EmbDetectionResult]):
                 self._detect_embedding_iteratively(
                     extracted_filepath, depth - 1, early_break, parent=file
                 )
+
+        _LOGGER.debug(f"Detected {filepath}")
         return file
