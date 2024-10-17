@@ -2,30 +2,30 @@ import {Spin} from "antd";
 import {useState} from "react";
 
 import {eel} from "../eel.js";
-import {EmbeddingDetectionResult} from "../types";
-import {EmbeddingDetectionResultList} from "../components/EmbeddingDetectionResultList";
+import {EmbeddingDetectionRunList} from "../components/EmbeddingDetectionRunList";
+import {LoadStatus} from "../types";
 
 export function EmbeddingDetectionHistoryPage({pageNo = 0, pageSize = 0}: {
   pageNo?: number,
   pageSize?: number
 }) {
-  const [state, setState] = useState({state: 'loading'});
-  const [results, setResults] = useState(null);
+  const [status: LoadStatus, setStatus] = useState({state: 'loading'});
+  const [runs, setRuns] = useState(null);
 
   function loadData() {
     // noinspection JSUnresolvedReference
-    eel.fetchEmbeddingDetectionResults(pageNo, pageSize)(
-        function (results) {
-          setState({state: 'loaded'});
-          setResults(EmbeddingDetectionResult.fromObjects(results));
+    eel.fetchEmbeddingDetectionRuns(pageNo, pageSize)(
+        function (runs) {
+          setStatus({state: 'loaded'});
+          setRuns(runs);
         },
         function (error) {
-          setState({state: 'error', error: error});
+          setStatus({state: 'error', error: error});
         }
     );
   }
 
-  if (state.state !== 'loaded') {
+  if (status.state !== 'loaded') {
     loadData();
   }
 
@@ -34,18 +34,18 @@ export function EmbeddingDetectionHistoryPage({pageNo = 0, pageSize = 0}: {
         <p>Embedding Detection History</p>
         <div className="History">
           {
-              state.state === 'loaded' &&
-              results &&
-              <EmbeddingDetectionResultList results={results}/>
+              status.state === 'loaded' &&
+              runs &&
+              <EmbeddingDetectionRunList runs={runs}/>
           }
 
           {
-              state.state === 'error' &&
+              status.state === 'error' &&
               <p>Failed to load data, <button onClick={loadData}>try again</button>?</p>
           }
 
           {
-              state.state === 'loading' &&
+              status.state === 'loading' &&
               <Spin/>
           }
         </div>

@@ -2,15 +2,12 @@
 
 export const eel = window["eel"];
 
-eel.expose(fetchEmbeddingDetectionResultById)
-eel.expose(fetchEmbeddingDetectionResults)
+eel.expose(fetchEmbeddingDetectionRunByUuid)
+eel.expose(fetchEmbeddingDetectionResultByRunUuid)
+eel.expose(fetchEmbeddingDetectionRuns)
 eel.expose(detectEmbeddedFiles)
 
-function fetchEmbeddingDetectionResultById(result_id) {
-}
-
-function fetchEmbeddingDetectionResults(page_no, page_size) {
-}
-
-function detectEmbeddedFiles(targetDir) {
-}
+function fetchEmbeddingDetectionRunByUuid(run_uuid) {}
+function fetchEmbeddingDetectionResultByRunUuid(run_uuid) {}
+function fetchEmbeddingDetectionRuns(page_no, page_size) {}
+function detectEmbeddedFiles(targetDir) {}
