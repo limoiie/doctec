@@ -1,3 +1,4 @@
+from functools import wraps
 import sys
 from typing import Dict, List
 
@@ -6,11 +7,25 @@ import eel
 from doctec import schemas
 from doctec.ctx import AppContext
 from doctec.models import init_db
-from doctec.utils.loggings import init_logging
+from doctec.utils.loggings import init_logging, get_logger
+
+
+def log_on_calling(fn):
+    @wraps(fn)
+    def wrap(*args, **kwargs):
+        s_args = ", ".join(f"{v}" for v in args)
+        s_kwargs = ", ".join(f"{k}={v}" for k, v in kwargs.items())
+        _LOGGER.info(f"Api {fn.__name__} called with {s_args}, {s_kwargs}")
+        ret = fn(*args, **kwargs)
+        _LOGGER.info(f"Api {fn.__name__} returned {ret}")
+        return ret
+
+    return wrap
 
 
 # noinspection PyPep8Naming
 @eel.expose
+@log_on_calling
 def fetchEmbeddingDetectionRuns(
     page_no: int = 0, page_size: int = -1
 ) -> List[schemas.EmbDetectionRunData]:
@@ -27,6 +42,7 @@ def fetchEmbeddingDetectionRuns(
 
 # noinspection PyPep8Naming
 @eel.expose
+@log_on_calling
 def fetchEmbeddingDetectionRunByUuid(run_uuid: str) -> schemas.EmbDetectionRunData:
     """
     Fetch the embedding detection run by id.
@@ -40,6 +56,7 @@ def fetchEmbeddingDetectionRunByUuid(run_uuid: str) -> schemas.EmbDetectionRunDa
 
 # noinspection PyPep8Naming
 @eel.expose
+@log_on_calling
 def fetchEmbeddingDetectionResultByRunUuid(
     run_id: str,
 ) -> schemas.EmbDetectionResultDataWithoutRun:
@@ -55,6 +72,7 @@ def fetchEmbeddingDetectionResultByRunUuid(
 
 # noinspection PyPep8Naming
 @eel.expose
+@log_on_calling
 def detectEmbeddedFiles(cfg: Dict[str, object]) -> str:
     """
     Launch the embedding detection task.
@@ -73,6 +91,8 @@ def detectEmbeddedFiles(cfg: Dict[str, object]) -> str:
 if __name__ == "__main__":
     init_logging(level="INFO")
     init_db(db_path="app.db")
+
+    _LOGGER = get_logger(__name__)
 
     with AppContext() as APP:
         # NOTE: uncomment the following line if you have only Microsoft Edge installed
