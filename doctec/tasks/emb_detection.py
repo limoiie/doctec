@@ -6,13 +6,14 @@ from typing import List, Callable, Tuple
 
 from doctec.ctx import AppContext
 from doctec.emb_extractor import EmbExtractor
-from doctec.tasks.base import BaseJob
-from doctec.tasks.emb_detection_types import (
+from doctec.models import (
     EmbDetectionConfig,
     EmbeddedFile,
-    EmbeddingDetectionStatus,
+    EmbDetectionStatus,
     EmbDetectionResult,
 )
+from doctec.repos.emb_detection_repo import EmbDetectionRepo
+from doctec.tasks.base import BaseJob
 from doctec.utils.loggings import get_logger
 
 _LOGGER = get_logger(__name__)
@@ -20,24 +21,14 @@ _LOGGER = get_logger(__name__)
 
 @dataclass
 class EmbDetectionJob(BaseJob[EmbDetectionConfig, EmbDetectionResult]):
+    _repo: EmbDetectionRepo = None
+
     def do(self, app: AppContext, *args, **kwargs):
         """Detect embedded files in parallel."""
-        repo = app.emb_det_repo
+        self._repo = app.emb_det_repo
+        collected = self._collect_files()
 
-        # collect files to process
-        collected = []
-        for target_dir in self.cfg.targetDirs:
-            for root, dirs, files in os.walk(target_dir):
-                for file in files:
-                    collected.append(str(os.path.join(root, file)))
-
-        _LOGGER.info(f"Task#{self.res.id} collected: {collected}")
-
-        repo.update_result_progress(
-            self.res.id,
-            status=EmbeddingDetectionStatus.IN_PROGRESS,
-            total_files=len(collected),
-        )
+        _LOGGER.info(f"TaskRun#{self.res.run.uuid} collected: {collected}")
 
         # submit tasks
         futures: List[Tuple[str, Future]] = []
@@ -46,69 +37,83 @@ class EmbDetectionJob(BaseJob[EmbDetectionConfig, EmbDetectionResult]):
                 (
                     filepath,
                     app.executor.submit(
-                        detect_embedding_iteratively,
+                        self._detect_embedding_iteratively,
+                        parent=None,
                         filepath=filepath,
-                        early_break=lambda: repo.is_cancelled(self.res.id),
+                        early_break=lambda: self._repo.is_run_cancelled(
+                            self.res.run.uuid
+                        ),
                         depth=self.cfg.maxDepth,
                     ),
                 )
             )
 
-        self._wait_for_results(futures, repo)
+        self._wait_for_results(futures)
 
-        repo.update_result_progress(
-            self.res.id, status=EmbeddingDetectionStatus.COMPLETED
+        _LOGGER.info(f"TaskRun#{self.res.run.uuid} finished: {self.res}")
+
+    def _collect_files(self):
+        # collect files to process
+        collected = []
+        for target_dir in self.cfg.targetDirs:
+            for root, dirs, files in os.walk(target_dir):
+                for file in files:
+                    collected.append(str(os.path.join(root, file)))
+
+        self._repo.update_run(
+            self.res.run.uuid,
+            status=EmbDetectionStatus.IN_PROGRESS,
+            n_total=len(collected),
         )
+        return collected
 
-        _LOGGER.info(f"Task#{self.res.id} finished: {self.res}")
+    def _wait_for_results(self, futures: List[Tuple[str, Future]]):
+        failed = []
+        n_processed = 0
 
-    def _wait_for_results(self, futures: List[Tuple[str, Future]], repo):
         for filepath, future in futures:
             try:
                 detected_file: EmbeddedFile = future.result()
-
-                # update result
-                repo.add_detected_file(self.res.id, detected_file)
-
+                self._repo.add_detected_file(self.res.id, detected_file)
             except Exception as e:
-                _LOGGER.error(f"Task#{self.res.id} failed: {e}")
-
-                self.res.progress.error += (
-                    f"Error raised while processing {filepath}: {e}. "
-                )
+                _LOGGER.error(f"TaskRun#{self.res.run.uuid} failed: {e}")
+                failed.append((filepath, repr(e)))
 
             # update result progress
-            self.res.progress.processedFiles += 1
-            repo.update_result_progress(
-                self.res.id,
-                processed_files=self.res.progress.processedFiles,
-                error=self.res.progress.error,
+            n_processed += 1
+            self._repo.update_run(self.res.run.uuid, n_processed=n_processed)
+
+        self._repo.update_run(self.res.run.uuid, error=repr(failed) if failed else None)
+        if not self._repo.is_run_cancelled(self.res.run.uuid):
+            self._repo.update_run(
+                self.res.run.uuid, status=EmbDetectionStatus.COMPLETED
             )
 
+    def _detect_embedding_iteratively(
+        self,
+        filepath: str,
+        depth: int,
+        early_break: Callable[[], bool],
+        parent: EmbeddedFile = None,
+    ) -> EmbeddedFile:
+        """
+        Detect embedded files iteratively.
 
-def detect_embedding_iteratively(
-    filepath: str, depth: int, early_break: Callable[[], bool]
-) -> EmbeddedFile:
-    """
-    Detect embedded files iteratively.
+        :param parent:
+        :param filepath: Path to the file to detect
+        :param depth: Maximum depth to detect embedded files
+        :param early_break: A function that returns True if the detection should be stopped early
+        :return: The detected embedded file
+        """
+        metadata = self._repo.create_file_metadata(filepath, creator="-", modifier="-")
+        file = self._repo.create_embedded_file(self.res, metadata, parent=parent)
+        if early_break() or depth <= 0:
+            return file
 
-    :param filepath: Path to the file to detect
-    :param depth: Maximum depth to detect embedded files
-    :param early_break: A function that returns True if the detection should be stopped early
-    :return: The detected embedded file
-    """
-    file = EmbeddedFile(
-        filepath=filepath,
-        filesize=os.path.getsize(filepath),
-        embeddedFiles=[],
-    )
-    if early_break() or depth <= 0:
+        with tempfile.TemporaryDirectory() as out_dir:
+            extractor = EmbExtractor.build()
+            for extracted_filepath in extractor.extract(filepath, out_dir):
+                self._detect_embedding_iteratively(
+                    extracted_filepath, depth - 1, early_break, parent=file
+                )
         return file
-
-    with tempfile.TemporaryDirectory() as out_dir:
-        extractor = EmbExtractor.build()
-        for extracted_filepath in extractor.extract(filepath, out_dir):
-            file.embeddedFiles.append(
-                detect_embedding_iteratively(extracted_filepath, depth - 1, early_break)
-            )
-    return file

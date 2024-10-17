@@ -1,0 +1,38 @@
+{
+  "properties": {
+    "id": {
+      "type": "integer"
+    },
+    "path": {
+      "type": "string"
+    },
+    "data": {
+      "$ref": "FileBodyData.schema.json#"
+    },
+    "created": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "modified": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "creator": {
+      "type": "string"
+    },
+    "modifier": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "path",
+    "data",
+    "created",
+    "modified",
+    "creator",
+    "modifier"
+  ],
+  "title": "FileMetadataData",
+  "type": "object"
+}

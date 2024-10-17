@@ -1,0 +1,23 @@
+{
+  "properties": {
+    "id": {
+      "type": "integer"
+    },
+    "runUuid": {
+      "type": "integer"
+    },
+    "detectedFiles": {
+      "items": {
+        "$ref": "EmbeddedFileData.schema.json#"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "id",
+    "runUuid",
+    "detectedFiles"
+  ],
+  "title": "EmbDetectionResultDataWithoutRun",
+  "type": "object"
+}

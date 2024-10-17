@@ -1,0 +1,49 @@
+{
+  "properties": {
+    "uuid": {
+      "type": "string"
+    },
+    "cfg": {
+      "$ref": "EmbDetectionConfigData.schema.json#"
+    },
+    "launchedDate": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "finishedDate": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "status": {
+      "type": "string"
+    },
+    "error": {
+      "type": "string"
+    },
+    "nTotal": {
+      "type": "integer"
+    },
+    "nProcessed": {
+      "type": "integer"
+    }
+  },
+  "required": [
+    "uuid",
+    "cfg",
+    "launchedDate",
+    "finishedDate",
+    "status",
+    "error",
+    "nTotal",
+    "nProcessed"
+  ],
+  "title": "EmbDetectionRunData",
+  "type": "object"
+}

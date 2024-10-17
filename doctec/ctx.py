@@ -1,7 +1,7 @@
 from concurrent.futures.thread import ThreadPoolExecutor
 from contextlib import AbstractContextManager
 
-from doctec.db.emb_detection_repo import EmbDetectionRepo
+from doctec.repos.emb_detection_repo import EmbDetectionRepo
 
 
 class AppContext(AbstractContextManager):

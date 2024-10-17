@@ -1,0 +1,23 @@
+{
+  "properties": {
+    "uuid": {
+      "type": "string"
+    },
+    "targetDirs": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "maxDepth": {
+      "type": "integer"
+    }
+  },
+  "required": [
+    "uuid",
+    "targetDirs",
+    "maxDepth"
+  ],
+  "title": "EmbDetectionConfigData",
+  "type": "object"
+}

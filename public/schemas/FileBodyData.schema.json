@@ -1,0 +1,32 @@
+{
+  "properties": {
+    "md5": {
+      "type": "string"
+    },
+    "size": {
+      "type": "integer"
+    },
+    "kind": {
+      "type": "string"
+    },
+    "data": {
+      "anyOf": [
+        {
+          "format": "binary",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    }
+  },
+  "required": [
+    "md5",
+    "size",
+    "kind"
+  ],
+  "title": "FileBodyData",
+  "type": "object"
+}

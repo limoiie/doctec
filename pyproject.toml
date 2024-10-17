@@ -10,7 +10,13 @@ python = ">=3.10,<3.13"
 Eel = "^0.17.0"
 pyinstaller = "^6.10.0"
 pythonnet = "^3.0.4"
+peewee = "^3.17.7"
+pydantic = "^2.9.2"
+fire = "^0.7.0"
 
+
+[tool.poetry.group.test.dependencies]
+pytest = "^8.3.3"
 
 [build-system]
 requires = ["poetry-core"]
