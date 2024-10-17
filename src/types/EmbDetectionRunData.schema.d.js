@@ -11,7 +11,7 @@ export interface EmbDetectionRunData {
   launchedDate: string;
   finishedDate: string | null;
   status: string;
-  error: string;
+  error: string | null;
   nTotal: number;
   nProcessed: number;
   [k: string]: unknown;

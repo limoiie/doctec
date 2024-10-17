@@ -7,7 +7,7 @@
 
 export interface EmbDetectionResultDataWithoutRun {
   id: number;
-  runUuid: number;
+  runUuid: string;
   detectedFiles: EmbeddedFileData[];
   [k: string]: unknown;
 }

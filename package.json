@@ -12,7 +12,7 @@
   },
   "scripts": {
     "generate:jsonschema": "python3 ./scripts/gene_jsonschema.py -o ./public/schemas",
-    "generate:types": "json2ts --cwd ./public/schemas -i ./public/schemas -o ./src/types --declareExternallyRerefenced false",
+    "generate:types": "json2ts --cwd ./public/schemas -i ./public/schemas -o ./src/types --declareExternallyRerefenced false && python3 ./scripts/ts2js.py -p ./src/types",
     "start:js": "react-scripts start",
     "build:js": "react-scripts build",
     "start:eel": "python3 index.py --develop",
