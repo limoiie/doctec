@@ -1,5 +1,5 @@
 import {Table} from "antd";
-import type {EmbeddedFileData} from "../types/EmbeddedFileData.schema";
+import type {EmbeddedFileData} from "../types/EmbeddedFileData.schema.d";
 import {splitFilePath} from "../utils";
 
 const columns = [
@@ -53,7 +53,7 @@ export function EmbeddedFileTree({files}: { files: EmbeddedFileData[] }) {
       creator: e.metadata.creator,
       modifier: e.metadata.modifier,
       data: e,
-      parent: e.parent,
+      parent: e.parentId,
     }
   })
   return (

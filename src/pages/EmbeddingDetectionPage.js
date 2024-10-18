@@ -3,7 +3,7 @@ import {useState} from "react";
 import {useNavigate} from "react-router-dom";
 
 import {eel} from "../eel.js";
-import type {EmbDetectionConfigData} from "../types/EmbDetectionConfigData.schema"
+import type {EmbDetectionConfigData} from "../types/EmbDetectionConfigData.schema.d"
 
 export function EmbeddingDetectionPage() {
   const [targetDirs, setTargetDirs] = useState("C:\\Projects\\samples");
@@ -11,8 +11,12 @@ export function EmbeddingDetectionPage() {
   let navigate = useNavigate();
 
   function detect() {
+    const cfg: EmbDetectionConfigData = {
+      targetDirs: targetDirs.split(';'),
+      maxDepth: 5,
+    };
     // noinspection JSUnresolvedReference
-    eel.detectEmbeddedFiles({ targetDirs: targetDirs.split(';'), maxDepth: 5 })(
+    eel.detectEmbeddedFiles(cfg)(
         function (runUuid) {
           // redirect to results page
           navigate('/run/' + runUuid);

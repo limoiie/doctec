@@ -7,8 +7,8 @@ import {LoadStatus} from "../types";
 import {EmbeddedFileTree} from "../components/EmbeddedFileTree";
 import type {
   EmbDetectionResultDataWithoutRun
-} from "../types/EmbDetectionResultDataWithoutRun.schema";
-import type {EmbDetectionRunData} from "../types/EmbDetectionRunData.schema";
+} from "../types/EmbDetectionResultDataWithoutRun.schema.d";
+import type {EmbDetectionRunData} from "../types/EmbDetectionRunData.schema.d";
 
 export function EmbeddingDetectionRunPage() {
   const [status: LoadStatus, setStatus] = useState({state: 'loading'});

@@ -1,6 +1,6 @@
 import {Table, Tooltip} from "antd";
 
-import type {EmbDetectionRunData} from "../types/EmbDetectionRunData.schema";
+import type {EmbDetectionRunData} from "../types/EmbDetectionRunData.schema.d";
 
 const columns = [
   {
