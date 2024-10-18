@@ -103,5 +103,5 @@ if __name__ == "__main__":
             # noinspection PyTypeChecker
             eel.start({"port": 3000}, host="localhost", port=8888)
         else:
-            eel.init("build")
+            eel.init("../build")
             eel.start("index.html")

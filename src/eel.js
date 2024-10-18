@@ -2,12 +2,13 @@
 
 export const eel = window["eel"];
 
-eel.expose(fetchEmbeddingDetectionRunByUuid)
-eel.expose(fetchEmbeddingDetectionResultByRunUuid)
-eel.expose(fetchEmbeddingDetectionRuns)
-eel.expose(detectEmbeddedFiles)
+/// Expose the js functions to the Python side
+eel.expose(showAlertMessage)
 
-function fetchEmbeddingDetectionRunByUuid(run_uuid) {}
-function fetchEmbeddingDetectionResultByRunUuid(run_uuid) {}
-function fetchEmbeddingDetectionRuns(page_no, page_size) {}
-function detectEmbeddedFiles(targetDir) {}
+/**
+ * This is a demon function that will be exposed to the Python side,
+ * so that you can use it in python via `eel.showAlertMessage`.
+ */
+function showAlertMessage(msg: string) {
+  console.log(msg);
+}
