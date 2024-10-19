@@ -4,10 +4,23 @@
 }
 
 .App-header {
-    /* gray */
-    background-color: #282c34;
+    background-color: white;
+    padding: 0px;
     height: 64px;
-    color: white;
+    display: flex;
+}
+
+.App-header .icon-button {
+    font-size: 16px;
+    width: 64px;
+    height: 64px;
+}
+
+.App-logo-vertical {
+    background-color: aliceblue;
+    margin: 16px;
+    height: 32px;
+    border-radius: 4px;
 }
 
 .App-title {
