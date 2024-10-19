@@ -1,6 +1,6 @@
 import {Button, Layout, Menu, MenuProps, Modal, theme} from "antd";
 import React, {useEffect, useState} from "react";
-import {BrowserRouter, Route, Routes} from "react-router-dom";
+import {Route, Routes, useNavigate} from "react-router-dom";
 import {
   ExclamationCircleFilled,
   ExportOutlined,
@@ -15,7 +15,7 @@ import {
 import "./App.css";
 import {eel} from "./eel.js";
 import {EmbeddingDetectionPage} from "./pages/EmbeddingDetectionPage";
-import {EmbeddingDetectionRunPage} from "./pages/EmbeddingDetectionRunPage";
+import {EmbeddingDetectionRunDetails} from "./components/EmbeddingDetectionRunDetails";
 import {EmbeddingDetectionHistoryPage} from "./pages/EmbeddingDetectionHistoryPage";
 
 const {Sider, Header, Content} = Layout;
@@ -47,10 +47,9 @@ const menuItems: MenuItem = [
 
 // noinspection JSUnresolvedReference
 function App() {
+  const navigate = useNavigate(); // Initialize navigate function
   const [collapsed, setCollapsed] = useState(false);
-  const {
-    token: {colorBgContainer, borderRadiusLG},
-  } = theme.useToken();
+  const {token: {colorBgContainer, borderRadiusLG}} = theme.useToken();
 
   useEffect(() => {
     eel.set_host("ws://localhost:8888");
@@ -59,12 +58,10 @@ function App() {
   function onMenuItemClick(item: MenuItem) {
     switch (item.key) {
       case 'act-new-detection':
-        // noinspection JSUnresolvedFunction
-        window.location.href = '/';
+        navigate('/');
         break;
       case 'act-history':
-        // noinspection JSUnresolvedFunction
-        window.location.href = '/history';
+        navigate('/history');
         break;
       case 'act-export':
         confirm({
@@ -125,19 +122,17 @@ function App() {
             />
           </Header>
           <Content className="App-content">
-            <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<EmbeddingDetectionPage/>}/>
-                <Route
-                    path="/history"
-                    element={<EmbeddingDetectionHistoryPage/>}
-                />
-                <Route
-                    path="/run/:runUuid"
-                    element={<EmbeddingDetectionRunPage/>}
-                />
-              </Routes>
-            </BrowserRouter>
+            <Routes>
+              <Route path="/" element={<EmbeddingDetectionPage/>}/>
+              <Route
+                  path="/history"
+                  element={<EmbeddingDetectionHistoryPage/>}
+              />
+              <Route
+                  path="/run/:runUuid"
+                  element={<EmbeddingDetectionRunDetails/>}
+              />
+            </Routes>
           </Content>
         </Layout>
       </Layout>

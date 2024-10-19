@@ -1,62 +1,68 @@
-import {Breadcrumb, Spin} from "antd";
-import {useState} from "react";
-import {useParams} from "react-router-dom";
+import {Breadcrumb, Skeleton} from "antd";
+import {useEffect, useState} from "react";
 
 import {eel} from "../eel.js";
 import {LoadStatus} from "../types";
-import {EmbeddedFileTree} from "../components/EmbeddedFileTree";
+import {EmbeddedFileTree} from "./EmbeddedFileTree";
 import type {
   EmbDetectionResultDataWithoutRun
 } from "../types/EmbDetectionResultDataWithoutRun.schema.d";
 import type {EmbDetectionRunData} from "../types/EmbDetectionRunData.schema.d";
 
-export function EmbeddingDetectionRunPage() {
+export function EmbeddingDetectionRunDetails({runUuid}: { runUuid: string }) {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [status: LoadStatus, setStatus] = useState({state: 'loading'});
   const [run: EmbDetectionRunData, setRun] = useState(null);
   const [result: EmbDetectionResultDataWithoutRun, setResult] = useState(null);
 
-  let {runUuid} = useParams();
-
   function loadData() {
+    setLoading(true);
+    setError(null);
+
     // noinspection JSUnresolvedReference
     eel.fetchEmbeddingDetectionRunByUuid(runUuid)(
         function (run) {
+          setLoading(false);
           setStatus({state: 'loaded'});
           setRun(run);
         },
         function (error) {
-          setStatus({state: 'error', error: error});
+          setLoading(false);
+          setError(error);
         }
     );
 
     // noinspection JSUnresolvedReference
     eel.fetchEmbeddingDetectionResultByRunUuid(runUuid)(
         function (result) {
-          setStatus({state: 'loaded'});
+          setLoading(false);
           setResult(result);
         },
         function (error) {
-          setStatus({state: 'error', error: error});
+          setLoading(false);
+          setError(error);
         }
     );
   }
 
-  if (status.state !== 'loaded') {
-    loadData();
-  }
+  useEffect(() => loadData(), []);
 
   return (
       <div>
         <h2>Embedding Detection Run#{runUuid}</h2>
-        <p> {JSON.stringify(status)} </p>
+        {
+            loading &&
+            <Skeleton active/>
+        }
+
         <p> {JSON.stringify(run)} </p>
         <p> {JSON.stringify(result)} </p>
         {
-            status.state === 'loaded' &&
-            run &&
+            loading && !error && run &&
             <div>
               <Breadcrumb items={[
-                {'title': <a href="/">Home</a>},
+                {'title': <a href="/public">Home</a>},
                 {'title': runUuid}]
               }/>
               <p>Embedding Detection Run Id: {run.uuid}</p>
@@ -77,13 +83,9 @@ export function EmbeddingDetectionRunPage() {
         }
 
         {
-            status.state === 'error' &&
-            <p>Failed to load data, <button onClick={loadData}>try again</button>?</p>
-        }
-
-        {
-            status.state === 'loading' &&
-            <Spin/>
+            error &&
+            <span>Failed to load data, <a className="text-blue-600"
+                                          onClick={loadData}>try again</a>?</span>
         }
       </div>
   )

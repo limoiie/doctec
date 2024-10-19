@@ -1,54 +1,138 @@
-import {Spin} from "antd";
-import {useState} from "react";
+import {Button, Empty, List, message, Progress, Spin} from "antd";
+import {useEffect, useState} from "react";
 
 import {eel} from "../eel.js";
-import {EmbeddingDetectionRunList} from "../components/EmbeddingDetectionRunList";
-import {LoadStatus} from "../types";
+import type {EmbDetectionRunData} from "../types/EmbDetectionRunData.schema.d";
+import {DeleteFilled, LoadingOutlined} from "@ant-design/icons";
+import {EmbeddingDetectionRunDetails} from "../components/EmbeddingDetectionRunDetails";
 
 export function EmbeddingDetectionHistoryPage({pageNo = 0, pageSize = 0}: {
   pageNo?: number,
   pageSize?: number
 }) {
-  const [status: LoadStatus, setStatus] = useState({state: 'loading'});
-  const [runs, setRuns] = useState(null);
+  const [messageApi, contextHolder] = message.useMessage();
+  const [loading, setLoading] = useState(false);
+  const [activeRunUuid, setActiveRunUuid] = useState(null);
+  const [error, setError] = useState(null);
+  const [runs, setRuns] = useState([]);
+  const [data, setData] = useState([]);
 
-  function loadData() {
+  function loadHistory() {
+    setLoading(true);
     // noinspection JSUnresolvedReference
     eel.fetchEmbeddingDetectionRuns(pageNo, pageSize)(
         function (runs) {
-          setStatus({state: 'loaded'});
+          setLoading(false);
           setRuns(runs);
+          setRuns([
+            {
+              key: 1,
+              uuid: 'uuid01',
+              launchedDate: '2021-09-01',
+              finishedDate: '2021-09-02',
+              nTotal: 100,
+              nProcessed: 50,
+              status: 'in-progress',
+            }
+          ])
         },
         function (error) {
-          setStatus({state: 'error', error: error});
+          setLoading(false);
+          setError(error);
         }
     );
   }
 
-  if (status.state !== 'loaded') {
-    loadData();
+  useEffect(() => loadHistory(), [])
+  useEffect(() => {
+    setData(runs.map((run: EmbDetectionRunData, i) => {
+      return {
+        key: i,
+        uuid: run.uuid,
+        launchedDate: run.launchedDate,
+        finishedDate: run.finishedDate,
+        nTotal: run.nTotal,
+        nProcessed: run.nProcessed,
+        status: run.status,
+        percent: 50 / 100 * 100,
+      }
+    }))
+  }, [runs])
+
+  function selectRun(runUuid: string) {
+    setActiveRunUuid(runUuid);
+    // redirect to results page
+    messageApi.open({
+          type: 'info',
+          content: "Redirecting to run page: " + runUuid
+        }
+    ).then();
+  }
+
+  function deleteRun(runUuid: string) {
+    setActiveRunUuid(null);
+    // redirect to results page
+    messageApi.open({
+          type: 'info',
+          content: "Redirecting to run page: " + runUuid
+        }
+    ).then();
   }
 
   return (
-      <div>
-        <p>Embedding Detection History</p>
-        <div className="History">
-          {
-              status.state === 'loaded' &&
-              runs &&
-              <EmbeddingDetectionRunList runs={runs}/>
-          }
+      <>
+        {contextHolder}
+          <div className="h-full flex flex-row">
+            <div className="basis-64">
+              {
+                  loading &&
+                  <Spin/>
+              }
 
-          {
-              status.state === 'error' &&
-              <p>Failed to load data, <button onClick={loadData}>try again</button>?</p>
-          }
+              {
+                  !loading && runs &&
+                  <List
+                      className={"bg-white h-full text-left"}
+                      loading={loading}
+                      itemLayout="horizontal"
+                      locale={{emptyText: 'Empty History'}}
+                      dataSource={data}
+                      renderItem={(item) => (
+                          <List.Item
+                              className={item.uuid === activeRunUuid ? "bg-blue-200" : ""}
+                              onClick={() => selectRun(item.uuid)}>
+                            <div className="p-4 pt-2 pb-1 gap-4 w-full flex flex-row">
+                              {
+                                item.percent === null ?
+                                    <Spin indicator={<LoadingOutlined/>} size={20}/> :
+                                    <Progress type="circle" percent={50} size={20}/>
+                              }
+                              <div className="grow flex flex-col">
+                                {item.uuid}
+                                <span className="text-gray-400">{item.launchedDate}</span>
+                              </div>
+                              <Button type="primary" shape="circle" icon={<DeleteFilled/>}
+                                      onClick={() => deleteRun(item.uuid)}/>
+                            </div>
+                          </List.Item>
+                      )}
+                  />
+              }
 
-          {
-              status.state === 'loading' &&
-              <Spin/>
-          }
-        </div>
-      </div>
+              {
+                  error &&
+                  <span>Failed to load data, <a className="text-blue-600"
+                                                onClick={loadHistory}>try again</a>?</span>
+              }
+            </div>
+            <div className="grow">
+              {
+                activeRunUuid ?
+                    <EmbeddingDetectionRunDetails runUuid={activeRunUuid}/> :
+                    <Empty className="mt-16" description="No Detection Run Selected"/>
+              }
+            </div>
+          </div>
+      </>
   )
 }
