@@ -1,85 +1,146 @@
-import { Button, Menu, Layout, theme } from "antd";
-import React, { Component, useState, useEffect } from "react";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import {Button, Layout, Menu, MenuProps, Modal, theme} from "antd";
+import React, {useEffect, useState} from "react";
+import {BrowserRouter, Route, Routes} from "react-router-dom";
 import {
+  ExclamationCircleFilled,
+  ExportOutlined,
+  HistoryOutlined,
+  LogoutOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
-  UploadOutlined,
-  UserOutlined,
-  VideoCameraOutlined,
+  PlayCircleOutlined,
+  SecurityScanFilled,
 } from "@ant-design/icons";
 
 import "./App.css";
-import { eel } from "./eel.js";
-import { EmbeddingDetectionPage } from "./pages/EmbeddingDetectionPage";
-import { EmbeddingDetectionRunPage } from "./pages/EmbeddingDetectionRunPage";
-import { EmbeddingDetectionHistoryPage } from "./pages/EmbeddingDetectionHistoryPage";
+import {eel} from "./eel.js";
+import {EmbeddingDetectionPage} from "./pages/EmbeddingDetectionPage";
+import {EmbeddingDetectionRunPage} from "./pages/EmbeddingDetectionRunPage";
+import {EmbeddingDetectionHistoryPage} from "./pages/EmbeddingDetectionHistoryPage";
 
-const { Sider, Header, Content } = Layout;
+const {Sider, Header, Content} = Layout;
+const {confirm} = Modal;
+
+type MenuItem = Required<MenuProps>['items'][number];
+const menuItems: MenuItem = [
+  {
+    key: 'act-new-detection',
+    icon: <PlayCircleOutlined/>,
+    label: 'New Detection',
+  },
+  {
+    key: 'act-history',
+    icon: <HistoryOutlined/>,
+    label: 'History',
+  },
+  {
+    key: 'act-export',
+    icon: <ExportOutlined/>,
+    label: 'Export Report',
+  },
+  {
+    key: 'act-exit',
+    icon: <LogoutOutlined/>,
+    label: 'Exit',
+  },
+];
 
 // noinspection JSUnresolvedReference
 function App() {
-  const [status: LoadStatus, setStatus] = useState({state: 'loading'});
-  const [runs, setRuns] = useState(null);
   const [collapsed, setCollapsed] = useState(false);
   const {
-    token: { colorBgContainer, borderRadiusLG },
+    token: {colorBgContainer, borderRadiusLG},
   } = theme.useToken();
 
   useEffect(() => {
     eel.set_host("ws://localhost:8888");
   }, []); // The empty array as the second argument ensures this runs only once after the initial render.
 
-  function loadData() {
-    // noinspection JSUnresolvedReference
-    eel.fetchEmbeddingDetectionRuns(pageNo, pageSize)(
-        function (runs) {
-          setStatus({state: 'loaded'});
-          setRuns(runs);
-        },
-        function (error) {
-          setStatus({state: 'error', error: error});
-        }
-    );
+  function onMenuItemClick(item: MenuItem) {
+    switch (item.key) {
+      case 'act-new-detection':
+        // noinspection JSUnresolvedFunction
+        window.location.href = '/';
+        break;
+      case 'act-history':
+        // noinspection JSUnresolvedFunction
+        window.location.href = '/history';
+        break;
+      case 'act-export':
+        confirm({
+          title: 'Not implemented yet!',
+          icon: <ExclamationCircleFilled/>,
+          content: 'This functionality is not implemented yet.',
+        });
+        break;
+      case 'act-exit':
+        confirm({
+          title: 'Do you want to exit?',
+          icon: <ExclamationCircleFilled/>,
+          content: 'This will close the application.',
+          onOk() {
+            eel.exit();
+          },
+        });
+        break;
+    }
   }
 
   return (
-    <Layout>
-      <Sider
-        style={{ background: colorBgContainer }}
-        width={200}
-        trigger={null}
-        collapsible
-        collapsed={collapsed}
-      >
-        <div className="App-logo-vertical" />
-      </Sider>
-      <Layout className="App">
-        <Header className="App-header">
-          <Button
-            className="icon-button"
-            type="text"
-            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-            onClick={() => setCollapsed(!collapsed)}
+      <Layout>
+        <Sider
+            style={{background: colorBgContainer, borderRadius: borderRadiusLG}}
+            width={200}
+            trigger={null}
+            collapsible
+            collapsed={collapsed}
+        >
+          <div className="h-16 grid grid-cols-1">
+            <div
+                className="place-self-center min-w-12 h-12 p-3 rounded-lg
+                cursor-pointer text-white text-base font-bold
+                flex flex-row items-center justify-center gap-2
+                bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500
+                hover:from-blue-400 hover:via-blue-400 hover:to-blue-400">
+              <SecurityScanFilled/>
+              <span
+                  className={(collapsed ? "hidden" : "") + " block overflow-hidden text-nowrap transition-all"}>
+                EmbDoc Detector
+              </span>
+            </div>
+          </div>
+          <Menu
+              mode="inline"
+              items={menuItems}
+              onClick={onMenuItemClick}
           />
-        </Header>
-        <Content className="App-content">
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<EmbeddingDetectionPage />} />
-              <Route
-                path="/history"
-                element={<EmbeddingDetectionHistoryPage />}
-              />
-              <Route
-                path="/run/:runUuid"
-                element={<EmbeddingDetectionRunPage />}
-              />
-            </Routes>
-          </BrowserRouter>
-        </Content>
+        </Sider>
+        <Layout className="App">
+          <Header className="App-header">
+            <Button
+                className="icon-button"
+                type="text"
+                icon={collapsed ? <MenuUnfoldOutlined/> : <MenuFoldOutlined/>}
+                onClick={() => setCollapsed(!collapsed)}
+            />
+          </Header>
+          <Content className="App-content">
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<EmbeddingDetectionPage/>}/>
+                <Route
+                    path="/history"
+                    element={<EmbeddingDetectionHistoryPage/>}
+                />
+                <Route
+                    path="/run/:runUuid"
+                    element={<EmbeddingDetectionRunPage/>}
+                />
+              </Routes>
+            </BrowserRouter>
+          </Content>
+        </Layout>
       </Layout>
-    </Layout>
   );
 }
 
