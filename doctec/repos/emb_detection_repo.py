@@ -149,6 +149,7 @@ class EmbDetectionRepo:
         error: str = None,
         n_total: int = None,
         n_processed: int = None,
+        finished_date: datetime = None,
     ):
         EmbDetectionRun.update(
             dict(
@@ -159,6 +160,7 @@ class EmbDetectionRepo:
                         (EmbDetectionRun.error, error),
                         (EmbDetectionRun.nTotal, n_total),
                         (EmbDetectionRun.nProcessed, n_processed),
+                        (EmbDetectionRun.finishedDate, finished_date),
                     ],
                 )
             ),

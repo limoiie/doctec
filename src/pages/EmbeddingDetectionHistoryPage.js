@@ -50,20 +50,13 @@ export function EmbeddingDetectionHistoryPage({pageNo = 0, pageSize = 0}: {
 
   function selectRun(runUuid: string) {
     setActiveRunUuid(runUuid);
-    // redirect to results page
-    messageApi.open({
-          type: 'info',
-          content: "Redirecting to run page: " + runUuid
-        }
-    ).then();
   }
 
   function deleteRun(runUuid: string) {
-    setActiveRunUuid(null);
     // redirect to results page
     messageApi.open({
-          type: 'info',
-          content: "Redirecting to run page: " + runUuid
+          type: 'error',
+          content: "Not implemented yet! You need to delete by UUID " + runUuid,
         }
     ).then();
   }

@@ -1,21 +1,21 @@
-import {Breadcrumb, Descriptions, Skeleton} from "antd";
+import {Skeleton} from "antd";
 import {useEffect, useState} from "react";
 
+import "./EmbeddingDetectionRunDetails.css"
 import {eel} from "../eel.js";
-import {LoadStatus} from "../types";
 import {EmbeddedFileTree} from "./EmbeddedFileTree";
 import type {
   EmbDetectionResultDataWithoutRun
 } from "../types/EmbDetectionResultDataWithoutRun.schema.d";
 import type {EmbDetectionRunData} from "../types/EmbDetectionRunData.schema.d";
+import {EmbeddingDetectionRunStatus} from "./EmbeddingDetectionRunStatus";
+import {EmbeddingDetectionCfgDetails} from "./EmbeddingDetectionCfgDetails";
 
 export function EmbeddingDetectionRunDetails({runUuid}: { runUuid: string }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [status: LoadStatus, setStatus] = useState({state: 'loading'});
   const [run: EmbDetectionRunData, setRun] = useState(null);
   const [result: EmbDetectionResultDataWithoutRun, setResult] = useState(null);
-  const [items, setItems] = useState(null);
 
   function loadData() {
     setLoading(true);
@@ -25,7 +25,6 @@ export function EmbeddingDetectionRunDetails({runUuid}: { runUuid: string }) {
     eel.fetchEmbeddingDetectionRunByUuid(runUuid)(
         function (run) {
           setLoading(false);
-          setStatus({state: 'loaded'});
           setRun(run);
         },
         function (error) {
@@ -48,47 +47,10 @@ export function EmbeddingDetectionRunDetails({runUuid}: { runUuid: string }) {
   }
 
   useEffect(() => loadData(), [runUuid]);
-  useEffect(() => {
-    if (run) {
-      setItems([
-        {
-          key: 'uuid',
-          label: 'UUID',
-          children: run.uuid,
-        },
-        {
-          key: 'status',
-          label: 'Status',
-          children: run.status,
-        },
-        {
-          key: 'progress',
-          label: 'Progress',
-          children: run.nProcessed / run.nTotal,
-        },
-        {
-          key: 'launched',
-          label: 'Launched Date',
-          children: run.launchedDate,
-        },
-        {
-          key: 'finished',
-          label: 'Finished Date',
-          children: run.finishedDate,
-        },
-        {
-          key: 'error',
-          label: 'Error Logs',
-          children: run.error
-        }
-      ]
-    );
-    }
-  }, [run])
 
   return (
       <div className="ml-4 mr-4 p-4 flex flex-col gap-4 h-full overflow-scroll bg-white">
-        <h1 className="text-2xl">Embedding Detection Run#{runUuid}</h1>
+        <h1 className="page-title">Embedding Detection Run#{runUuid}</h1>
         {
             loading &&
             <Skeleton active/>
@@ -96,25 +58,28 @@ export function EmbeddingDetectionRunDetails({runUuid}: { runUuid: string }) {
 
         {
             !loading && !error && run &&
-            <div>
+            <div className="flex flex-col gap-8">
               <div>
-                <p>Configuration: {JSON.stringify(run.cfg)}</p>
+                <h2 className="section-title">Detection Run Status</h2>
+                {
+                    run &&
+                    <EmbeddingDetectionRunStatus run={run}/>
+                }
               </div>
               <div>
-                <h className="text-xl">
-                  Detection Run Info
-                </h>
-              {
-                items &&
-                <Descriptions layout="vertical" bordered items={items} />
-              }
+                <h2 className="section-title">Detection Configuration</h2>
+                {
+                    run && run.cfg &&
+                    <EmbeddingDetectionCfgDetails cfg={run.cfg}/>
+                }
               </div>
-              {
-                  result &&
-                  <div>
+              <div>
+                <h2 className="section-title">Detection Result</h2>
+                {
+                    result &&
                     <EmbeddedFileTree files={result.detectedFiles}/>
-                  </div>
-              }
+                }
+              </div>
             </div>
         }
 

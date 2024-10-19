@@ -4,6 +4,8 @@ from concurrent.futures import Future
 from dataclasses import dataclass
 from typing import List, Callable, Tuple
 
+from future.backports.datetime import datetime
+
 from doctec.ctx import AppContext
 from doctec.emb_extractor import EmbExtractor
 from doctec.models import (
@@ -76,12 +78,14 @@ class EmbDetectionJob(BaseJob[EmbDetectionConfig, EmbDetectionResult]):
                 detected_file: EmbeddedFile = future.result()
                 self._repo.add_detected_file(self.res.id, detected_file)
             except Exception as e:
-                _LOGGER.error(f"TaskRun#{self.res.run.uuid} failed while detecting {filepath}: {e}")
+                _LOGGER.error(
+                    f"TaskRun#{self.res.run.uuid} failed while detecting {filepath}: {e}"
+                )
                 failed.append((filepath, repr(e)))
 
             n_processed += 1
             self._repo.update_run(self.res.run.uuid, n_processed=n_processed)
-        
+
         if failed:
             _LOGGER.error(f"TaskRun#{self.res.run.uuid} failed:\n{failed}")
             self._repo.update_run(self.res.run.uuid, error=repr(failed))
@@ -89,10 +93,12 @@ class EmbDetectionJob(BaseJob[EmbDetectionConfig, EmbDetectionResult]):
         if not self._repo.is_run_cancelled(self.res.run.uuid):
             _LOGGER.info(f"TaskRun#{self.res.run.uuid} completed")
             self._repo.update_run(
-                self.res.run.uuid, status=EmbDetectionStatus.COMPLETED
+                self.res.run.uuid,
+                status=EmbDetectionStatus.COMPLETED,
+                finished_date=datetime.now(),
             )
         else:
-            _LOGGER.warnning(f"TaskRun#{self.res.run.uuid} cancelled")
+            _LOGGER.warning(f"TaskRun#{self.res.run.uuid} cancelled")
 
     def _detect_embedding_iteratively(
         self,
