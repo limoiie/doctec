@@ -1,4 +1,4 @@
-import {Breadcrumb, Skeleton} from "antd";
+import {Breadcrumb, Descriptions, Skeleton} from "antd";
 import {useEffect, useState} from "react";
 
 import {eel} from "../eel.js";
@@ -15,6 +15,7 @@ export function EmbeddingDetectionRunDetails({runUuid}: { runUuid: string }) {
   const [status: LoadStatus, setStatus] = useState({state: 'loading'});
   const [run: EmbDetectionRunData, setRun] = useState(null);
   const [result: EmbDetectionResultDataWithoutRun, setResult] = useState(null);
+  const [items, setItems] = useState(null);
 
   function loadData() {
     setLoading(true);
@@ -46,36 +47,71 @@ export function EmbeddingDetectionRunDetails({runUuid}: { runUuid: string }) {
     );
   }
 
-  useEffect(() => loadData(), []);
+  useEffect(() => loadData(), [runUuid]);
+  useEffect(() => {
+    if (run) {
+      setItems([
+        {
+          key: 'uuid',
+          label: 'UUID',
+          children: run.uuid,
+        },
+        {
+          key: 'status',
+          label: 'Status',
+          children: run.status,
+        },
+        {
+          key: 'progress',
+          label: 'Progress',
+          children: run.nProcessed / run.nTotal,
+        },
+        {
+          key: 'launched',
+          label: 'Launched Date',
+          children: run.launchedDate,
+        },
+        {
+          key: 'finished',
+          label: 'Finished Date',
+          children: run.finishedDate,
+        },
+        {
+          key: 'error',
+          label: 'Error Logs',
+          children: run.error
+        }
+      ]
+    );
+    }
+  }, [run])
 
   return (
-      <div>
-        <h2>Embedding Detection Run#{runUuid}</h2>
+      <div className="ml-4 mr-4 p-4 flex flex-col gap-4 h-full overflow-scroll bg-white">
+        <h1 className="text-2xl">Embedding Detection Run#{runUuid}</h1>
         {
             loading &&
             <Skeleton active/>
         }
 
-        <p> {JSON.stringify(run)} </p>
-        <p> {JSON.stringify(result)} </p>
         {
-            loading && !error && run &&
+            !loading && !error && run &&
             <div>
-              <Breadcrumb items={[
-                {'title': <a href="/public">Home</a>},
-                {'title': runUuid}]
-              }/>
-              <p>Embedding Detection Run Id: {run.uuid}</p>
-              <p>Status: {run.status}</p>
-              <p>Progress: {run.nProcessed}/{run.nTotal}</p>
-              <p>Launched: {run.launchedDate}</p>
-              <p>Configuration: {JSON.stringify(run.cfg)}</p>
-              <p>Finished: {run.finishedDate}</p>
-              <p>Error: {run.error}</p>
+              <div>
+                <p>Configuration: {JSON.stringify(run.cfg)}</p>
+              </div>
+              <div>
+                <h className="text-xl">
+                  Detection Run Info
+                </h>
+              {
+                items &&
+                <Descriptions layout="vertical" bordered items={items} />
+              }
+              </div>
               {
                   result &&
                   <div>
-                    <p>Embedded Files:</p>
                     <EmbeddedFileTree files={result.detectedFiles}/>
                   </div>
               }

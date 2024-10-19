@@ -24,17 +24,6 @@ export function EmbeddingDetectionHistoryPage({pageNo = 0, pageSize = 0}: {
         function (runs) {
           setLoading(false);
           setRuns(runs);
-          setRuns([
-            {
-              key: 1,
-              uuid: 'uuid01',
-              launchedDate: '2021-09-01',
-              finishedDate: '2021-09-02',
-              nTotal: 100,
-              nProcessed: 50,
-              status: 'in-progress',
-            }
-          ])
         },
         function (error) {
           setLoading(false);
