@@ -1,4 +1,4 @@
-import {Button, Layout, Menu, MenuProps, Modal, theme} from "antd";
+import {Button, Layout, Menu, MenuProps, message, Modal, theme} from "antd";
 import React, {useEffect, useState} from "react";
 import {Route, Routes, useNavigate} from "react-router-dom";
 import {
@@ -15,7 +15,6 @@ import {
 import "./App.css";
 import {eel} from "./eel.js";
 import {EmbeddingDetectionPage} from "./pages/EmbeddingDetectionPage";
-import {EmbeddingDetectionRunDetails} from "./components/EmbeddingDetectionRunDetails";
 import {EmbeddingDetectionHistoryPage} from "./pages/EmbeddingDetectionHistoryPage";
 
 const {Sider, Header, Content} = Layout;
@@ -48,6 +47,7 @@ const menuItems: MenuItem = [
 // noinspection JSUnresolvedReference
 function App() {
   const navigate = useNavigate(); // Initialize navigate function
+  const [messageApi, contextHolder] = message.useMessage();
   const [collapsed, setCollapsed] = useState(false);
   const {token: {colorBgContainer, borderRadiusLG}} = theme.useToken();
 
@@ -64,11 +64,11 @@ function App() {
         navigate('/history');
         break;
       case 'act-export':
-        confirm({
-          title: 'Not implemented yet!',
-          icon: <ExclamationCircleFilled/>,
-          content: 'This functionality is not implemented yet.',
-        });
+        messageApi.open({
+              type: 'error',
+              content: "Not implemented yet!",
+            }
+        ).then();
         break;
       case 'act-exit':
         confirm({
@@ -84,58 +84,57 @@ function App() {
   }
 
   return (
-      <Layout>
-        <Sider
-            style={{background: colorBgContainer, borderRadius: borderRadiusLG}}
-            width={200}
-            trigger={null}
-            collapsible
-            collapsed={collapsed}
-        >
-          <div className="h-16 grid grid-cols-1">
-            <div
-                className="place-self-center min-w-12 h-12 p-3 rounded-lg
+      <>
+        {contextHolder}
+        <Layout>
+          <Sider
+              style={{background: colorBgContainer, borderRadius: borderRadiusLG}}
+              width={200}
+              trigger={null}
+              collapsible
+              collapsed={collapsed}
+          >
+            <div className="h-16 grid grid-cols-1">
+              <div
+                  className="place-self-center min-w-12 h-12 p-3 rounded-lg
                 cursor-pointer text-white text-base font-bold
                 flex flex-row items-center justify-center gap-2
                 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500
                 hover:from-blue-400 hover:via-blue-400 hover:to-blue-400">
-              <SecurityScanFilled/>
-              <span
-                  className={(collapsed ? "hidden" : "") + " block overflow-hidden text-nowrap transition-all"}>
+                <SecurityScanFilled/>
+                <span
+                    className={(collapsed ? "hidden" : "") + " block overflow-hidden text-nowrap transition-all"}>
                 EmbDoc Detector
               </span>
+              </div>
             </div>
-          </div>
-          <Menu
-              mode="inline"
-              items={menuItems}
-              onClick={onMenuItemClick}
-          />
-        </Sider>
-        <Layout className="App">
-          <Header className="App-header">
-            <Button
-                className="icon-button"
-                type="text"
-                icon={collapsed ? <MenuUnfoldOutlined/> : <MenuFoldOutlined/>}
-                onClick={() => setCollapsed(!collapsed)}
+            <Menu
+                mode="inline"
+                items={menuItems}
+                onClick={onMenuItemClick}
             />
-          </Header>
-          <Content className="App-content">
-            <Routes>
-              <Route path="/" element={<EmbeddingDetectionPage/>}/>
-              <Route
-                  path="/history"
-                  element={<EmbeddingDetectionHistoryPage/>}
+          </Sider>
+          <Layout className="App">
+            <Header className="App-header">
+              <Button
+                  className="icon-button"
+                  type="text"
+                  icon={collapsed ? <MenuUnfoldOutlined/> : <MenuFoldOutlined/>}
+                  onClick={() => setCollapsed(!collapsed)}
               />
-              <Route
-                  path="/run/:runUuid"
-                  element={<EmbeddingDetectionRunDetails/>}
-              />
-            </Routes>
-          </Content>
+            </Header>
+            <Content className="App-content">
+              <Routes>
+                <Route path="/" element={<EmbeddingDetectionPage/>}/>
+                <Route
+                    path="/history"
+                    element={<EmbeddingDetectionHistoryPage/>}
+                />
+              </Routes>
+            </Content>
+          </Layout>
         </Layout>
-      </Layout>
+      </>
   );
 }
 

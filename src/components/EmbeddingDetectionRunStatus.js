@@ -1,12 +1,6 @@
 import type {EmbDetectionRunData} from "../types/EmbDetectionRunData.schema.d";
-import {
-  CheckCircleFilled,
-  CloseCircleFilled,
-  FieldTimeOutlined,
-  QuestionCircleFilled,
-  StopFilled
-} from "@ant-design/icons";
 import {Descriptions} from "antd";
+import {StatusIcon} from "./StatusIcon";
 
 export function EmbeddingDetectionRunStatus({run}: { run: EmbDetectionRunData }) {
   const items = [
@@ -26,39 +20,10 @@ export function EmbeddingDetectionRunStatus({run}: { run: EmbDetectionRunData })
       label: 'Status',
       children: <>
         {
-            run.status === 'pending' &&
-            <div className="flex flex-row gap-1">
-              <QuestionCircleFilled className="text-yellow-500"/>
-              Pending
-            </div>
-        }
-        {
-            run.status === 'in-progress' &&
-            <div className="flex flex-row gap-1">
-              <FieldTimeOutlined className="text-blue-500"/>
-              Running
-            </div>
-        }
-        {
-            run.status === 'completed' &&
-            <div className="flex flex-row gap-1">
-              <CheckCircleFilled className="text-green-500"/>
-              Completed
-            </div>
-        }
-        {
-            run.status === 'failed' &&
-            <div className="flex flex-row gap-1">
-              <CloseCircleFilled className="text-red-500"/>
-              Failed
-            </div>
-        }
-        {
-            run.status === 'cancelled' &&
-            <div className="flex flex-row gap-1">
-              <StopFilled className="text-purple-500"/>
-              Cancelled
-            </div>
+          <div className="flex flex-row gap-1">
+            <StatusIcon status={run.status}/>
+            <span>{run.status}</span>
+          </div>
         }
       </>,
     },

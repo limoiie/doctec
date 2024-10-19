@@ -1,10 +1,12 @@
-import {Button, Empty, List, message, Progress, Spin} from "antd";
+import {Button, Empty, List, message, Spin, Splitter} from "antd";
 import {useEffect, useState} from "react";
 
+import "./EmbeddingDetectionHistoryPage.css"
 import {eel} from "../eel.js";
 import type {EmbDetectionRunData} from "../types/EmbDetectionRunData.schema.d";
-import {DeleteFilled, LoadingOutlined} from "@ant-design/icons";
+import {DeleteFilled} from "@ant-design/icons";
 import {EmbeddingDetectionRunDetails} from "../components/EmbeddingDetectionRunDetails";
+import {StatusIcon} from "../components/StatusIcon";
 
 export function EmbeddingDetectionHistoryPage({pageNo = 0, pageSize = 0}: {
   pageNo?: number,
@@ -43,17 +45,18 @@ export function EmbeddingDetectionHistoryPage({pageNo = 0, pageSize = 0}: {
         nTotal: run.nTotal,
         nProcessed: run.nProcessed,
         status: run.status,
-        percent: 50 / 100 * 100,
+        percent: !run.nTotal ? null : Math.round(run.nProcessed / run.nTotal * 100),
       }
     }))
   }, [runs])
 
-  function selectRun(runUuid: string) {
+  function selectRun(event, runUuid: string) {
+    event.stopPropagation();
     setActiveRunUuid(runUuid);
   }
 
-  function deleteRun(runUuid: string) {
-    // redirect to results page
+  function deleteRun(event, runUuid: string) {
+    event.stopPropagation();
     messageApi.open({
           type: 'error',
           content: "Not implemented yet! You need to delete by UUID " + runUuid,
@@ -64,8 +67,8 @@ export function EmbeddingDetectionHistoryPage({pageNo = 0, pageSize = 0}: {
   return (
       <>
         {contextHolder}
-          <div className="h-full flex flex-row">
-            <div className="basis-64">
+          <Splitter className="h-full">
+            <Splitter.Panel defaultSize={360}>
               {
                   loading &&
                   <Spin/>
@@ -74,47 +77,52 @@ export function EmbeddingDetectionHistoryPage({pageNo = 0, pageSize = 0}: {
               {
                   !loading && runs &&
                   <List
-                      className={"bg-white h-full text-left"}
+                      className={"bg-white h-full text-left transition-colors"}
                       loading={loading}
                       itemLayout="horizontal"
                       locale={{emptyText: 'Empty History'}}
                       dataSource={data}
                       renderItem={(item) => (
                           <List.Item
-                              className={item.uuid === activeRunUuid ? "bg-blue-200" : ""}
-                              onClick={() => selectRun(item.uuid)}>
-                            <div className="p-4 pt-2 pb-1 gap-4 w-full flex flex-row">
-                              {
-                                item.percent === null ?
-                                    <Spin indicator={<LoadingOutlined/>} size={20}/> :
-                                    <Progress type="circle" percent={50} size={20}/>
-                              }
+                              className={"transition-all h-16 hover:h-32 " + (item.uuid === activeRunUuid ? "bg-blue-200" : "hover:bg-blue-100")}
+                              onClick={(e) => selectRun(e, item.uuid)}>
+                            <div
+                                className="p-4 pt-2 pb-1 gap-4 w-full flex flex-row justify-between items-center group">
+                              <StatusIcon status={item.status} className="text-xl"/>
                               <div className="grow flex flex-col">
                                 {item.uuid}
                                 <span className="text-gray-400">{item.launchedDate}</span>
                               </div>
-                              <Button type="primary" shape="circle" icon={<DeleteFilled/>}
-                                      onClick={() => deleteRun(item.uuid)}/>
+                              <div
+                                  className="absolute right-0 p-4 hidden group-hover:block">
+                                <Button
+                                    type="dashed" shape="circle" icon={<DeleteFilled/>}
+                                    onClick={(e) => deleteRun(e, item.uuid)}/>
+                              </div>
                             </div>
                           </List.Item>
                       )}
+                      onClick={(e) => selectRun(e, null)}
                   />
               }
 
               {
                   error &&
-                  <span>Failed to load data, <a className="text-blue-600"
-                                                onClick={loadHistory}>try again</a>?</span>
+                  <span>
+                    Failed to load data, <a className="text-blue-600"
+                                            onClick={loadHistory}>try again</a>?
+                  </span>
               }
-            </div>
-            <div className="grow">
+            </Splitter.Panel>
+
+            <Splitter.Panel className="grow">
               {
                 activeRunUuid ?
                     <EmbeddingDetectionRunDetails runUuid={activeRunUuid}/> :
                     <Empty className="mt-16" description="No Detection Run Selected"/>
               }
-            </div>
-          </div>
+            </Splitter.Panel>
+          </Splitter>
       </>
   )
 }
