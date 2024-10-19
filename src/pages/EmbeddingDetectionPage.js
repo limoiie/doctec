@@ -24,20 +24,15 @@ export function EmbeddingDetectionPage() {
     )
   }
 
-  function goToHistoryPage() {
-    navigate('/history');
-  }
-
   return (
       <div>
-        <p>Embedding Detection</p>
+        <h1 className="page-title">Embedding Detection</h1>
         <Space>
           <Space.Compact>
             <Input placeholder="directories or files" value={targetDirs}
                    onChange={(e) => setTargetDirs(e.target.value)}/>
             <Button type="primary" disabled={!targetDirs} onClick={detect}>Start</Button>
           </Space.Compact>
-          <Button onClick={goToHistoryPage}>History</Button>
         </Space>
       </div>
   )
