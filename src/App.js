@@ -97,10 +97,10 @@ function App() {
             <div className="h-16 grid grid-cols-1">
               <div
                   className="place-self-center min-w-12 h-12 p-3 rounded-lg
-                cursor-pointer text-white text-base font-bold
-                flex flex-row items-center justify-center gap-2
-                bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500
-                hover:from-blue-400 hover:via-blue-400 hover:to-blue-400">
+                  cursor-pointer text-white text-base font-bold
+                  flex flex-row items-center justify-center gap-2
+                  bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500
+                  hover:from-blue-400 hover:via-blue-400 hover:to-blue-400">
                 <SecurityScanFilled/>
                 <span
                     className={(collapsed ? "hidden" : "") + " block overflow-hidden text-nowrap transition-all"}>

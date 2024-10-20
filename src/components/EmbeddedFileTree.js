@@ -1,62 +1,65 @@
-import {Table} from "antd";
+import {Splitter, Tree} from "antd";
 import type {EmbeddedFileData} from "../types/EmbeddedFileData.schema.d";
-import {splitFilePath} from "../utils";
-
-const columns = [
-  {
-    'title': 'Name',
-    'dataIndex': 'name',
-    'key': 'name',
-  },
-  {
-    'title': 'Parent Folder',
-    'dataIndex': 'dir',
-    'key': 'dir',
-  },
-  {
-    'title': 'Size',
-    'dataIndex': 'size',
-    'key': 'size',
-  },
-  {
-    'title': 'MD5',
-    'dataIndex': 'md5',
-    'key': 'md5',
-  },
-  {
-    'title': 'Kind',
-    'dataIndex': 'kind',
-    'key': 'kind',
-  },
-  {
-    'title': 'Creator',
-    'dataIndex': 'creator',
-    'key': 'creator',
-  },
-  {
-    'title': 'Modifier',
-    'dataIndex': 'modifier',
-    'key': 'modifier',
-  },
-]
+import {FileOutlined, FolderOutlined} from "@ant-design/icons";
+import {splitPathComponents, splitPathName} from "../utils";
+import {useEffect, useState} from "react";
 
 export function EmbeddedFileTree({files}: { files: EmbeddedFileData[] }) {
-  const dataSource = files.map((e: EmbeddedFileData, i) => {
-    const {dir, name} = splitFilePath(e.metadata.path);
-    return {
-      key: i,
-      name: name,
-      dir: dir,
-      size: e.metadata.data.size,
-      md5: e.metadata.data.md5,
-      kind: e.metadata.data.kind,
-      creator: e.metadata.creator,
-      modifier: e.metadata.modifier,
-      data: e,
-      parent: e.parentId,
+  const [roots, setRoots] = useState([]);
+  const [selected, setSelected] = useState(null);
+  useEffect(() => {
+    const id2roots = new Map();
+    const id2Node = new Map();
+    for (const e: EmbeddedFileData of files) {
+      let parentId = e.parentId;
+      if (parentId === null) {
+        const {components, subpaths} = splitPathComponents(e.metadata.path);
+        for (let i = 0; i < components.length - 1; i++) {
+          const [c, d] = [components[i], subpaths[i]];
+          if (!id2Node.has(d)) {
+            const node = {
+              title: c,
+              key: d,
+              icon: <FolderOutlined/>,
+              parentId: parentId,
+              children: [],
+              data: null,
+            };
+            id2Node.set(d, node);
+          }
+          parentId = d;
+        }
+        id2roots.set(subpaths[0], id2Node.get(subpaths[0]));
+      }
+
+      const node = {
+        title: splitPathName(e.metadata.path).name,
+        key: e.id,
+        icon: <FileOutlined/>,
+        parentId: parentId,
+        children: [],
+        data: e,
+      };
+      id2Node.set(e.id, node);
     }
-  })
+
+    for (const node of id2Node.values()) {
+      if (node.parentId !== null) {
+        id2Node.get(node.parentId).children.push(node);
+      }
+    }
+
+    setRoots([...id2roots.values()]);
+  }, [files])
+
   return (
-      <Table columns={columns} dataSource={dataSource} pagination={false}/>
+      <Splitter>
+        <Splitter.Panel size={328}>
+          <Tree showIcon={true} showLine={true} selectedKeys={selected} treeData={roots}/>
+        </Splitter.Panel>
+        <Splitter.Panel>
+          {selected}
+        </Splitter.Panel>
+      </Splitter>
   )
 }

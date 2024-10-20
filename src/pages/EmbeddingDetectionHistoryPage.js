@@ -68,7 +68,7 @@ export function EmbeddingDetectionHistoryPage({pageNo = 0, pageSize = 0}: {
       <>
         {contextHolder}
           <Splitter className="h-full">
-            <Splitter.Panel defaultSize={360}>
+            <Splitter.Panel defaultSize={360} min={240} collapsible>
               {
                   loading &&
                   <Spin/>
@@ -84,7 +84,7 @@ export function EmbeddingDetectionHistoryPage({pageNo = 0, pageSize = 0}: {
                       dataSource={data}
                       renderItem={(item) => (
                           <List.Item
-                              className={"transition-all h-16 hover:h-32 " + (item.uuid === activeRunUuid ? "bg-blue-200" : "hover:bg-blue-100")}
+                              className={"transition-all h-16 hover:h-32 cursor-pointer " + (item.uuid === activeRunUuid ? "bg-blue-100" : "hover:bg-blue-50")}
                               onClick={(e) => selectRun(e, item.uuid)}>
                             <div
                                 className="p-4 pt-2 pb-1 gap-4 w-full flex flex-row justify-between items-center group">
@@ -102,7 +102,6 @@ export function EmbeddingDetectionHistoryPage({pageNo = 0, pageSize = 0}: {
                             </div>
                           </List.Item>
                       )}
-                      onClick={(e) => selectRun(e, null)}
                   />
               }
 
@@ -115,7 +114,7 @@ export function EmbeddingDetectionHistoryPage({pageNo = 0, pageSize = 0}: {
               }
             </Splitter.Panel>
 
-            <Splitter.Panel className="grow">
+            <Splitter.Panel collapsible>
               {
                 activeRunUuid ?
                     <EmbeddingDetectionRunDetails runUuid={activeRunUuid}/> :
