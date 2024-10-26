@@ -159,12 +159,15 @@ export function EmbeddedFileTree({files}: { files: EmbeddedFileData[] }) {
   }, [searchValue, roots]);
 
 
-  const DisplayFileInfo = ({ data }) => {
+  function DisplayFileInfo({ data, nodesMap }) {
+    
     if (!data) {
       return <div>Select a file to see its details.</div>;
     }
-  
+    
     const { id, resultId, metadata, parentId } = data;
+
+    const parentNode = parentId ? nodesMap.get(parentId) : null;
   
     return (
       <Descriptions title={`File Info of #${metadata.data.md5 || 'Unknown'}`} bordered column={1} size="small">
@@ -178,7 +181,8 @@ export function EmbeddedFileTree({files}: { files: EmbeddedFileData[] }) {
         <Descriptions.Item label="Modified">{metadata.modified}</Descriptions.Item>
         <Descriptions.Item label="Creator">{metadata.creator}</Descriptions.Item>
         <Descriptions.Item label="Modifier">{metadata.modifier}</Descriptions.Item>
-        <Descriptions.Item label="parentId">{parentId}</Descriptions.Item>
+        <Descriptions.Item label="parent">{parentId}</Descriptions.Item>
+        <Descriptions.Item label="parentId">{parentNode ? parentNode.data.metadata.path : 'None'}</Descriptions.Item>
       </Descriptions>
     );
   };
@@ -203,10 +207,10 @@ export function EmbeddedFileTree({files}: { files: EmbeddedFileData[] }) {
         </Splitter.Panel>
         <Splitter.Panel>
         <div>
-        {selected.map(item => {
+          {selected.map(item => {
             const fileData = nodesMap.get(item).data;
             return (
-              <DisplayFileInfo key={item} data={fileData} />
+              <DisplayFileInfo key={item} data={fileData} nodesMap={nodesMap} />
             );
           })}
           
