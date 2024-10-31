@@ -87,6 +87,26 @@ def detectEmbeddedFiles(cfg: Dict[str, object]) -> str:
     APP.executor.submit(job.do, app=APP)
     return res.run.uuid.hex
 
+# noinspection PyPep8Naming
+
+
+@eel.expose
+@log_on_calling
+def deleteRun(run_uuid: str):
+    """
+    delect the embedding detection run by id.
+
+    :param run_uuid:
+    :return: delete status:True/false
+    """
+    result = APP.emb_det_repo.delete_run_result_by_run_id(run_uuid)
+    print("11111111111111111111\n")
+    print(result)
+
+    return result
+    # print('result:', result)
+    # return result
+
 
 if __name__ == "__main__":
     init_logging(level="INFO")

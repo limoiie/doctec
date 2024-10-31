@@ -3,6 +3,7 @@ import os
 from datetime import datetime, UTC
 from typing import List, Dict, Tuple, Union
 from uuid import UUID
+from peewee import DoesNotExist
 
 from doctec.models import (
     EmbeddedFile,
@@ -131,6 +132,32 @@ class EmbDetectionRepo:
     @staticmethod
     def fetch_one_result_by_run_id(run_id: Union[str, UUID]) -> EmbDetectionResult:
         return EmbDetectionResult.get(EmbDetectionResult.run == run_id)
+
+    @staticmethod
+    def delete_run_result_by_run_id(run_id: Union[str, UUID]) -> bool:
+        result = False
+        try:
+            run_to_delete = EmbDetectionRun.get(EmbDetectionRun.uuid == run_id)
+
+            run_to_delete.delete_instance(recursive=True)
+
+            cfg_to_delete = EmbDetectionConfig.get(
+                EmbDetectionConfig.uuid == run_to_delete.cfg)
+
+            run_to_delete.delete_instance(recursive=True)
+            cfg_to_delete.delete_instance()
+
+            result = True
+            return result
+
+        except DoesNotExist:
+            print("指定的记录不存在，无法删除。")
+            result = False
+            return result  # 删除失败
+        except Exception as e:
+            print(f"删除过程中发生错误: {e}")
+            result = False
+            return result  # 删除失败
 
     @staticmethod
     def is_run_cancelled(run_id: Union[str, UUID]) -> bool:
