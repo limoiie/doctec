@@ -180,3 +180,5 @@ A general workflow for creating new data classes is as follows:
     - Yes: Use the existing data model class.
     - No: Create new data model classes in `doctec/models.py` to store the required information.
 -  Implement the data fetching logic in `doctec/index.py`: Retrieve the necessary data models from the database and construct the data schema object.
+
+
