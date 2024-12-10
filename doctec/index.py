@@ -113,15 +113,16 @@ if __name__ == "__main__":
     init_db(db_path="app.db")
 
     _LOGGER = get_logger(__name__)
-
+  
     with AppContext() as APP:
         # NOTE: uncomment the following line if you have only Microsoft Edge installed
         getattr(eel, "_start_args")["mode"] = "edge"
 
-        if sys.argv[1] == "--develop":
+        if len(sys.argv) > 1 and sys.argv[1] == "--develop":
             eel.init("client")
             # noinspection PyTypeChecker
             eel.start({"port": 3000}, host="localhost", port=8888)
         else:
             eel.init("../build")
             eel.start("index.html")
+

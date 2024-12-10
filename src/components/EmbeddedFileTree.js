@@ -112,7 +112,7 @@ export function EmbeddedFileTree({files}: { files: EmbeddedFileData[] }) {
   // Whenever the expanding is triggered manually, disable the auto-expanding
   const onTreeNodeExpand = (newExpandedKeys: React.Key[]) => {
     setExpandedKeys(newExpandedKeys);
-    setAutoExpandParent(false);
+    setAutoExpandParent(true);
   };
 
   // Expand the tree nodes that match the search token and their parents
@@ -181,8 +181,7 @@ export function EmbeddedFileTree({files}: { files: EmbeddedFileData[] }) {
         <Descriptions.Item label="Modified">{metadata.modified}</Descriptions.Item>
         <Descriptions.Item label="Creator">{metadata.creator}</Descriptions.Item>
         <Descriptions.Item label="Modifier">{metadata.modifier}</Descriptions.Item>
-        <Descriptions.Item label="parent">{parentId}</Descriptions.Item>
-        <Descriptions.Item label="parentId">{parentNode ? parentNode.data.metadata.path : 'None'}</Descriptions.Item>
+        <Descriptions.Item label="parent">{parentNode ? parentNode.data.metadata.path : 'None'}</Descriptions.Item>
       </Descriptions>
     );
   };
@@ -198,9 +197,11 @@ export function EmbeddedFileTree({files}: { files: EmbeddedFileData[] }) {
                   showLine={true}
                   selectedKeys={selected}
                   onSelect={(selectedKeys) => setSelected(selectedKeys)}
-                  onExpand={onTreeNodeExpand}
-                  expandedKeys={expandedKeys}
-                  autoExpandParent={autoExpandParent}
+                  defaultExpandAll={true}
+                  //onExpand={onTreeNodeExpand}
+                  //expandedKeys={expandedKeys}
+                  
+                  //autoExpandParent={autoExpandParent}
                   treeData={treeData}
             />
           </div>
