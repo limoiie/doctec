@@ -66,6 +66,7 @@ class FileMetadata(BaseModel):
 class EmbDetectionConfig(BaseModel):
     uuid: UUID = UUIDField(primary_key=True, unique=True, default=uuid4)
     targetDirs: List[str] = JSONField()
+    saveDirs:str = TextField()
     maxDepth: int = IntegerField()
 
 

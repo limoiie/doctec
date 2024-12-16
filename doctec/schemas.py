@@ -58,6 +58,7 @@ class SchemaBaseModel(BaseModel):
 class EmbDetectionConfigData(SchemaBaseModel):
     uuid: str
     targetDirs: list[str]
+    saveDirs:str
     maxDepth: int
 
     @classmethod
@@ -65,6 +66,7 @@ class EmbDetectionConfigData(SchemaBaseModel):
         return EmbDetectionConfigData(
             uuid=m.uuid.hex if isinstance(m.uuid, UUID) else m.uuid,
             targetDirs=m.targetDirs,
+            saveDirs=m.saveDirs,
             maxDepth=m.maxDepth,
         )
 
