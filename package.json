@@ -17,9 +17,10 @@
     "build:js": "react-scripts build",
     "start:eel": "python3 doctec/index.py --develop",
     "build:eel": "python3 -m eel doctec/index.py build --onefile --noconsole --name react-eel-app",
-    "clean:build": "rm -rf build dist",
+    "clean:build1": "if exist build rd /s /q build",
+    "clean:build2": "if exist dist rd /s /q dist",
     "start": "npm-run-all -p generate:* start:*",
-    "build": "npm-run-all clean:build generate:* build:*",
+    "build": "npm-run-all clean:build1 clean:build2 generate:* build:*",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
   },
