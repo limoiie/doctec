@@ -21,7 +21,7 @@ const columns: TableColumnsType<DataType> = (allKinds, allCreators, allModifiers
     dataIndex: 'parent',
     key: 'parent',
     sorter: (a, b) => a.parent.localeCompare(b.parent),
-    
+
   },
   {
     title: 'FilePath',
@@ -94,18 +94,18 @@ export function EmbeddedFileList({files}: { files: EmbeddedFileData[] }) {
   const allModifiers = new Set(files.map(e => e.metadata.modifier));
   // dataSource sorted by parentpath
   const sortByParentPath = (a, b) => {
-    const aParent = a.parent.split('/')[0];  
-    const bParent = b.parent.split('/')[0];  
-  
+    const aParent = a.parent.split('/')[0];
+    const bParent = b.parent.split('/')[0];
+
     // 如果父路径相同，按完整路径排序
     if (aParent === bParent) {
-      return a.parent.localeCompare(b.parent);  
+      return a.parent.localeCompare(b.parent);
     }
-  
+
     // 否则按父路径排序
-    return aParent.localeCompare(bParent);  
+    return aParent.localeCompare(bParent);
   };
-  
+
   const dataSource = files.map((e: EmbeddedFileData, i) => {
     const {dir, name} = splitPathName(e.metadata.path);
     const parent_name = id2File.has(e.parentId) ? splitPathName(id2File.get(e.parentId).metadata.path)['name'] : ''
@@ -117,8 +117,8 @@ export function EmbeddedFileList({files}: { files: EmbeddedFileData[] }) {
       size: e.metadata.data.size,
       md5: e.metadata.data.md5,
       kind: e.metadata.data.kind,
-      created:e.metadata.created,
-      modified:e.metadata.modified,
+      created: e.metadata.created,
+      modified: e.metadata.modified,
       creator: e.metadata.creator,
       modifier: e.metadata.modifier,
       data: e,

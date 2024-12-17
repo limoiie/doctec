@@ -1,5 +1,5 @@
 import React, {useEffect, useMemo, useState} from "react";
-import {Input, Splitter, Tree, Descriptions} from "antd";
+import {Descriptions, Input, Splitter, Tree} from "antd";
 
 import type {EmbeddedFileData} from "../types/EmbeddedFileData.schema.d";
 import {FileOutlined, FolderOutlined} from "@ant-design/icons";
@@ -159,33 +159,35 @@ export function EmbeddedFileTree({files}: { files: EmbeddedFileData[] }) {
   }, [searchValue, roots]);
 
 
-  function DisplayFileInfo({ data, nodesMap }) {
-    
+  function DisplayFileInfo({data, nodesMap}) {
+
     if (!data) {
       return <div>Select a file to see its details.</div>;
     }
-    
-    const { id, resultId, metadata, parentId } = data;
+
+    const {id, resultId, metadata, parentId} = data;
 
     const parentNode = parentId ? nodesMap.get(parentId) : null;
-  
+
     return (
-      <Descriptions title={`File Info of #${metadata.data.md5 || 'Unknown'}`} bordered column={1} size="small">
-        <Descriptions.Item label="ID">{id}</Descriptions.Item>
-        <Descriptions.Item label="Result ID">{resultId}</Descriptions.Item>
-        <Descriptions.Item label="File Path">{metadata.path}</Descriptions.Item>
-        <Descriptions.Item label="MD5">{metadata.data.md5}</Descriptions.Item>
-        <Descriptions.Item label="Size">{metadata.data.size} bytes</Descriptions.Item>
-        <Descriptions.Item label="File Type">{metadata.data.kind}</Descriptions.Item>
-        <Descriptions.Item label="Created">{metadata.created}</Descriptions.Item>
-        <Descriptions.Item label="Modified">{metadata.modified}</Descriptions.Item>
-        <Descriptions.Item label="Creator">{metadata.creator}</Descriptions.Item>
-        <Descriptions.Item label="Modifier">{metadata.modifier}</Descriptions.Item>
-        <Descriptions.Item label="parent">{parentNode ? parentNode.data.metadata.path : 'None'}</Descriptions.Item>
-      </Descriptions>
+        <Descriptions title={`File Info of #${metadata.data.md5 || 'Unknown'}`} bordered
+                      column={1} size="small">
+          <Descriptions.Item label="ID">{id}</Descriptions.Item>
+          <Descriptions.Item label="Result ID">{resultId}</Descriptions.Item>
+          <Descriptions.Item label="File Path">{metadata.path}</Descriptions.Item>
+          <Descriptions.Item label="MD5">{metadata.data.md5}</Descriptions.Item>
+          <Descriptions.Item label="Size">{metadata.data.size} bytes</Descriptions.Item>
+          <Descriptions.Item label="File Type">{metadata.data.kind}</Descriptions.Item>
+          <Descriptions.Item label="Created">{metadata.created}</Descriptions.Item>
+          <Descriptions.Item label="Modified">{metadata.modified}</Descriptions.Item>
+          <Descriptions.Item label="Creator">{metadata.creator}</Descriptions.Item>
+          <Descriptions.Item label="Modifier">{metadata.modifier}</Descriptions.Item>
+          <Descriptions.Item
+              label="parent">{parentNode ? parentNode.data.metadata.path : 'None'}</Descriptions.Item>
+        </Descriptions>
     );
   };
-  
+
   return (
       <Splitter className="grow">
         <Splitter.Panel defaultSize={328}>
@@ -198,24 +200,24 @@ export function EmbeddedFileTree({files}: { files: EmbeddedFileData[] }) {
                   selectedKeys={selected}
                   onSelect={(selectedKeys) => setSelected(selectedKeys)}
                   defaultExpandAll={true}
-                  //onExpand={onTreeNodeExpand}
-                  //expandedKeys={expandedKeys}
-                  
-                  //autoExpandParent={autoExpandParent}
+                //onExpand={onTreeNodeExpand}
+                //expandedKeys={expandedKeys}
+
+                //autoExpandParent={autoExpandParent}
                   treeData={treeData}
             />
           </div>
         </Splitter.Panel>
         <Splitter.Panel>
-        <div>
-          {selected.map(item => {
-            const fileData = nodesMap.get(item).data;
-            return (
-              <DisplayFileInfo key={item} data={fileData} nodesMap={nodesMap} />
-            );
-          })}
-          
-        </div>
+          <div>
+            {selected.map(item => {
+              const fileData = nodesMap.get(item).data;
+              return (
+                  <DisplayFileInfo key={item} data={fileData} nodesMap={nodesMap}/>
+              );
+            })}
+
+          </div>
         </Splitter.Panel>
       </Splitter>
   )

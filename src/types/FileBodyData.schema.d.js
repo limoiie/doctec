@@ -10,5 +10,6 @@ export interface FileBodyData {
   size: number;
   kind: string;
   data?: string | null;
+
   [k: string]: unknown;
 }

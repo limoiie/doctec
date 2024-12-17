@@ -13,12 +13,15 @@ export interface FileMetadataData {
   modified: string;
   creator: string;
   modifier: string;
+
   [k: string]: unknown;
 }
+
 export interface FileBodyData {
   md5: string;
   size: number;
   kind: string;
   data?: string | null;
+
   [k: string]: unknown;
 }

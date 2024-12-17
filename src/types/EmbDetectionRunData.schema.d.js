@@ -14,12 +14,15 @@ export interface EmbDetectionRunData {
   error: string | null;
   nTotal: number;
   nProcessed: number;
+
   [k: string]: unknown;
 }
+
 export interface EmbDetectionConfigData {
   uuid: string;
   targetDirs: string[];
   saveDirs: string;
   maxDepth: number;
+
   [k: string]: unknown;
 }
