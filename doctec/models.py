@@ -45,10 +45,6 @@ class BaseModel(Model):
     class Meta:
         database = DB_PROXY
 
-class User(BaseModel):
-    username:str = CharField(unique=True)  
-    password:str = CharField()  
-    email:str = CharField()  
 
 class FileBody(BaseModel):
     md5: str = TextField(primary_key=True)

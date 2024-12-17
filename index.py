@@ -100,18 +100,12 @@ def deleteRun(run_uuid: str):
     :return: delete status:True/false
     """
     result = APP.emb_det_repo.delete_run_result_by_run_id(run_uuid)
+    print("11111111111111111111\n")
+    print(result)
 
     return result
-
-
-@eel.expose
-@log_on_calling
-def addUser(username, password, email):
-    print("111111111111")
-    print(username, password, email)
-    result = APP.emb_det_repo.register_user(username, password, email)
-    return result
-    
+    # print('result:', result)
+    # return result
 
 
 if __name__ == "__main__":

@@ -9,7 +9,7 @@ const {Header, Content, Footer} = Layout;
 const {Title, Text} = Typography;
 
 export function EmbeddingDetectionPage() {
-  const [targetDirs, setTargetDirs] = useState("E:\\Project\\maldoctect\\teset_data_simple");
+  const [targetDirs, setTargetDirs] = useState("C:\\Projects\\samples");
   const [saveDirs, setSaveDirs] = useState("C:\\Projects\\samples_to_save");
 
   let navigate = useNavigate();
@@ -20,14 +20,11 @@ export function EmbeddingDetectionPage() {
       saveDirs: saveDirs,
       maxDepth: 5,
     };
-    console.log("检查完成");
-    // =====================================  出错 =================================
     // noinspection JSUnresolvedReference
     eel.detectEmbeddedFiles(cfg)(
         function (runUuid) {
           // redirect to results page
-          console.log("检查完成");
-          navigate('/winmain/detection/run/' + runUuid);
+          navigate('/run/' + runUuid);
         }
     )
   }

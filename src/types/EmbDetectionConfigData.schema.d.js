@@ -10,6 +10,5 @@ export interface EmbDetectionConfigData {
   targetDirs: string[];
   saveDirs: string;
   maxDepth: number;
-
   [k: string]: unknown;
 }

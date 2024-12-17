@@ -12,7 +12,6 @@ export function EmbeddingDetectionHistoryPage({pageNo = 0, pageSize = 0}: {
   pageNo?: number,
   pageSize?: number
 }) {
-
   const [messageApi, contextHolder] = message.useMessage();
   const [loading, setLoading] = useState(false);
 
