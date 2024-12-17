@@ -45,6 +45,10 @@ class BaseModel(Model):
     class Meta:
         database = DB_PROXY
 
+class User(BaseModel):
+    username:str = CharField(unique=True)  
+    password:str = CharField()  
+    email:str = CharField()  
 
 class FileBody(BaseModel):
     md5: str = TextField(primary_key=True)
@@ -66,6 +70,7 @@ class FileMetadata(BaseModel):
 class EmbDetectionConfig(BaseModel):
     uuid: UUID = UUIDField(primary_key=True, unique=True, default=uuid4)
     targetDirs: List[str] = JSONField()
+    saveDirs:str = TextField()
     maxDepth: int = IntegerField()
 
 

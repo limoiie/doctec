@@ -19,6 +19,7 @@ export interface EmbDetectionRunData {
 export interface EmbDetectionConfigData {
   uuid: string;
   targetDirs: string[];
+  saveDirs: string;
   maxDepth: number;
   [k: string]: unknown;
 }
