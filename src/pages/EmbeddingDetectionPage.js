@@ -14,8 +14,7 @@ import {eel} from "../eel.js";
 import type {EmbDetectionConfigData} from "../types/EmbDetectionConfigData.schema.d"
 
 export function EmbeddingDetectionPage() {
-
-  const [targetDirs, setTargetDirs] = useState("C:\\Projects\\samples");
+  const [targetDirs, setTargetDirs] = useState("E:\\Project\\maldoctect\\teset_data_simple");
   const [saveDirs, setSaveDirs] = useState("C:\\Projects\\samples_to_save");
 
   let navigate = useNavigate();
@@ -26,11 +25,14 @@ export function EmbeddingDetectionPage() {
       saveDirs:saveDirs,
       maxDepth: 5,
     };
+    console.log("检查完成");
+    // =====================================  出错 =================================
     // noinspection JSUnresolvedReference
     eel.detectEmbeddedFiles(cfg)(
         function (runUuid) {
           // redirect to results page
-          navigate('/run/' + runUuid);
+          console.log("检查完成");
+          navigate('/winmain/detection/run/' + runUuid);
         }
     )
   }
