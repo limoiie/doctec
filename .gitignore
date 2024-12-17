@@ -32,3 +32,6 @@ __pycache__
 
 # db files
 *.db
+
+# schema type
+*.d.js

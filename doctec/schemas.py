@@ -10,6 +10,7 @@ from doctec.models import (
     EmbDetectionRun,
     EmbeddedFile,
     EmbDetectionResult,
+    User,
 )
 
 __all__ = [
@@ -17,6 +18,7 @@ __all__ = [
     "EmbDetectionRunData",
     "EmbeddedFileData",
     "EmbDetectionResultDataWithoutRun",
+    "UserData",
     "generate_jsonschema",
 ]
 
@@ -58,6 +60,7 @@ class SchemaBaseModel(BaseModel):
 class EmbDetectionConfigData(SchemaBaseModel):
     uuid: str
     targetDirs: list[str]
+    saveDirs:str
     maxDepth: int
 
     @classmethod
@@ -65,6 +68,7 @@ class EmbDetectionConfigData(SchemaBaseModel):
         return EmbDetectionConfigData(
             uuid=m.uuid.hex if isinstance(m.uuid, UUID) else m.uuid,
             targetDirs=m.targetDirs,
+            saveDirs=m.saveDirs,
             maxDepth=m.maxDepth,
         )
 
@@ -107,6 +111,18 @@ class FileBodyData(SchemaBaseModel):
             kind=m.kind,
         )
 
+class UserData(SchemaBaseModel):
+    username:str 
+    password:str 
+    email:str
+
+    @classmethod
+    def from_pw_model(cls, m):
+        return UserData(
+            username=m.username,
+            password=m.password,
+            email=m.email,
+        )
 
 class FileMetadataData(SchemaBaseModel):
     id: int

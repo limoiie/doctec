@@ -3,6 +3,8 @@ import os
 from datetime import datetime, UTC
 from typing import List, Dict, Tuple, Union
 from uuid import UUID
+from peewee import DoesNotExist
+from werkzeug.security import generate_password_hash
 
 from doctec.models import (
     EmbeddedFile,
@@ -12,6 +14,7 @@ from doctec.models import (
     EmbDetectionRun,
     FileBody,
     FileMetadata,
+    User,
 )
 
 
@@ -131,6 +134,53 @@ class EmbDetectionRepo:
     @staticmethod
     def fetch_one_result_by_run_id(run_id: Union[str, UUID]) -> EmbDetectionResult:
         return EmbDetectionResult.get(EmbDetectionResult.run == run_id)
+
+    @staticmethod
+    def delete_run_result_by_run_id(run_id: Union[str, UUID]) -> bool:
+        result = False
+        try:
+            run_to_delete = EmbDetectionRun.get(EmbDetectionRun.uuid == run_id)
+
+            run_to_delete.delete_instance(recursive=True)
+
+            cfg_to_delete = EmbDetectionConfig.get(
+                EmbDetectionConfig.uuid == run_to_delete.cfg)
+
+            run_to_delete.delete_instance(recursive=True)
+            cfg_to_delete.delete_instance()
+
+            result = True
+            return result
+
+        except DoesNotExist:
+            print("指定的记录不存在，无法删除。")
+            result = False
+            return result  # 删除失败
+        except Exception as e:
+            print(f"删除过程中发生错误: {e}")
+            result = False
+            return result  # 删除失败
+
+    @staticmethod
+    def register_user(username, password, email):
+        # 校验数据
+        if not username or not password or not email:
+            return {'success': False, 'message': '所有字段均为必填项'}
+
+        # 检查用户名是否已存在
+        if User.select().where(User.username == username).exists():
+            return {'success': False, 'message': '该用户名已被注册！'}
+
+        # 加密密码
+        hashed_password = generate_password_hash(password)
+
+        # 插入数据到数据库
+        try:
+            User.create(username=username, password=hashed_password, email=email)
+            return {'success': True}
+        except Exception as e:
+            return {'success': False, 'message': '注册失败，错误信息: ' + str(e)}
+    
 
     @staticmethod
     def is_run_cancelled(run_id: Union[str, UUID]) -> bool:

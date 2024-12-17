@@ -18,6 +18,11 @@ export function EmbeddingDetectionCfgDetails({cfg}: { cfg: EmbDetectionConfigDat
       label: "Target Directories",
       children: cfg.targetDirs.join(", "),
     },
+    {
+      key: 'saveDirs',
+      label: "Save Directories",
+      children: cfg.saveDirs,
+    },
   ];
   return (
       <Descriptions size="small" column={4} bordered items={items}/>

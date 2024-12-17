@@ -87,13 +87,39 @@ def detectEmbeddedFiles(cfg: Dict[str, object]) -> str:
     APP.executor.submit(job.do, app=APP)
     return res.run.uuid.hex
 
+# noinspection PyPep8Naming
+
+
+@eel.expose
+@log_on_calling
+def deleteRun(run_uuid: str):
+    """
+    delect the embedding detection run by id.
+
+    :param run_uuid:
+    :return: delete status:True/false
+    """
+    result = APP.emb_det_repo.delete_run_result_by_run_id(run_uuid)
+
+    return result
+
+
+@eel.expose
+@log_on_calling
+def addUser(username, password, email):
+    print("111111111111")
+    print(username, password, email)
+    result = APP.emb_det_repo.register_user(username, password, email)
+    return result
+    
+
 
 if __name__ == "__main__":
     init_logging(level="INFO")
     init_db(db_path="app.db")
 
     _LOGGER = get_logger(__name__)
-
+  
     with AppContext() as APP:
         # NOTE: uncomment the following line if you have only Microsoft Edge installed
         getattr(eel, "_start_args")["mode"] = "edge"
@@ -105,3 +131,4 @@ if __name__ == "__main__":
         else:
             eel.init("build")
             eel.start("index.html")
+
