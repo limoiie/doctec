@@ -105,6 +105,17 @@ def deleteRun(run_uuid: str):
     return result
 
 
+@eel.expose
+@log_on_calling
+def debug(msg: str):
+    """
+    Print the debug message.
+
+    :param msg:
+    """
+    _LOGGER.info(f"Debug (py): {msg}")
+
+
 if __name__ == "__main__":
     init_logging(level="INFO")
     init_db(db_path="app.db")
