@@ -91,7 +91,7 @@ def detectEmbeddedFiles(cfg: Dict[str, object]) -> str:
 # noinspection PyPep8Naming
 @eel.expose
 @log_on_calling
-def deleteRun(run_uuid: str):
+def deleteRun(run_uuid: str) -> bool:
     """
     Delete the embedding detection run by id.
 
