@@ -7,7 +7,7 @@ import eel
 from doctec import schemas
 from doctec.ctx import AppContext
 from doctec.models import init_db
-from doctec.utils.loggings import init_logging, get_logger
+from doctec.utils.loggings import get_logger, init_logging
 
 
 def log_on_calling(fn):
@@ -87,14 +87,13 @@ def detectEmbeddedFiles(cfg: Dict[str, object]) -> str:
     APP.executor.submit(job.do, app=APP)
     return res.run.uuid.hex
 
+
 # noinspection PyPep8Naming
-
-
 @eel.expose
 @log_on_calling
 def deleteRun(run_uuid: str):
     """
-    delect the embedding detection run by id.
+    Delete the embedding detection run by id.
 
     :param run_uuid:
     :return: delete status:True/false
@@ -104,8 +103,6 @@ def deleteRun(run_uuid: str):
     print(result)
 
     return result
-    # print('result:', result)
-    # return result
 
 
 if __name__ == "__main__":
@@ -113,7 +110,7 @@ if __name__ == "__main__":
     init_db(db_path="app.db")
 
     _LOGGER = get_logger(__name__)
-  
+
     with AppContext() as APP:
         # NOTE: uncomment the following line if you have only Microsoft Edge installed
         getattr(eel, "_start_args")["mode"] = "edge"
@@ -125,4 +122,3 @@ if __name__ == "__main__":
         else:
             eel.init("build")
             eel.start("index.html")
-

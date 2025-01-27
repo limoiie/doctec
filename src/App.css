@@ -1,47 +1,47 @@
 .App {
-    text-align: center;
-    height: 100vh;
+  text-align: center;
+  height: 100vh;
 }
 
 .App-header {
-    background-color: white;
-    padding: 0;
-    height: 64px;
-    display: flex;
+  background-color: white;
+  padding: 0;
+  height: 64px;
+  display: flex;
 }
 
 .App-header .icon-button {
-    font-size: 16px;
-    width: 64px;
-    height: 64px;
+  font-size: 16px;
+  width: 64px;
+  height: 64px;
 }
 
 .App-logo-vertical {
-    height: 64px;
+  height: 64px;
 }
 
 .App-title {
-    font-size: 1.5em;
+  font-size: 1.5em;
 }
 
 .App-content {
-    padding: 1em;
+  padding: 1em;
 }
 
 .App-footer {
-    background-color: #282c34;
-    height: 64px;
-    color: white;
+  background-color: #282c34;
+  height: 64px;
+  color: white;
 }
 
 .page-title {
-    font-size: 2em;
-    font-weight: bold;
-    margin-bottom: 1em;
+  font-size: 2em;
+  font-weight: bold;
+  margin-bottom: 1em;
 }
 
 .section-title {
-    font-size: 1.5em;
-    text-align: left;
-    margin-bottom: 1em;
+  font-size: 1.5em;
+  text-align: left;
+  margin-bottom: 1em;
 }
