@@ -1,4 +1,4 @@
-import type { EmbDetectionConfigData } from "../types/EmbDetectionConfigData.schema.d";
+import type { EmbDetectionConfigData } from "@/types/EmbDetectionConfigData.schema";
 import { Descriptions } from "antd";
 
 export function EmbeddingDetectionCfgDetails({

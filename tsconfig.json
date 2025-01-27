@@ -8,27 +8,36 @@
     "noEmit": true,
     "esModuleInterop": true,
     "module": "esnext",
-    "moduleResolution": "bundler",
+    "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "incremental": true,
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ],
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
-    }
+    },
+    "types": [
+      "node",
+      "jest",
+      "react",
+      "react-dom",
+      "body-parser",
+      "bonjour",
+      "connect",
+      "connect-history-api-fallback",
+      "estree",
+      "express",
+      "http-errors",
+      "http-proxy",
+      "istanbul-lib-report"
+    ]
   },
   "include": [
     "**/*.ts",
     "**/*.tsx",
-    ".next/types/**/*.ts",
-    "next-env.d.ts",
-    "./build/types/**/*.ts"
+    "./build/types/**/*.ts",
+    "node_modules/@types"
   ],
   "exclude": ["node_modules"]
 }

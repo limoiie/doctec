@@ -1,18 +1,19 @@
 import React from "react";
 import { Button, Form, Input, message } from "antd";
 import { useNavigate } from "react-router-dom";
-import { eel } from "../eel.js";
+import { eel } from "@/eel";
+import type { UserData } from "@/types/UserData.schema.d";
 
 export function Register() {
   const navigate = useNavigate();
-  const onFinish = async (values) => {
+  const onFinish = async (values: UserData) => {
     console.log("Received values of form: ", values);
     try {
       // 使用 async/await 等待 Eel 后端返回的结果
       const result = await eel.addUser(
         values.username,
         values.password,
-        values.email,
+        values.email
       )();
       console.log(result); // 输出结果到控制台
 
@@ -31,7 +32,7 @@ export function Register() {
     }
   };
 
-  async function checkUsername(value) {
+  async function checkUsername(value: UserData) {
     const response = await fetch(`/api/check-username?username=${value}`);
     const data = await response.json();
 
@@ -49,7 +50,7 @@ export function Register() {
         height: "100vh",
         display: "flex",
         justifyContent: "center",
-        alignItems: "center",
+        alignItems: "center"
       }}
     >
       <Form
@@ -58,7 +59,7 @@ export function Register() {
           maxWidth: 600,
           boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
           padding: 24,
-          borderRadius: 8,
+          borderRadius: 8
         }}
         onFinish={onFinish}
       >
@@ -69,9 +70,9 @@ export function Register() {
           rules={[
             {
               required: true,
-              message: "请输入用户名！",
+              message: "请输入用户名！"
             },
-            { min: 3, message: "用户名长度不能少于3个字符！" },
+            { min: 3, message: "用户名长度不能少于3个字符！" }
             /*
                 {
                   validator: async (_, value) => {
@@ -93,16 +94,16 @@ export function Register() {
           rules={[
             {
               required: true,
-              message: "请输入密码！",
+              message: "请输入密码！"
             },
             {
               min: 8,
-              message: "密码长度必须至少为8个字符！",
+              message: "密码长度必须至少为8个字符！"
             },
             {
               pattern: /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*])/,
-              message: "密码必须包含字母、数字和特殊字符！",
-            },
+              message: "密码必须包含字母、数字和特殊字符！"
+            }
           ]}
           hasFeedback
         >
@@ -117,7 +118,7 @@ export function Register() {
           rules={[
             {
               required: true,
-              message: "请确认密码！",
+              message: "请确认密码！"
             },
             ({ getFieldValue }) => ({
               validator(_, value) {
@@ -125,8 +126,8 @@ export function Register() {
                   return Promise.resolve();
                 }
                 return Promise.reject(new Error("输入的新密码不匹配！"));
-              },
-            }),
+              }
+            })
           ]}
         >
           <Input.Password />
@@ -138,12 +139,12 @@ export function Register() {
           rules={[
             {
               type: "email",
-              message: "输入无效电子邮件！",
+              message: "输入无效电子邮件！"
             },
             {
               required: true,
-              message: "请输入你的邮箱！",
-            },
+              message: "请输入你的邮箱！"
+            }
           ]}
         >
           <Input />

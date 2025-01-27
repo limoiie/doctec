@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 export function Login() {
   const navigate = useNavigate(); // 获取 navigate 函数
 
-  const onFinish = (values) => {
+  const onFinish = (values: never) => {
     console.log("Received values of form: ", values);
 
     // 假设登录验证通过

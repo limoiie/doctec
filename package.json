@@ -15,7 +15,7 @@
   },
   "scripts": {
     "generate:jsonschema": "python3 ./scripts/gene_jsonschema.py -o ./public/schemas",
-    "generate:types": "json2ts --cwd ./public/schemas -i ./public/schemas -o ./src/types --declareExternallyRerefenced false && python3 ./scripts/ts2js.py -p ./src/types",
+    "generate:types": "json2ts --cwd ./public/schemas -i ./public/schemas -o ./src/types --declareExternallyRerefenced false",
     "start:js": "craco start",
     "build:js": "craco build",
     "start:eel": "python3 index.py --develop",
@@ -43,8 +43,7 @@
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
     "antd-style": "^3.7.0",
-    "eslint": "^9.17.0",
-    "eslint-config-next": "^15.1.1",
+    "eslint": "^8.57.1",
     "json-schema-to-typescript": "^15.0.2",
     "npm-run-all": "^4.1.5",
     "postcss": "^8.4.49",

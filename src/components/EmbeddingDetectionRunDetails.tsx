@@ -1,7 +1,6 @@
 import { Divider, Skeleton } from "antd";
 import { useEffect, useState } from "react";
 
-import "./EmbeddingDetectionRunDetails.css";
 import { eel } from "@/eel";
 import type { EmbDetectionResultDataWithoutRun } from "@/types/EmbDetectionResultDataWithoutRun.schema.d";
 import type { EmbDetectionRunData } from "@/types/EmbDetectionRunData.schema.d";
