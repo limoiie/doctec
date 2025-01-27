@@ -28,13 +28,13 @@ const data = {
   navMain: [
     {
       title: "Embed Detections",
-      url: "/task/detections",
+      url: "/dashboard/task/detections",
       icon: FileSearchIcon,
       isActive: true,
     },
     {
       title: "Embed Detection Configs",
-      url: "/task/detections/configs",
+      url: "/dashboard/task/detections/configs",
       icon: FileSlidersIcon,
       isActive: false,
     },
@@ -208,7 +208,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               {activeItem.title}
             </div>
             <Label className="flex items-center gap-2 text-sm">
-              <span>Finished</span>
+              <span>Done</span>
               <Switch className="shadow-none" />
             </Label>
           </div>

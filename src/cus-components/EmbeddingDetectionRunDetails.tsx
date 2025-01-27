@@ -12,9 +12,7 @@ export function EmbeddingDetectionRunDetails({ runUuid }: { runUuid: string }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [run, setRun] = useState<EmbDetectionRunData | null>(null);
-  const [result, setResult] = useState<EmbDetectionResultDataWithoutRun | null>(
-    null,
-  );
+  const [result, setResult] = useState<EmbDetectionResultDataWithoutRun | null>(null);
 
   function loadData() {
     setLoading(true);
@@ -22,26 +20,26 @@ export function EmbeddingDetectionRunDetails({ runUuid }: { runUuid: string }) {
 
     // noinspection JSUnresolvedReference
     eel.fetchEmbeddingDetectionRunByUuid(runUuid)(
-      function (run: EmbDetectionRunData) {
+      function(run: EmbDetectionRunData) {
         setLoading(false);
         setRun(run);
       },
-      function (error: never) {
+      function(error: never) {
         setLoading(false);
         setError(error);
-      },
+      }
     );
 
     // noinspection JSUnresolvedReference
     eel.fetchEmbeddingDetectionResultByRunUuid(runUuid)(
-      function (result: EmbDetectionResultDataWithoutRun) {
+      function(result: EmbDetectionResultDataWithoutRun) {
         setLoading(false);
         setResult(result);
       },
-      function (error: never) {
+      function(error: never) {
         setLoading(false);
         setError(error);
-      },
+      }
     );
   }
 

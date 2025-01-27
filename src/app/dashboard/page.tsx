@@ -10,8 +10,9 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { Route, Routes } from "react-router-dom";
-import { EmbeddingDetectionHistoryPage } from "@/pages/EmbeddingDetectionHistoryPage";
+import { Navigate, Route, Routes, useParams } from "react-router-dom";
+import { EmbeddingDetectionRunDetails } from "@/cus-components/EmbeddingDetectionRunDetails";
+import { EmbeddingDetectionRunDetailsUnselected } from "@/cus-components/EmbeddingDetectionRunDetailsUnselected";
 
 export default function Page() {
   return (
@@ -39,13 +40,19 @@ export default function Page() {
             </BreadcrumbList>
           </Breadcrumb>
         </header>
-        <Routes>
-          {/*<Route path="/" element={<EmbeddingDetectionPage />} />*/}
-          <Route
-            path="/history"
-            element={<EmbeddingDetectionHistoryPage />}
-          />
-        </Routes>
+        <div className="m-4">
+          <Routes>
+            <Route path="/" element={<Navigate to="task/detection/run" replace />} />
+            <Route
+              path="task/detection/run"
+              element={<EmbeddingDetectionRunDetailsUnselected />}
+            />
+            <Route
+              path="task/detection/run/:runUuid"
+              element={<EmbeddingDetectionRunDetails runUuid={useParams().runUuid!} />}
+            />
+          </Routes>
+        </div>
       </SidebarInset>
     </SidebarProvider>
   );
