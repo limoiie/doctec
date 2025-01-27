@@ -5,8 +5,8 @@ import "./EmbeddingDetectionHistoryPage.css";
 import {eel} from "@/eel";
 import type {EmbDetectionRunData} from "@/types/EmbDetectionRunData.schema.d";
 import {DeleteFilled} from "@ant-design/icons";
-import {EmbeddingDetectionRunDetails} from "@/components/EmbeddingDetectionRunDetails";
-import {StatusIcon} from "@/components/StatusIcon";
+import {EmbeddingDetectionRunDetails} from "@/cus-components/EmbeddingDetectionRunDetails";
+import {StatusIcon} from "@/cus-components/StatusIcon";
 
 export function EmbeddingDetectionHistoryPage({
   pageNo = 0,

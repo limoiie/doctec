@@ -1,4 +1,5 @@
-import { Button, Layout, Menu, MenuProps, message, Modal, theme } from "antd";
+import { Layout, Menu, MenuProps, message, Modal, theme } from "antd";
+import { Button } from "@/components/ui/button";
 import React, { useEffect, useState } from "react";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import {
@@ -9,7 +10,7 @@ import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   PlayCircleOutlined,
-  SecurityScanFilled,
+  SecurityScanFilled
 } from "@ant-design/icons";
 
 import "./App.css";
@@ -25,23 +26,23 @@ const menuItems: MenuItem[] = [
   {
     key: "act-new-detection",
     icon: <PlayCircleOutlined />,
-    label: "New Detection",
+    label: "New Detection"
   },
   {
     key: "act-history",
     icon: <HistoryOutlined />,
-    label: "History",
+    label: "History"
   },
   {
     key: "act-export",
     icon: <ExportOutlined />,
-    label: "Export Report",
+    label: "Export Report"
   },
   {
     key: "act-exit",
     icon: <LogoutOutlined />,
-    label: "Exit",
-  },
+    label: "Exit"
+  }
 ];
 
 // noinspection JSUnresolvedReference
@@ -50,7 +51,7 @@ function App() {
   const [messageApi, contextHolder] = message.useMessage();
   const [collapsed, setCollapsed] = useState(false);
   const {
-    token: { colorBgContainer, borderRadiusLG },
+    token: { colorBgContainer, borderRadiusLG }
   } = theme.useToken();
 
   useEffect(() => {
@@ -73,7 +74,7 @@ function App() {
         messageApi
           .open({
             type: "error",
-            content: "Not implemented yet!",
+            content: "Not implemented yet!"
           })
           .then();
         break;
@@ -84,7 +85,7 @@ function App() {
           content: "This will close the application.",
           onOk() {
             eel.exit();
-          },
+          }
         });
         break;
     }
@@ -121,15 +122,17 @@ function App() {
             </div>
           </div>
           <Menu mode="inline" items={menuItems} onClick={onMenuItemClick} />
+          <Button variant="ghost">Ghost</Button>
         </Sider>
         <Layout className="App">
           <Header className="App-header">
             <Button
               className="icon-button"
-              type="text"
-              icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-              onClick={() => setCollapsed(!collapsed)}
-            />
+              variant="ghost"
+              size="icon"
+              onClick={() => setCollapsed(!collapsed)}>
+              {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+            </Button>
           </Header>
           <Content className="App-content">
             <Routes>
