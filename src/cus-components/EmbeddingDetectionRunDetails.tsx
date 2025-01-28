@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 
 import { eel } from "@/eel";
+import { Skeleton } from "@/components/ui/skeleton";
 import type { EmbDetectionResultDataWithoutRun } from "@/types/EmbDetectionResultDataWithoutRun.schema.d";
 import type { EmbDetectionRunData } from "@/types/EmbDetectionRunData.schema.d";
 import { EmbeddingDetectionRunHoverCard } from "./EmbeddingDetectionRunHoverCard";
 import { EmbeddingDetectionCfgHoverCard } from "./EmbeddingDetectionCfgHoverCard";
 import { EmbeddingDetectionResDetails } from "./EmbeddingDetectionResDetails";
-import { Skeleton } from "@/components/ui/skeleton";
 
 export function EmbeddingDetectionRunDetails({ runUuid }: { runUuid: string }) {
   const [loading, setLoading] = useState(false);
@@ -51,9 +51,13 @@ export function EmbeddingDetectionRunDetails({ runUuid }: { runUuid: string }) {
 
       {!loading && !error && run && (
         <div className="grow flex flex-col gap-4">
-          <div>{run && <EmbeddingDetectionRunHoverCard run={run} />}</div>
-          <div>
-            {run && run.cfg && <EmbeddingDetectionCfgHoverCard cfg={run.cfg} />}
+          <div className="flex flex-row gap-2">
+            <div>{run && <EmbeddingDetectionRunHoverCard run={run} />}</div>
+            <div>
+              {run && run.cfg && (
+                <EmbeddingDetectionCfgHoverCard cfg={run.cfg} />
+              )}
+            </div>
           </div>
           <div className="grow">
             {result && <EmbeddingDetectionResDetails res={result} />}

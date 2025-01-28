@@ -1,31 +1,32 @@
-import { FolderOutlined, TableOutlined } from "@ant-design/icons";
-import { Segmented } from "antd";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { EmbDetectionResultDataWithoutRun } from "@/types/EmbDetectionResultDataWithoutRun.schema.d";
 import { EmbeddedFileList } from "./EmbeddedFileList";
-import { useState } from "react";
 import { EmbeddedFileTree } from "./EmbeddedFileTree";
+import { ListIcon, ListTreeIcon } from "lucide-react";
 
 export function EmbeddingDetectionResDetails({
   res,
 }: {
   res: EmbDetectionResultDataWithoutRun;
 }) {
-  const [mode, setMode] = useState("List");
   return (
     <div className="h-[calc(100%-42px)] flex flex-col gap-2 items-baseline">
-      <Segmented
-        value={mode}
-        onChange={setMode}
-        options={[
-          { value: "List", icon: <TableOutlined /> },
-          { value: "Tree", icon: <FolderOutlined /> },
-        ]}
-      />
-      {mode === "List" ? (
-        <EmbeddedFileList files={res.detectedFiles} />
-      ) : (
-        <EmbeddedFileTree files={res.detectedFiles} />
-      )}
+      <Tabs defaultValue="List" className="w-full">
+        <TabsList className="grid w-24 grid-cols-2">
+          <TabsTrigger value="List">
+            <ListIcon size={16} />
+          </TabsTrigger>
+          <TabsTrigger value="Tree">
+            <ListTreeIcon size={16} />
+          </TabsTrigger>
+        </TabsList>
+        <TabsContent value="List">
+          <EmbeddedFileList files={res.detectedFiles} />
+        </TabsContent>
+        <TabsContent value="Tree">
+          <EmbeddedFileTree files={res.detectedFiles} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
