@@ -1,32 +1,54 @@
-import {
-  CheckCircleFilled,
-  CloseCircleFilled,
-  FieldTimeOutlined,
-  QuestionCircleFilled,
-  StopFilled,
-} from "@ant-design/icons";
+import { CircleCheckBigIcon, CircleDashedIcon, CircleSlashIcon, CircleXIcon, LoaderCircleIcon } from "lucide-react";
+import { TaskStatus } from "@/types";
+
+import { statusToDisplayText } from "@/utils";
 
 export function StatusIcon({
-  status,
-  className = "",
-}: {
+                             status,
+                             className = "",
+                             showText = false,
+                             size = undefined
+                           }: {
   status: string;
   className?: string;
+  showText?: boolean;
+  size?: number | string | undefined;
 }) {
-  switch (status) {
-    case "pending":
-      return (
-        <QuestionCircleFilled className={"text-yellow-500 " + className} />
-      );
-    case "in-progress":
-      return <FieldTimeOutlined className={"text-blue-500 " + className} />;
-    case "completed":
-      return <CheckCircleFilled className={"text-green-500 " + className} />;
-    case "failed":
-      return <CloseCircleFilled className={"text-red-500 " + className} />;
-    case "cancelled":
-      return <StopFilled className={"text-purple-500 " + className} />;
-    default:
-      return null;
-  }
+  return (
+    <div className="flex items-center">
+      <span className={className}>
+        {(() => {
+          switch (status as TaskStatus) {
+            case "pending":
+              return (
+                <CircleDashedIcon className={"text-gray-400 " + className} size={size} />
+              );
+            case "in-progress":
+              return (
+                <LoaderCircleIcon
+                  className={"text-blue-500 animate-spin " + className} size={size}
+                />
+              );
+            case "completed":
+              return (
+                <CircleCheckBigIcon className={"text-green-500 " + className} size={size} />
+              );
+            case "failed":
+              return <CircleXIcon className={"text-red-500 " + className} size={size} />;
+            case "cancelled":
+              return (
+                <CircleSlashIcon className={"text-gray-400 " + className} size={size} />
+              );
+            default:
+              return null;
+          }
+        })()}
+      </span>
+      {showText && (
+        <span className="ml-2">
+          {statusToDisplayText(status as TaskStatus)}
+        </span>
+      )}
+    </div>
+  );
 }

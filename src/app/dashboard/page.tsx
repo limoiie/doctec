@@ -6,11 +6,15 @@ import {
   BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
-  BreadcrumbSeparator
+  BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
-import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { Navigate, Route, Routes, useParams } from "react-router-dom";
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
+import { Navigate, Route, Routes } from "react-router-dom";
 import { EmbeddingDetectionRunDetails } from "@/cus-components/EmbeddingDetectionRunDetails";
 import { EmbeddingDetectionRunDetailsUnselected } from "@/cus-components/EmbeddingDetectionRunDetailsUnselected";
 
@@ -19,7 +23,7 @@ export default function Page() {
     <SidebarProvider
       style={
         {
-          "--sidebar-width": "350px"
+          "--sidebar-width": "350px",
         } as React.CSSProperties
       }
     >
@@ -31,25 +35,31 @@ export default function Page() {
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="#">All Inboxes</BreadcrumbLink>
+                <BreadcrumbLink href="#">All Runs</BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem>
-                <BreadcrumbPage>Inbox</BreadcrumbPage>
+                <BreadcrumbPage>Run</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
         </header>
         <div className="m-4">
           <Routes>
-            <Route path="/" element={<Navigate to="task/detection/run" replace />} />
+            <Route
+              path="/"
+              element={<Navigate to="task/detection/run" replace />}
+            />
             <Route
               path="task/detection/run"
               element={<EmbeddingDetectionRunDetailsUnselected />}
             />
+            {/* TODO fix the following path param */}
             <Route
               path="task/detection/run/:runUuid"
-              element={<EmbeddingDetectionRunDetails runUuid={useParams().runUuid!} />}
+              element={
+                <EmbeddingDetectionRunDetails runUuid="6c6352e1035640d4895322423147eee4" />
+              }
             />
           </Routes>
         </div>

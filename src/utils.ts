@@ -1,3 +1,5 @@
+import { TaskStatus } from "@/types";
+
 /**
  * Split a given filePath into a parent dir and a name.
  *
@@ -41,4 +43,49 @@ export function bytesToSize(bytes: number) {
   const i = Math.floor(Math.log(bytes) / Math.log(k));
 
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+}
+
+/**
+ * Convert a given status to a human-readable display text.
+ *
+ * @param status
+ */
+export function statusToDisplayText(status: TaskStatus) {
+  switch (status) {
+    case "pending":
+      return "Pending";
+    case "in-progress":
+      return "In Progress";
+    case "completed":
+      return "Completed";
+    case "failed":
+      return "Failed";
+    case "cancelled":
+      return "Cancelled";
+    default:
+      return null;
+  }
+}
+
+/**
+ * Format a given date string to a human-readable date-time string.
+ *
+ * @param date
+ */
+export function formatDateTime(date: string | null) {
+  if (!date) {
+    return "Unknown Date";
+  }
+  return new Date(date).toLocaleString(
+    "zh-CN",
+    {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false
+    }
+  );
 }

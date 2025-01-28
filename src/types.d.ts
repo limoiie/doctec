@@ -1,4 +1,6 @@
-export interface LoadStatus {
-  state: "loading" | "loaded" | "error";
-  error: string | null;
-}
+export type TaskStatus =
+  | "pending"
+  | "in-progress"
+  | "completed"
+  | "failed"
+  | "cancelled";

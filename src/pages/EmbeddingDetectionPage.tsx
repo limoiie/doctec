@@ -40,11 +40,7 @@ export function EmbeddingDetectionPage() {
             justifyContent: "center",
             alignItems: "center",
           }}
-        >
-          <Title level={3} style={{ color: "#fff", margin: 0 }}>
-            Malicious Document Detection
-          </Title>
-        </Header>
+        ></Header>
         <Content
           style={{ padding: "20px", display: "flex", justifyContent: "center" }}
         >
