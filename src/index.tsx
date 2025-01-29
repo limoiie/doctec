@@ -24,7 +24,7 @@ root.render(
     <BrowserRouter>
       <App />
     </BrowserRouter>
-    <Toaster />
+    <Toaster richColors position="bottom-right" />
   </ThemeProvider>,
 );
 

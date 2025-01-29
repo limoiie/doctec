@@ -45,7 +45,7 @@ const ConfigDetailsWrapper = () => {
   return <EmbeddingDetectionConfigDetails configUuid={configUuid} />;
 };
 
-export default function Page() {
+export default function DashboardPage() {
   const location = useLocation();
 
   // Get active item based on current URL

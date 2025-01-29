@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import List
 from uuid import UUID, uuid4
 
+import bcrypt
 from peewee import *
 
 from doctec.utils.peewees import EnumField, JSONField
@@ -23,6 +24,7 @@ def init_db(db_path: str):
 
     db.create_tables(
         [
+            User,
             FileBody,
             FileMetadata,
             EmbeddedFile,
@@ -45,6 +47,37 @@ class EmbDetectionStatus(enum.Enum):
 class BaseModel(Model):
     class Meta:
         database = DB_PROXY
+
+
+class User(BaseModel):
+    uuid: UUID = UUIDField(primary_key=True, unique=True, default=uuid4)
+    username: str = CharField(unique=True)
+    email: str = CharField(unique=True)
+    password_hash: str = CharField()
+    avatar: str = CharField(null=True)
+    created_at = DateTimeField(default=datetime.datetime.now)
+    updated_at = DateTimeField(default=datetime.datetime.now)
+
+    @classmethod
+    def create_user(cls, username: str, email: str, password: str) -> "User":
+        """Create a new user with hashed password."""
+        password_hash = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
+        return cls.create(
+            username=username,
+            email=email,
+            password_hash=password_hash.decode("utf-8"),
+            avatar="/avatars/shadcn.jpg",
+        )
+
+    def verify_password(self, password: str) -> bool:
+        """Verify the provided password against the stored hash."""
+        return bcrypt.checkpw(
+            password.encode("utf-8"), self.password_hash.encode("utf-8")
+        )
+
+    def to_dict(self) -> dict:
+        """Convert user to dictionary for frontend."""
+        return {"username": self.username, "email": self.email, "avatar": self.avatar}
 
 
 class FileBody(BaseModel):

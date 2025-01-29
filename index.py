@@ -6,7 +6,7 @@ import eel
 
 from doctec import schemas
 from doctec.ctx import AppContext
-from doctec.models import init_db
+from doctec.models import User, init_db
 from doctec.utils.loggings import get_logger, init_logging
 
 
@@ -152,6 +152,64 @@ def debug(msg: str):
     :param msg:
     """
     _LOGGER.info(f"Debug (py): {msg}")
+
+
+@eel.expose
+@log_on_calling
+def login(email: str, password: str) -> Dict:
+    """
+    Authenticate a user.
+
+    Args:
+        email: User's email
+        password: User's password
+
+    Returns:
+        Dict containing user information if authentication successful
+
+    Raises:
+        Exception if authentication fails
+    """
+    # noinspection PyUnresolvedReferences
+    try:
+        user = User.get(User.email == email)
+        if user.verify_password(password):
+            return user.to_dict()
+        raise Exception("Invalid password")
+
+    except User.DoesNotExist:
+        raise Exception("User not found")
+
+
+@eel.expose
+@log_on_calling
+def register(username: str, email: str, password: str) -> Dict:
+    """
+    Register a new user.
+
+    Args:
+        username: Desired username
+        email: User's email
+        password: User's password
+
+    Returns:
+        Dict containing user information if registration successful
+
+    Raises:
+        Exception if registration fails
+    """
+    try:
+        # Check if user already exists
+        if User.select().where(User.email == email).exists():
+            raise Exception("Email already registered")
+        if User.select().where(User.username == username).exists():
+            raise Exception("Username already taken")
+
+        # Create new user
+        user = User.create_user(username=username, email=email, password=password)
+        return user.to_dict()
+    except Exception as e:
+        raise Exception(f"Registration failed: {str(e)}")
 
 
 if __name__ == "__main__":

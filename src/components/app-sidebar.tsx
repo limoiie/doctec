@@ -20,15 +20,7 @@ import { SidebarEmbDetectTasks } from "@/cus-components/SidebarEmbDetectTasks";
 import { SidebarEmbDetectTaskConfigs } from "@/cus-components/SidebarEmbDetectTaskConfigs";
 import { Modules, NavItem, navMain } from "@/cus-components/SidebarNavData";
 import { ThemeToggle } from "@/components/theme-toggle";
-
-// This is sample data
-const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-};
+import { useAuth } from "@/contexts/auth-context";
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   activeItem: NavItem;
@@ -36,6 +28,7 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
 
 export function AppSidebar({ activeItem, ...props }: AppSidebarProps) {
   const { setOpen } = useSidebar();
+  const { user } = useAuth();
 
   return (
     <Sidebar
@@ -96,7 +89,7 @@ export function AppSidebar({ activeItem, ...props }: AppSidebarProps) {
         <SidebarFooter>
           <div className="flex flex-col items-center gap-4">
             <ThemeToggle />
-            <NavUser user={data.user} />
+            <NavUser user={user!} />
           </div>
         </SidebarFooter>
       </Sidebar>
