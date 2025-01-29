@@ -6,6 +6,7 @@ import {
   ColumnFiltersState,
   flexRender,
   getCoreRowModel,
+  getExpandedRowModel,
   getFacetedRowModel,
   getFacetedUniqueValues,
   getFilteredRowModel,
@@ -27,21 +28,25 @@ import {
 
 import { DataTablePagination } from "./data-table-pagination";
 import { DataTableToolbar, FacedFilterDef } from "./data-table-toolbar";
+import { ExpandedState } from "@tanstack/table-core";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   facedFilters: FacedFilterDef[];
   searchColumnKey: string;
   data: TData[];
+  getChildrenData: (data: TData) => TData[] | undefined;
 }
 
-export function DataTable<TData, TValue>({
+export function TreeTable<TData, TValue>({
   columns,
   facedFilters,
   searchColumnKey,
   data,
+  getChildrenData,
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({});
+  const [expanded, setExpanded] = React.useState<ExpandedState>({});
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -56,18 +61,24 @@ export function DataTable<TData, TValue>({
       sorting,
       columnVisibility,
       rowSelection,
+      expanded,
       columnFilters,
     },
     enableRowSelection: true,
+    filterFromLeafRows: true, // search through the expanded rows
+    paginateExpandedRows: false, // do not paginate the expanded rows
     onRowSelectionChange: setRowSelection,
+    onExpandedChange: setExpanded,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
+    getSubRows: getChildrenData,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
+    getExpandedRowModel: getExpandedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
   });
 

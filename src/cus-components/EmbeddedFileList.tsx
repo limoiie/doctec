@@ -1,43 +1,24 @@
-import React from "react";
+import React, { useEffect } from "react";
 import type { EmbeddedFileData } from "@/types/EmbeddedFileData.schema.d";
 import { splitPathName } from "@/utils";
-import { DataTable } from "@/components/data-table";
-import { columnsOfEmbDetectFile } from "@/components/columns-of-emb-detect-file";
-import { EmbDetectFile } from "@/data/schema";
+import { ListTable } from "@/components/list-table";
+import { listColumnsOfEmbDetectFile } from "@/components/list-columns-of-emb-detect-file";
+import { EmbDetectFileVO } from "@/data/schema";
 
 /**
- * Sort by parent path
+ * Build the embedded file data tree
  */
-const sortByParentPath = (a: EmbDetectFile, b: EmbDetectFile) => {
-  const aParent = a.parent.split("/")[0];
-  const bParent = b.parent.split("/")[0];
-  if (aParent === bParent) {
-    return a.parent.localeCompare(b.parent);
-  }
-  return aParent.localeCompare(bParent);
-};
-
-export function EmbeddedFileList({ files }: { files: EmbeddedFileData[] }) {
-  const id2File = new Map(files.map((file) => [file.id, file]));
-  const allKinds = new Set(files.map((e) => e.metadata.data.kind));
-  const allCreators = new Set(files.map((e) => e.metadata.creator));
-  const allModifiers = new Set(files.map((e) => e.metadata.modifier));
-
-  const dataSource: EmbDetectFile[] = files.map((e: EmbeddedFileData) => {
-    const { name } = splitPathName(e.metadata.path);
-    if (!name) {
-      throw new Error("Invalid filename");
-    }
-
-    const parent_name =
-      e.parentId != e.id && id2File.has(e.parentId!)
-        ? splitPathName(id2File.get(e.parentId!)!.metadata.path)["name"]
-        : "";
-    const parent = parent_name ? `${parent_name}/${name}` : name;
+export function buildEmbFileDataTree(
+  files: EmbeddedFileData[],
+): EmbDetectFileVO[] {
+  const dataSource: EmbDetectFileVO[] = files.map((e: EmbeddedFileData) => {
     return {
       id: e.id,
       filepath: e.metadata.path,
-      parent: parent,
+      embPath: "",
+      parentId: e.parentId,
+      ancestors: [] as number[],
+      children: [] as number[],
       size: e.metadata.data.size,
       md5: e.metadata.data.md5,
       kind: e.metadata.data.kind,
@@ -48,41 +29,96 @@ export function EmbeddedFileList({ files }: { files: EmbeddedFileData[] }) {
     };
   });
 
-  const sortedData = dataSource.sort(sortByParentPath);
+  const id2EmbeddedFileMap = dataSource.reduce(
+    (acc, cur) => acc.set(cur.id, cur),
+    new Map<number, EmbDetectFileVO>(),
+  );
+  const visited = new Set();
+
+  function buildRelationship(file: EmbDetectFileVO): EmbDetectFileVO {
+    if (visited.has(file.id)) {
+      return file;
+    }
+    const parentId = file.parentId;
+    if (parentId === null || parentId == file.id) {
+      file.embPath = file.filepath + "#" + file.id;
+      file.parentId = file.id;
+      file.ancestors = [];
+      visited.add(file.id);
+      return file;
+    }
+
+    const parent = buildRelationship(id2EmbeddedFileMap.get(parentId)!);
+    file.embPath =
+      parent.embPath +
+      "/" +
+      splitPathName(file.filepath)["name"] +
+      "#" +
+      file.id;
+    file.ancestors = [...parent.ancestors, parent.id];
+    if (!parent.children.includes(file.id)) {
+      parent.children.push(file.id);
+    }
+    visited.add(file.id);
+    return file;
+  }
+
+  dataSource.forEach(buildRelationship);
+  return dataSource;
+}
+
+export function EmbeddedFileList({ files }: { files: EmbeddedFileData[] }) {
+  const [kinds, setKinds] = React.useState<string[]>([]);
+  const [creators, setCreators] = React.useState<string[]>([]);
+  const [modifiers, setModifiers] = React.useState<string[]>([]);
+  const [dataSource, setDataSource] = React.useState<EmbDetectFileVO[]>([]);
+
+  useEffect(() => {
+    // noinspection DuplicatedCode
+    setKinds([...new Set(files.map((e) => e.metadata.data.kind))]);
+    setCreators([...new Set(files.map((e) => e.metadata.creator))]);
+    setModifiers([...new Set(files.map((e) => e.metadata.modifier))]);
+
+    const dataSource = buildEmbFileDataTree(files);
+    const sortedData = dataSource.sort(
+      (a: EmbDetectFileVO, b: EmbDetectFileVO) => {
+        return a.embPath.localeCompare(b.embPath);
+      },
+    );
+    setDataSource(sortedData);
+  }, [files]);
 
   return (
-    <>
-      <DataTable
-        data={sortedData}
-        columns={columnsOfEmbDetectFile}
-        facedFilters={[
-          {
-            columnKey: "kind",
-            title: "Kind",
-            options: [...allKinds].map((kind) => ({
-              label: kind,
-              value: kind,
-            })),
-          },
-          {
-            columnKey: "creator",
-            title: "Creator",
-            options: [...allCreators].map((creator) => ({
-              label: creator,
-              value: creator,
-            })),
-          },
-          {
-            columnKey: "modifier",
-            title: "Modifier",
-            options: [...allModifiers].map((modifier) => ({
-              label: modifier,
-              value: modifier,
-            })),
-          },
-        ]}
-        searchColumnKey="filepath"
-      />
-    </>
+    <ListTable
+      data={dataSource}
+      columns={listColumnsOfEmbDetectFile}
+      facedFilters={[
+        {
+          columnKey: "kind",
+          title: "Kind",
+          options: [...kinds].map((kind) => ({
+            label: kind,
+            value: kind,
+          })),
+        },
+        {
+          columnKey: "creator",
+          title: "Creator",
+          options: [...creators].map((creator) => ({
+            label: creator,
+            value: creator,
+          })),
+        },
+        {
+          columnKey: "modifier",
+          title: "Modifier",
+          options: [...modifiers].map((modifier) => ({
+            label: modifier,
+            value: modifier,
+          })),
+        },
+      ]}
+      searchColumnKey="filepath"
+    />
   );
 }

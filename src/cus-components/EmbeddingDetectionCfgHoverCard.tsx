@@ -12,6 +12,11 @@ import {
   ScanSearchIcon,
   Settings2Icon,
 } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export function EmbeddingDetectionCfgHoverCard({
   cfg,
@@ -39,7 +44,15 @@ export function EmbeddingDetectionCfgHoverCard({
                 <div className="flex items-center pt-2">
                   <IdCardIcon className="mr-2 h-4 w-4 opacity-70" />{" "}
                   <span className="text-xs text-muted-foreground">
-                    UUID: <code>{cfg.uuid}</code>
+                    UUID:{" "}
+                    <Tooltip>
+                      <TooltipTrigger className="font-mono">
+                        <span className="inline-block">
+                          {cfg.uuid.substring(0, 16)}
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent>{cfg.uuid}</TooltipContent>
+                    </Tooltip>
                   </span>
                 </div>
                 <div className="flex items-center pt-2">

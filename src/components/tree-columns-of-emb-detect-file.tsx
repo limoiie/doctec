@@ -1,26 +1,62 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { EmbDetectFile } from "@/data/schema";
+import { EmbDetectFileVO } from "@/data/schema";
 import { DataTableColumnHeader } from "./data-table-column-header";
-import { Tooltip } from "@/components/ui/tooltip";
-import { TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { bytesToSize, formatDateTime } from "@/utils";
+import { FileIcon, FileMinus2Icon, FilePlus2Icon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { DataTableExpandableColumnHeader } from "@/components/data-table-expandable-column-header";
 
-export const columnsOfEmbDetectFile: ColumnDef<EmbDetectFile>[] = [
-  {
-    accessorKey: "parent",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Relationship" />
-    ),
-    cell: ({ row }) => <div>{row.getValue("parent")}</div>,
-  },
+export const treeColumnsOfEmbDetectFile: ColumnDef<EmbDetectFileVO>[] = [
+  // {
+  //   accessorKey: "ancestors",
+  //   header: ({ column }) => (
+  //     <DataTableColumnHeader column={column} title="Relationship" />
+  //   ),
+  //   cell: ({ row }) => <div>{JSON.stringify(row.getValue("ancestors"))}</div>,
+  // },
   {
     accessorKey: "filepath",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="FilePath" />
+    header: ({ column, table }) => (
+      <DataTableExpandableColumnHeader
+        column={column}
+        table={table}
+        title="FilePath"
+      />
     ),
-    cell: ({ row }) => <div>{row.getValue("filepath")}</div>,
+    cell: ({ row }) => (
+      <div
+        className="flex items-center"
+        style={{
+          paddingLeft: `${row.original.ancestors.length * 1.5}em`,
+        }}
+      >
+        {row.getCanExpand() ? (
+          <Button
+            variant="ghost"
+            className="w-4 h-4 p-0 m-2"
+            onClick={row.getToggleExpandedHandler()}
+          >
+            {row.getIsExpanded() ? (
+              <FileMinus2Icon size={14} />
+            ) : (
+              <FilePlus2Icon size={14} />
+            )}
+          </Button>
+        ) : (
+          <Button variant="ghost" className="w-4 h-4" disabled={true}>
+            <FileIcon size={14} />
+          </Button>
+        )}
+        {row.getValue("filepath")}
+      </div>
+    ),
   },
   {
     accessorKey: "size",
