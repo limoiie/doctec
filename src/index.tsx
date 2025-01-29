@@ -3,6 +3,7 @@ import { BrowserRouter } from "react-router-dom";
 import App from "@/App";
 import { useEel } from "@/hooks/use-eel";
 import { Toaster } from "@/components/ui/sonner";
+import { ThemeProvider } from "@/components/theme-provider";
 import registerServiceWorker from "./registerServiceWorker";
 
 import "@/styles/globals.css";
@@ -19,12 +20,12 @@ const container = document.getElementById("root");
 const root = createRoot(container!!);
 
 root.render(
-  <>
+  <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
     <BrowserRouter>
       <App />
     </BrowserRouter>
     <Toaster />
-  </>,
+  </ThemeProvider>,
 );
 
 registerServiceWorker();

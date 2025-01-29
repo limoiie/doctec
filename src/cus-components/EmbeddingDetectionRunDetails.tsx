@@ -47,7 +47,7 @@ export function EmbeddingDetectionRunDetails({ runUuid }: { runUuid: string }) {
   useEffect(() => loadData(), [runUuid]);
 
   return (
-    <div className="flex flex-col gap-2 bg-white">
+    <div className="flex flex-col gap-2">
       {loading && <Skeleton />}
 
       {!loading && !error && run && (

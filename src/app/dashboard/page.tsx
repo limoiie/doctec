@@ -25,6 +25,7 @@ import { EmbeddingDetectionRunDetails } from "@/cus-components/EmbeddingDetectio
 import { EmbeddingDetectionRunDetailsUnselected } from "@/cus-components/EmbeddingDetectionRunDetailsUnselected";
 import { EmbeddingDetectionConfigDetails } from "@/cus-components/EmbeddingDetectionConfigDetails";
 import { navMain } from "@/cus-components/SidebarNavData";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 // Create a wrapper component to get the URL parameter
 const RunDetailsWrapper = () => {
@@ -87,7 +88,6 @@ export default function Page() {
               <BreadcrumbItem>
                 <BreadcrumbPage>
                   {
-                    // Get the last item in the array
                     location.pathname
                       .split("/")
                       .filter((item) => item.length > 0)
@@ -97,6 +97,9 @@ export default function Page() {
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
+          <div className="ml-auto">
+            <ThemeToggle />
+          </div>
         </header>
         <div className="m-4">
           <Routes>

@@ -42,7 +42,7 @@ export function EmbeddingDetectionConfigDetails({
   }
 
   return (
-    <div className="flex flex-col gap-2 bg-white">
+    <div className="flex flex-col gap-2">
       {loading && <Skeleton />}
 
       {!loading && !error && config && (

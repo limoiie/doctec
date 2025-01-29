@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { Radar } from "lucide-react";
 
 import { NavUser } from "@/components/nav-user";
-import { Label } from "@/components/ui/label";
 import {
   Sidebar,
   SidebarContent,
@@ -17,10 +16,10 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { Switch } from "@/components/ui/switch";
 import { SidebarEmbDetectTasks } from "@/cus-components/SidebarEmbDetectTasks";
 import { SidebarEmbDetectTaskConfigs } from "@/cus-components/SidebarEmbDetectTaskConfigs";
 import { Modules, NavItem, navMain } from "@/cus-components/SidebarNavData";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 // This is sample data
 const data = {
@@ -95,7 +94,10 @@ export function AppSidebar({ activeItem, ...props }: AppSidebarProps) {
           </SidebarGroup>
         </SidebarContent>
         <SidebarFooter>
-          <NavUser user={data.user} />
+          <div className="flex flex-col items-center gap-4">
+            <ThemeToggle />
+            <NavUser user={data.user} />
+          </div>
         </SidebarFooter>
       </Sidebar>
 
