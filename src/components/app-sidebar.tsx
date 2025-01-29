@@ -1,6 +1,13 @@
 import * as React from "react";
 import { useEffect } from "react";
-import { FileSearchIcon, FileSlidersIcon, Radar } from "lucide-react";
+import {
+  CalendarPlusIcon,
+  FileSearchIcon,
+  FileSlidersIcon,
+  IdCardIcon,
+  PercentIcon,
+  Radar,
+} from "lucide-react";
 
 import { NavUser } from "@/components/nav-user";
 import { Label } from "@/components/ui/label";
@@ -22,6 +29,11 @@ import { useEel } from "@/hooks/use-eel";
 import { EmbDetectionRunData } from "@/types/EmbDetectionRunData.schema";
 import { StatusIcon } from "@/cus-components/StatusIcon";
 import { formatDateTime } from "@/utils";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 // This is sample data
 const data = {
@@ -150,16 +162,34 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   className="flex flex-col items-start gap-2 whitespace-nowrap border-b p-4 text-sm leading-tight last:border-b-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                 >
                   <div className="flex w-full items-center gap-2">
-                    <span>{run.uuid.substring(0, 8)}</span>{" "}
-                    <span className="ml-auto text-xs">
-                      {formatDateTime(run.launchedDate)}
+                    <div className="flex items-center">
+                      <IdCardIcon className="mr-2 h-4 w-4 opacity-70" />{" "}
+                      <span className="text-xs">
+                        <Tooltip>
+                          <TooltipTrigger className="font-mono">
+                            <span className="inline-block">
+                              {run.uuid.substring(0, 8)}
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent>{run.uuid}</TooltipContent>
+                        </Tooltip>
+                      </span>
+                    </div>
+                    <div className="flex items-center ml-auto">
+                      <CalendarPlusIcon className="mr-2 h-4 w-4 opacity-70" />{" "}
+                      <span className="ml-auto text-xs">
+                        {formatDateTime(run.launchedDate)}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-center">
+                    <PercentIcon className="mr-2 h-4 w-4 opacity-70" />{" "}
+                    <span className="text-xs text-muted-foreground">
+                      {run.nProcessed} / {run.nTotal}
                     </span>
                   </div>
                   <span className="font-medium">
-                    <StatusIcon status={run.status} />
-                  </span>
-                  <span className="line-clamp-2 w-[260px] whitespace-break-spaces text-xs">
-                    {run.nTotal} / {run.nProcessed}
+                    <StatusIcon status={run.status} size={16} />
                   </span>
                 </a>
               ))}
