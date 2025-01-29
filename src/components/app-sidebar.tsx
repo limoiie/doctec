@@ -1,14 +1,6 @@
 import * as React from "react";
-import { useEffect } from "react";
 import { Link } from "react-router-dom";
-import {
-  CalendarPlusIcon,
-  FileSearchIcon,
-  FileSlidersIcon,
-  IdCardIcon,
-  PercentIcon,
-  Radar,
-} from "lucide-react";
+import { Radar } from "lucide-react";
 
 import { NavUser } from "@/components/nav-user";
 import { Label } from "@/components/ui/label";
@@ -26,15 +18,9 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Switch } from "@/components/ui/switch";
-import { useEel } from "@/hooks/use-eel";
-import { EmbDetectionRunData } from "@/types/EmbDetectionRunData.schema";
-import { StatusIcon } from "@/cus-components/StatusIcon";
-import { formatDateTime } from "@/utils";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { SidebarEmbDetectTasks } from "@/cus-components/SidebarEmbDetectTasks";
+import { SidebarEmbDetectTaskConfigs } from "@/cus-components/SidebarEmbDetectTaskConfigs";
+import { Modules, NavItem, navMain } from "@/cus-components/SidebarNavData";
 
 // This is sample data
 const data = {
@@ -43,38 +29,14 @@ const data = {
     email: "m@example.com",
     avatar: "/avatars/shadcn.jpg",
   },
-  navMain: [
-    {
-      title: "Embed Detections",
-      url: "/dashboard/task/detections",
-      icon: FileSearchIcon,
-      isActive: true,
-    },
-    {
-      title: "Embed Detection Configs",
-      url: "/dashboard/task/detections/configs",
-      icon: FileSlidersIcon,
-      isActive: false,
-    },
-  ],
 };
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  // Note: I'm using state to show active item.
-  // IRL you should use the url/router.
-  const [activeItem, setActiveItem] = React.useState(data.navMain[0]);
-  const [detectRuns, setDetectRuns] = React.useState<EmbDetectionRunData[]>([]);
-  const { setOpen } = useSidebar();
-  const { eel } = useEel();
+interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
+  activeItem: NavItem;
+}
 
-  useEffect(() => {
-    eel
-      .fetchEmbeddingDetectionRuns(0, 1000)()
-      .then((runs: EmbDetectionRunData[]) => {
-        console.log("fetchEmbeddingDetectionRuns", runs);
-        setDetectRuns(runs);
-      });
-  }, []);
+export function AppSidebar({ activeItem, ...props }: AppSidebarProps) {
+  const { setOpen } = useSidebar();
 
   return (
     <Sidebar
@@ -93,7 +55,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton size="lg" asChild className="md:h-8 md:p-0">
-                <a href="#">
+                <Link to="/dashboard">
                   <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                     <Radar className="size-4" />
                   </div>
@@ -101,7 +63,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     <span className="truncate font-semibold">IIE Inc</span>
                     <span className="truncate text-xs">Institute</span>
                   </div>
-                </a>
+                </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
@@ -110,23 +72,22 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarGroup>
             <SidebarGroupContent className="px-1.5 md:px-0">
               <SidebarMenu>
-                {data.navMain.map((item) => (
+                {navMain.map((item) => (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton
-                      tooltip={{
-                        children: item.title,
-                        hidden: false,
-                      }}
-                      onClick={() => {
-                        setActiveItem(item);
-                        setOpen(true);
-                      }}
-                      isActive={activeItem.title === item.title}
-                      className="px-2.5 md:px-2"
-                    >
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </SidebarMenuButton>
+                    <Link to={item.url}>
+                      <SidebarMenuButton
+                        tooltip={{
+                          children: item.title,
+                          hidden: false,
+                        }}
+                        onClick={() => setOpen(true)}
+                        isActive={activeItem.module === item.module}
+                        className="px-2.5 md:px-2"
+                      >
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </SidebarMenuButton>
+                    </Link>
                   </SidebarMenuItem>
                 ))}
               </SidebarMenu>
@@ -146,54 +107,26 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <div className="text-base font-medium text-foreground">
               {activeItem.title}
             </div>
-            <Label className="flex items-center gap-2 text-sm">
-              <span>Done</span>
-              <Switch className="shadow-none" />
-            </Label>
+            {/*<Label className="flex items-center gap-2 text-sm">*/}
+            {/*  <span>Done</span>*/}
+            {/*  <Switch className="shadow-none" />*/}
+            {/*</Label>*/}
           </div>
           <SidebarInput placeholder="Type to search..." />
         </SidebarHeader>
         <SidebarContent>
           <SidebarGroup className="px-0">
             <SidebarGroupContent>
-              {detectRuns.map((run) => (
-                <Link
-                  to={"/dashboard/task/detection/run/" + run.uuid}
-                  key={run.uuid}
-                  className="flex flex-col items-start gap-2 whitespace-nowrap border-b p-4 text-sm leading-tight last:border-b-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                >
-                  <div className="flex w-full items-center gap-2">
-                    <div className="flex items-center">
-                      <IdCardIcon className="mr-2 h-4 w-4 opacity-70" />{" "}
-                      <span className="text-xs">
-                        <Tooltip>
-                          <TooltipTrigger className="font-mono">
-                            <span className="inline-block">
-                              {run.uuid.substring(0, 8)}
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent>{run.uuid}</TooltipContent>
-                        </Tooltip>
-                      </span>
-                    </div>
-                    <div className="flex items-center ml-auto">
-                      <CalendarPlusIcon className="mr-2 h-4 w-4 opacity-70" />{" "}
-                      <span className="ml-auto text-xs">
-                        {formatDateTime(run.launchedDate)}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex items-center">
-                    <PercentIcon className="mr-2 h-4 w-4 opacity-70" />{" "}
-                    <span className="text-xs text-muted-foreground">
-                      {run.nProcessed} / {run.nTotal}
-                    </span>
-                  </div>
-                  <span className="font-medium">
-                    <StatusIcon status={run.status} size={16} />
-                  </span>
-                </Link>
-              ))}
+              {(() => {
+                switch (activeItem.module) {
+                  case Modules.DETECTION_TASKS:
+                    return <SidebarEmbDetectTasks />;
+                  case Modules.DETECTION_TASK_CONFIGS:
+                    return <SidebarEmbDetectTaskConfigs />;
+                  default:
+                    return null;
+                }
+              })()}
             </SidebarGroupContent>
           </SidebarGroup>
         </SidebarContent>

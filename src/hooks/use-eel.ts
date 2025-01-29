@@ -1,6 +1,7 @@
 import { eel } from "@/eel";
 import { EmbDetectionResultDataWithoutRun } from "@/types/EmbDetectionResultDataWithoutRun.schema";
 import { EmbDetectionRunData } from "@/types/EmbDetectionRunData.schema";
+import { EmbDetectionConfigData } from "@/types/EmbDetectionConfigData.schema";
 
 interface Eel {
   exit(): void;
@@ -14,6 +15,10 @@ interface Eel {
   fetchEmbeddingDetectionRunByUuid(run_uuid: string): () => Promise<EmbDetectionRunData>;
 
   fetchEmbeddingDetectionResultByRunUuid(run_id: string): () => Promise<EmbDetectionResultDataWithoutRun>;
+
+  fetchEmbeddingDetectionConfigs(page_no: number, page_size: number): () => Promise<EmbDetectionConfigData[]>;
+
+  fetchEmbeddingDetectionConfigByUuid(config_uuid: string): () => Promise<EmbDetectionConfigData>;
 
   detectEmbeddedFiles(cfg: any): () => Promise<string>;
 

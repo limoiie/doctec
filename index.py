@@ -57,6 +57,44 @@ def fetchEmbeddingDetectionRunByUuid(run_uuid: str) -> schemas.EmbDetectionRunDa
 # noinspection PyPep8Naming
 @eel.expose
 @log_on_calling
+def fetchEmbeddingDetectionConfigs(
+    page_no: int = 0, page_size: int = -1
+) -> List[schemas.EmbDetectionConfigData]:
+    """
+    Fetch the embedding detection configs.
+
+    :param page_no:
+    :param page_size:
+    :return: a list of embedding detection configs in JSON format
+    """
+    configs = APP.emb_det_repo.fetch_configs(page_no, page_size)
+    return [
+        schemas.EmbDetectionConfigData.from_pw_model(cfg).model_dump()
+        for cfg in configs
+    ]
+
+
+# noinspection PyPep8Naming
+@eel.expose
+@log_on_calling
+def fetchEmbeddingDetectionConfigByUuid(config_uuid: str) -> dict:
+    """
+    Fetch an embedding detection configuration by its UUID.
+
+    Args:
+        config_uuid (str): The UUID of the configuration to fetch.
+
+    Returns:
+        dict: The configuration data formatted as JSON.
+    """
+    _LOGGER.info(f"Debug (py): Fetching config with UUID {config_uuid}")
+    cfg = APP.emb_det_repo.fetch_one_config_by_id(config_uuid)
+    return schemas.EmbDetectionConfigData.from_pw_model(cfg).model_dump()
+
+
+# noinspection PyPep8Naming
+@eel.expose
+@log_on_calling
 def fetchEmbeddingDetectionResultByRunUuid(
     run_id: str,
 ) -> schemas.EmbDetectionResultDataWithoutRun:

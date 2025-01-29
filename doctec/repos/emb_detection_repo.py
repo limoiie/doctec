@@ -1,16 +1,17 @@
 import hashlib
 import os
-from datetime import datetime, UTC
-from typing import List, Dict, Tuple, Union
+from datetime import UTC, datetime
+from typing import Dict, List, Tuple, Union
 from uuid import UUID
+
 from peewee import DoesNotExist
 
 from doctec.models import (
-    EmbeddedFile,
-    EmbDetectionStatus,
-    EmbDetectionResult,
     EmbDetectionConfig,
+    EmbDetectionResult,
     EmbDetectionRun,
+    EmbDetectionStatus,
+    EmbeddedFile,
     FileBody,
     FileMetadata,
 )
@@ -18,73 +19,28 @@ from doctec.models import (
 
 class EmbDetectionRepo:
     def __init__(self):
-        # self.dummy_db = {
-        #     "1001": EmbDetectionResult(
-        #         id="1001",
-        #         cfg=EmbDetectionConfig(
-        #             uuid="16001010101",
-        #             targetDirs=["/home/user1/docs"],
-        #         ),
-        #         date="2023-10-12T17:30:19Z",
-        #         progress=EmbeddingDetectionProgress(
-        #             status=EmbeddingDetectionStatus.COMPLETED,
-        #             error="",
-        #             totalFiles=3,
-        #             processedFiles=3,
-        #         ),
-        #         detectedFiles=[
-        #             EmbeddedFile(
-        #                 filepath="/home/user1/docs/doc1.doc",
-        #                 filesize=1000,
-        #                 embeddedFiles=[
-        #                     EmbeddedFile(
-        #                         filepath="nested1-1.doc",
-        #                         filesize=100,
-        #                         embeddedFiles=[],
-        #                     ),
-        #                     EmbeddedFile(
-        #                         filepath="nested1-2.doc",
-        #                         filesize=100,
-        #                         embeddedFiles=[
-        #                             EmbeddedFile(
-        #                                 filepath="nested2-1.doc",
-        #                                 filesize=100,
-        #                                 embeddedFiles=[],
-        #                             )
-        #                         ],
-        #                     ),
-        #                 ],
-        #             ),
-        #             EmbeddedFile(
-        #                 filepath="/home/user1/docs/doc2.doc",
-        #                 filesize=1000,
-        #                 embeddedFiles=[
-        #                     EmbeddedFile(
-        #                         filepath="nested1-1.doc",
-        #                         filesize=100,
-        #                         embeddedFiles=[],
-        #                     )
-        #                 ],
-        #             ),
-        #         ],
-        #     ),
-        #     "1002": EmbDetectionResult(
-        #         id="1002",
-        #         cfg=EmbDetectionConfig(
-        #             uuid="16002121312",
-        #             targetDirs=["/home/user2/docs"],
-        #         ),
-        #         date="2023-10-12T17:30:19Z",
-        #         progress=EmbeddingDetectionProgress(
-        #             status=EmbeddingDetectionStatus.IN_PROGRESS,
-        #             error="",
-        #             totalFiles=3,
-        #             processedFiles=0,
-        #         ),
-        #         detectedFiles=[],
-        #     ),
-        # }
         pass
+
+    @staticmethod
+    def fetch_configs(
+        page_no: int = 0, page_size: int = -1, order_by="uuid", desc=True
+    ) -> List[EmbDetectionConfig]:
+        query = EmbDetectionConfig.select()
+        # Sorting the results by the specified field
+        if order_by:
+            query = query.order_by(
+                getattr(EmbDetectionConfig, order_by).desc()
+                if desc
+                else getattr(EmbDetectionConfig, order_by).incr()
+            )
+        # Implementing pagination if page_size is specified
+        if page_size and page_size > 0:
+            query = query.paginate(page_no + 1, page_size)
+        return list(query)
+
+    @staticmethod
+    def fetch_one_config_by_id(config_id: Union[str, UUID]) -> EmbDetectionConfig:
+        return EmbDetectionConfig.get_by_id(config_id)
 
     @staticmethod
     def fetch_or_create_config(
@@ -142,7 +98,8 @@ class EmbDetectionRepo:
             run_to_delete.delete_instance(recursive=True)
 
             cfg_to_delete = EmbDetectionConfig.get(
-                EmbDetectionConfig.uuid == run_to_delete.cfg)
+                EmbDetectionConfig.uuid == run_to_delete.cfg
+            )
 
             run_to_delete.delete_instance(recursive=True)
             cfg_to_delete.delete_instance()
