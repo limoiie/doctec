@@ -10,11 +10,16 @@ import {
   CalendarCheckIcon,
   CalendarPlusIcon,
   CircleAlertIcon,
+  IdCardIcon,
   PercentIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { TaskStatus } from "@/types";
-import { formatDateTime, statusToDisplayText } from "@/utils";
+import { formatDateTime } from "@/utils";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export function EmbeddingDetectionRunHoverCard({
   run,
@@ -25,30 +30,30 @@ export function EmbeddingDetectionRunHoverCard({
     <div>
       <HoverCard>
         <HoverCardTrigger asChild>
-          <Button variant="outline">
-            <StatusIcon status={run.status} showText={true} />
+          <Button variant="outline" size="icon">
+            <StatusIcon status={run.status} showText={false} />
           </Button>
         </HoverCardTrigger>
         <HoverCardContent className="w-80">
-          <div className="flex justify-between space-x-4">
+          <div className="flex space-x-4">
             <Avatar>
               <StatusIcon status={run.status} showText={false} size={42} />
             </Avatar>
             <div className="space-y-1">
-              <h4 className="text-sm font-semibold">
-                {statusToDisplayText(run.status as TaskStatus)}
-              </h4>
-              <p className="text-sm">
-                The run of UUID{" "}
-                <a href="#">
-                  <code>{run.uuid.substring(0, 8)}</code>
-                </a>{" "}
-                is currently in the{" "}
-                <span className="font-semibold">
-                  {statusToDisplayText(run.status as TaskStatus)}
-                </span>{" "}
-                state.
-              </p>
+              <div className="flex items-center pt-2">
+                <IdCardIcon className="mr-2 h-4 w-4 opacity-70" />{" "}
+                <span className="text-xs text-muted-foreground">
+                  UUID:{" "}
+                  <Tooltip>
+                    <TooltipTrigger className="font-mono">
+                      <span className="inline-block">
+                        {run.uuid.substring(0, 16)}
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>{run.uuid}</TooltipContent>
+                  </Tooltip>
+                </span>
+              </div>
               {run.error && (
                 <div className="flex items-center pt-2">
                   <CircleAlertIcon className="mr-2 h-4 w-4 opacity-70" />{" "}
