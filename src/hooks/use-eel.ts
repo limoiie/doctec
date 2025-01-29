@@ -39,10 +39,19 @@ interface Eel {
 
   login(email: string, password: string): () => Promise<User>;
 
+  validate_session(token: string): () => Promise<User | null>;
+
+  logout(token: string): () => Promise<boolean>;
+
   debug(msg: string): () => Promise<void>;
 }
 
-export function useEel() {
+interface UseEelReturn {
+  eel: Eel;
+  setupHost: (host: string, port: number) => void;
+}
+
+export function useEel(): UseEelReturn {
   function setupHost(host: string, port: number) {
     eel.set_host(`ws://${host}:${port}`);
   }

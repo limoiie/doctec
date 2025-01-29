@@ -1,12 +1,12 @@
 import sys
 from functools import wraps
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import eel
 
 from doctec import schemas
 from doctec.ctx import AppContext
-from doctec.models import User, init_db
+from doctec.models import User, UserSession, init_db
 from doctec.utils.loggings import get_logger, init_logging
 
 
@@ -158,14 +158,14 @@ def debug(msg: str):
 @log_on_calling
 def login(email: str, password: str) -> Dict:
     """
-    Authenticate a user.
+    Authenticate a user and create a session.
 
     Args:
         email: User's email
         password: User's password
 
     Returns:
-        Dict containing user information if authentication successful
+        Dict containing user information and session token if authentication successful
 
     Raises:
         Exception if authentication fails
@@ -174,11 +174,51 @@ def login(email: str, password: str) -> Dict:
     try:
         user = User.get(User.email == email)
         if user.verify_password(password):
-            return user.to_dict()
+            # Create a new session
+            session = user.create_session(expires_in_days=1)
+            return user.to_dict(session_token=session.token)
         raise Exception("Invalid password")
-
     except User.DoesNotExist:
         raise Exception("User not found")
+
+
+@eel.expose
+@log_on_calling
+def validate_session(token: str) -> Optional[Dict]:
+    """
+    Validate a session token and return user information if valid.
+
+    Args:
+        token: Session token to validate
+
+    Returns:
+        Dict containing user information if session is valid, None otherwise
+    """
+    session = UserSession.get_valid_session(token)
+    if session:
+        return session.user.to_dict(session_token=token)
+    return None
+
+
+@eel.expose
+@log_on_calling
+def logout(token: str) -> bool:
+    """
+    Invalidate a session token.
+
+    Args:
+        token: Session token to invalidate
+
+    Returns:
+        True if session was invalidated, False otherwise
+    """
+    # noinspection PyUnresolvedReferences
+    try:
+        session = UserSession.get(UserSession.token == token)
+        session.delete_instance()
+        return True
+    except UserSession.DoesNotExist:
+        return False
 
 
 @eel.expose

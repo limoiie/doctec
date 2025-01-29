@@ -1,4 +1,4 @@
-import { LoginForm } from "@/components/login-form"
+import { LoginForm } from "@/components/login-form";
 import { useAuth } from "@/contexts/auth-context";
 
 export default function LoginPage() {
@@ -9,5 +9,5 @@ export default function LoginPage() {
         <LoginForm onLogin={login} />
       </div>
     </div>
-  )
+  );
 }

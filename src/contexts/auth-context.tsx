@@ -7,13 +7,15 @@ export interface User {
   username: string;
   email: string;
   avatar: string;
+  session_token?: string;
 }
 
 interface AuthContextType {
   isAuthenticated: boolean;
   user: User | null;
   login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
+  isLoading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -21,6 +23,7 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const navigate = useNavigate();
   const { eel } = useEel();
 
@@ -30,16 +33,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         const storedUser = localStorage.getItem("user");
         if (storedUser) {
-          setUser(JSON.parse(storedUser));
-          setIsAuthenticated(true);
+          const parsedUser = JSON.parse(storedUser) as User;
+          if (parsedUser.session_token) {
+            // Validate the session token
+            const validUser = await eel.validate_session(
+              parsedUser.session_token,
+            )();
+            if (validUser) {
+              // Make sure to include the session_token in the user object
+              setUser({
+                ...validUser,
+                session_token: parsedUser.session_token,
+              });
+              setIsAuthenticated(true);
+              console.log("User is authenticated");
+              setIsLoading(false);
+              return;
+            }
+          }
+          console.log("Invalid session token");
+          // If we get here, the session is invalid
+          localStorage.removeItem("user");
+          setUser(null);
+          setIsAuthenticated(false);
         }
       } catch (error) {
         console.error("Error checking auth:", error);
+        localStorage.removeItem("user");
+        setUser(null);
+        setIsAuthenticated(false);
+      } finally {
+        setIsLoading(false);
       }
     };
 
     checkAuth();
-  }, []);
+  }, [eel]);
 
   const login = async (email: string, password: string) => {
     try {
@@ -56,15 +85,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem("user");
-    setUser(null);
-    setIsAuthenticated(false);
-    navigate("/login");
+  const logout = async () => {
+    try {
+      if (user?.session_token) {
+        await eel.logout(user.session_token)();
+      }
+    } finally {
+      localStorage.removeItem("user");
+      setUser(null);
+      setIsAuthenticated(false);
+      navigate("/login");
+    }
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, login, logout }}>
+    <AuthContext.Provider
+      value={{ isAuthenticated, user, login, logout, isLoading }}
+    >
       {children}
     </AuthContext.Provider>
   );

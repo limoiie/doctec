@@ -6,8 +6,9 @@ The models are supposed to be used between the backend service and the database.
 
 import datetime
 import enum
+import secrets
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 from uuid import UUID, uuid4
 
 import bcrypt
@@ -25,6 +26,7 @@ def init_db(db_path: str):
     db.create_tables(
         [
             User,
+            UserSession,
             FileBody,
             FileMetadata,
             EmbeddedFile,
@@ -75,9 +77,45 @@ class User(BaseModel):
             password.encode("utf-8"), self.password_hash.encode("utf-8")
         )
 
-    def to_dict(self) -> dict:
+    def create_session(self, expires_in_days: int = 1) -> "UserSession":
+        """Create a new session for the user."""
+        return UserSession.create_session(self, expires_in_days)
+
+    def to_dict(self, session_token: str = None) -> dict:
         """Convert user to dictionary for frontend."""
-        return {"username": self.username, "email": self.email, "avatar": self.avatar}
+        data = {
+            "username": self.username,
+            "email": self.email,
+            "avatar": self.avatar,
+            "session_token": session_token,
+        }
+        return data
+
+
+class UserSession(BaseModel):
+    token = CharField(primary_key=True)
+    user = ForeignKeyField(model=User, backref="sessions", on_delete="CASCADE")
+    created_at = DateTimeField(default=datetime.datetime.now)
+    expires_at = DateTimeField()
+
+    @classmethod
+    def create_session(cls, user: "User", expires_in_days: int = 1) -> "UserSession":
+        """Create a new session for the user."""
+        token = secrets.token_urlsafe(32)
+        expires_at = datetime.datetime.now() + datetime.timedelta(days=expires_in_days)
+        return cls.create(token=token, user=user, expires_at=expires_at)
+
+    @classmethod
+    def get_valid_session(cls, token: str) -> Optional["UserSession"]:
+        """Get a valid session by token."""
+        # noinspection PyUnresolvedReferences
+        try:
+            session = cls.get(
+                (cls.token == token) & (cls.expires_at > datetime.datetime.now())
+            )
+            return session
+        except cls.DoesNotExist:
+            return None
 
 
 class FileBody(BaseModel):
