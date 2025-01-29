@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useEffect } from "react";
+import { Link } from "react-router-dom";
 import {
   CalendarPlusIcon,
   FileSearchIcon,
@@ -156,8 +157,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarGroup className="px-0">
             <SidebarGroupContent>
               {detectRuns.map((run) => (
-                <a
-                  href={"/dashboard/task/detection/run/" + run.uuid}
+                <Link
+                  to={"/dashboard/task/detection/run/" + run.uuid}
                   key={run.uuid}
                   className="flex flex-col items-start gap-2 whitespace-nowrap border-b p-4 text-sm leading-tight last:border-b-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                 >
@@ -191,7 +192,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <span className="font-medium">
                     <StatusIcon status={run.status} size={16} />
                   </span>
-                </a>
+                </Link>
               ))}
             </SidebarGroupContent>
           </SidebarGroup>

@@ -17,6 +17,7 @@ export function EmbeddingDetectionRunDetails({ runUuid }: { runUuid: string }) {
   );
 
   function loadData() {
+    setResult(null);
     setLoading(true);
     setError(null);
 

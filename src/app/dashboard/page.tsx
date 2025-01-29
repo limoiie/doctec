@@ -1,4 +1,5 @@
 import React from "react";
+import { Navigate, Route, Routes, useParams } from "react-router-dom";
 import { AppSidebar } from "@/components/app-sidebar";
 import {
   Breadcrumb,
@@ -14,9 +15,17 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { Navigate, Route, Routes } from "react-router-dom";
 import { EmbeddingDetectionRunDetails } from "@/cus-components/EmbeddingDetectionRunDetails";
 import { EmbeddingDetectionRunDetailsUnselected } from "@/cus-components/EmbeddingDetectionRunDetailsUnselected";
+
+// Create a wrapper component to get the URL parameter
+const RunDetailsWrapper = () => {
+  const { runUuid } = useParams();
+  if (!runUuid) {
+    return <Navigate to="/dashboard/task/detection/run" replace />;
+  }
+  return <EmbeddingDetectionRunDetails runUuid={runUuid} />;
+};
 
 export default function Page() {
   return (
@@ -54,12 +63,9 @@ export default function Page() {
               path="task/detection/run"
               element={<EmbeddingDetectionRunDetailsUnselected />}
             />
-            {/* TODO fix the following path param */}
             <Route
               path="task/detection/run/:runUuid"
-              element={
-                <EmbeddingDetectionRunDetails runUuid="6c6352e1035640d4895322423147eee4" />
-              }
+              element={<RunDetailsWrapper />}
             />
           </Routes>
         </div>
