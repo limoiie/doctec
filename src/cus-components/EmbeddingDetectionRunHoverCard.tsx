@@ -1,4 +1,4 @@
-import type { EmbDetectionRunData } from "@/types/EmbDetectionRunData.schema.d";
+import type { DetectionTaskData } from "@/types/DetectionTaskData.schema.d";
 import { StatusIcon } from "./StatusIcon";
 import {
   HoverCard,
@@ -24,7 +24,7 @@ import {
 export function EmbeddingDetectionRunHoverCard({
   run,
 }: {
-  run: EmbDetectionRunData;
+  run: DetectionTaskData;
 }) {
   return (
     <div>

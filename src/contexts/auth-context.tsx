@@ -2,17 +2,11 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useEel } from "@/hooks/use-eel";
-
-export interface User {
-  username: string;
-  email: string;
-  avatar: string;
-  session_token?: string;
-}
+import { UserData } from "@/types/UserData.schema";
 
 interface AuthContextType {
   isAuthenticated: boolean;
-  user: User | null;
+  user: UserData | null;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   isLoading: boolean;
@@ -22,7 +16,7 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<UserData | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const navigate = useNavigate();
   const { eel } = useEel();
@@ -33,11 +27,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         const storedUser = localStorage.getItem("user");
         if (storedUser) {
-          const parsedUser = JSON.parse(storedUser) as User;
+          const parsedUser = JSON.parse(storedUser) as UserData;
           if (parsedUser.session_token) {
             // Validate the session token
             const validUser = await eel.validate_session(
-              parsedUser.session_token,
+              parsedUser.sessionToken,
             )();
             if (validUser) {
               // Make sure to include the session_token in the user object
@@ -88,7 +82,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = async () => {
     try {
       if (user?.session_token) {
-        await eel.logout(user.session_token)();
+        await eel.logout(user.sessionToken)();
       }
     } finally {
       localStorage.removeItem("user");

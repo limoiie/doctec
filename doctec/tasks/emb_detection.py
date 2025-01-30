@@ -11,10 +11,10 @@ from doctec.emb_extractor import EmbExtractor
 from doctec.models import (
     EmbDetectionConfig,
     EmbeddedFile,
-    EmbDetectionStatus,
+    TaskStatus,
     EmbDetectionResult,
 )
-from doctec.repos.emb_detection_repo import EmbDetectionRepo
+from doctec.repos.detection_repo import DetectionRepo
 from doctec.tasks.base import BaseJob
 from doctec.utils.loggings import get_logger
 
@@ -23,7 +23,7 @@ _LOGGER = get_logger(__name__)
 
 @dataclass
 class EmbDetectionJob(BaseJob[EmbDetectionConfig, EmbDetectionResult]):
-    _repo: EmbDetectionRepo = None
+    _repo: DetectionRepo = None
 
     def do(self, app: AppContext, *args, **kwargs):
         """Detect embedded files in parallel."""
@@ -64,7 +64,7 @@ class EmbDetectionJob(BaseJob[EmbDetectionConfig, EmbDetectionResult]):
 
         self._repo.update_run(
             self.res.run.uuid,
-            status=EmbDetectionStatus.IN_PROGRESS,
+            status=TaskStatus.IN_PROGRESS,
             n_total=len(collected),
         )
         return collected
@@ -94,7 +94,7 @@ class EmbDetectionJob(BaseJob[EmbDetectionConfig, EmbDetectionResult]):
             _LOGGER.info(f"TaskRun#{self.res.run.uuid} completed")
             self._repo.update_run(
                 self.res.run.uuid,
-                status=EmbDetectionStatus.COMPLETED,
+                status=TaskStatus.COMPLETED,
                 finished_date=datetime.now(),
             )
         else:

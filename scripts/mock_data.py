@@ -11,8 +11,8 @@ from faker import Faker
 from doctec.models import (
     EmbDetectionConfig,
     EmbDetectionResult,
-    EmbDetectionRun,
-    EmbDetectionStatus,
+    DetectionTask,
+    TaskStatus,
     EmbeddedFile,
     FileBody,
     FileMetadata,
@@ -85,30 +85,30 @@ def create_mock_emb_detection_config(num_records: int = 15) -> List[EmbDetection
 
 def create_mock_emb_detection_runs(
     configs: List[EmbDetectionConfig], num_records: int = 15
-) -> List[EmbDetectionRun]:
+) -> List[DetectionTask]:
     """Create mock EmbDetectionRun records."""
     records = []
-    statuses = list(EmbDetectionStatus)
+    statuses = list(TaskStatus)
 
     for _ in range(num_records):
         launched_date = fake.date_time_between(start_date="-1y", end_date="now")
         status = random.choice(statuses)
         n_total = random.randint(10, 100)
 
-        record = EmbDetectionRun.create(
+        record = DetectionTask.create(
             cfg=random.choice(configs),
             launchedDate=launched_date,
             finishedDate=(
                 fake.date_time_between(start_date=launched_date, end_date="now")
-                if status != EmbDetectionStatus.IN_PROGRESS
+                if status != TaskStatus.IN_PROGRESS
                 else None
             ),
             status=status,
-            error=fake.sentence() if status == EmbDetectionStatus.FAILED else None,
+            error=fake.sentence() if status == TaskStatus.FAILED else None,
             nTotal=n_total,
             nProcessed=(
                 random.randint(0, n_total)
-                if status == EmbDetectionStatus.IN_PROGRESS
+                if status == TaskStatus.IN_PROGRESS
                 else n_total
             ),
         )
@@ -118,13 +118,13 @@ def create_mock_emb_detection_runs(
 
 
 def create_mock_emb_detection_results(
-    runs: List[EmbDetectionRun], num_records: int = 15
+    runs: List[DetectionTask], num_records: int = 15
 ) -> List[EmbDetectionResult]:
     """Create mock EmbDetectionResult records."""
     records = []
 
     for run in runs:
-        if run.status == EmbDetectionStatus.COMPLETED:
+        if run.status == TaskStatus.COMPLETED:
             record = EmbDetectionResult.create(run=run)
             records.append(record)
 

@@ -49,6 +49,6 @@
     "nTotal",
     "nProcessed"
   ],
-  "title": "EmbDetectionRunData",
+  "title": "DetectionTaskData",
   "type": "object"
 }

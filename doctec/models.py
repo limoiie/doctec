@@ -31,14 +31,14 @@ def init_db(db_path: str):
             FileMetadata,
             EmbeddedFile,
             EmbDetectionConfig,
-            EmbDetectionRun,
+            DetectionTask,
             EmbDetectionResult,
         ],
         safe=True,
     )
 
 
-class EmbDetectionStatus(enum.Enum):
+class TaskStatus(enum.Enum):
     PENDING = "pending"
     IN_PROGRESS = "in-progress"
     COMPLETED = "completed"
@@ -81,16 +81,6 @@ class User(BaseModel):
         """Create a new session for the user."""
         return UserSession.create_session(self, expires_in_days)
 
-    def to_dict(self, session_token: str = None) -> dict:
-        """Convert user to dictionary for frontend."""
-        data = {
-            "username": self.username,
-            "email": self.email,
-            "avatar": self.avatar,
-            "session_token": session_token,
-        }
-        return data
-
 
 class UserSession(BaseModel):
     token = CharField(primary_key=True)
@@ -110,6 +100,7 @@ class UserSession(BaseModel):
         """Get a valid session by token."""
         # noinspection PyUnresolvedReferences
         try:
+            # noinspection PyTypeChecker
             session = cls.get(
                 (cls.token == token) & (cls.expires_at > datetime.datetime.now())
             )
@@ -164,16 +155,14 @@ class EmbDetectionConfig(BaseModel):
         indexes = ((("uuid",), True),)
 
 
-class EmbDetectionRun(BaseModel):
+class DetectionTask(BaseModel):
     uuid: UUID = UUIDField(primary_key=True, unique=True, default=uuid4)
     cfg: EmbDetectionConfig = ForeignKeyField(
         EmbDetectionConfig, backref="runs", null=False
     )
     launchedDate = DateTimeField(default=datetime.datetime.now, index=True, null=False)
     finishedDate = DateTimeField(default=None, null=True, index=True)
-    status: EmbDetectionStatus = EnumField(
-        choices=EmbDetectionStatus, null=False, index=True
-    )
+    status: TaskStatus = EnumField(choices=TaskStatus, null=False, index=True)
     error: str = TextField(null=True)
     nTotal: int = IntegerField(default=0, constraints=[Check("nTotal >= 0")])
     nProcessed: int = IntegerField(
@@ -195,13 +184,13 @@ class EmbDetectionRun(BaseModel):
 
     def mark_completed(self):
         """Mark the run as completed."""
-        self.status = EmbDetectionStatus.COMPLETED
+        self.status = TaskStatus.COMPLETED
         self.finishedDate = datetime.datetime.now()
         self.save()
 
     def mark_failed(self, error: str):
         """Mark the run as failed with an error message."""
-        self.status = EmbDetectionStatus.FAILED
+        self.status = TaskStatus.FAILED
         self.error = error
         self.finishedDate = datetime.datetime.now()
         self.save()
@@ -209,8 +198,8 @@ class EmbDetectionRun(BaseModel):
 
 class EmbDetectionResult(BaseModel):
     id: int = AutoField(primary_key=True)
-    run: EmbDetectionRun = ForeignKeyField(
-        EmbDetectionRun, backref="res", unique=True, on_delete="CASCADE"
+    run: DetectionTask = ForeignKeyField(
+        DetectionTask, backref="res", unique=True, on_delete="CASCADE"
     )
 
 

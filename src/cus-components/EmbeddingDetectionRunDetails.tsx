@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { eel } from "@/eel";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { EmbDetectionResultDataWithoutRun } from "@/types/EmbDetectionResultDataWithoutRun.schema.d";
-import type { EmbDetectionRunData } from "@/types/EmbDetectionRunData.schema.d";
+import type { DetectionTaskData } from "@/types/DetectionTaskData.schema.d";
 import { EmbeddingDetectionRunHoverCard } from "./EmbeddingDetectionRunHoverCard";
 import { EmbeddingDetectionCfgHoverCard } from "./EmbeddingDetectionCfgHoverCard";
 import { EmbeddingDetectionResDetails } from "./EmbeddingDetectionResDetails";
@@ -11,7 +11,7 @@ import { EmbeddingDetectionResDetails } from "./EmbeddingDetectionResDetails";
 export function EmbeddingDetectionRunDetails({ runUuid }: { runUuid: string }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [run, setRun] = useState<EmbDetectionRunData | null>(null);
+  const [run, setRun] = useState<DetectionTaskData | null>(null);
   const [result, setResult] = useState<EmbDetectionResultDataWithoutRun | null>(
     null,
   );
@@ -22,7 +22,7 @@ export function EmbeddingDetectionRunDetails({ runUuid }: { runUuid: string }) {
     setError(null);
 
     eel.fetchEmbeddingDetectionRunByUuid(runUuid)(
-      function (run: EmbDetectionRunData) {
+      function (run: DetectionTaskData) {
         setLoading(false);
         setRun(run);
       },

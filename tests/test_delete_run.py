@@ -1,18 +1,27 @@
 from typing import Union
 from uuid import UUID
-from doctec.models import EmbDetectionConfig, EmbDetectionResult, EmbDetectionRun, EmbeddedFile, FileBody, FileMetadata, init_db
+from doctec.models import (
+    EmbDetectionConfig,
+    EmbDetectionResult,
+    DetectionTask,
+    EmbeddedFile,
+    FileBody,
+    FileMetadata,
+    init_db,
+)
 from peewee import DoesNotExist
 import peewee
 
 
 def delete_run_result_by_run_id(run_id: Union[str, UUID]) -> bool:
     try:
-        run_to_delete = EmbDetectionRun.get(EmbDetectionRun.uuid == run_id)
+        run_to_delete = DetectionTask.get(DetectionTask.uuid == run_id)
 
         run_to_delete.delete_instance(recursive=True)
 
         cfg_to_delete = EmbDetectionConfig.get(
-            EmbDetectionConfig.uuid == run_to_delete.cfg)
+            EmbDetectionConfig.uuid == run_to_delete.cfg
+        )
 
         run_to_delete.delete_instance(recursive=True)
         cfg_to_delete.delete_instance()

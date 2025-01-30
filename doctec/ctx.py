@@ -1,15 +1,15 @@
 from concurrent.futures.thread import ThreadPoolExecutor
 from contextlib import AbstractContextManager
 
-from doctec.repos.emb_detection_repo import EmbDetectionRepo
+from doctec.repos.detection_repo import DetectionRepo
 
 
 class AppContext(AbstractContextManager):
     executor: ThreadPoolExecutor
-    emb_det_repo: EmbDetectionRepo
+    emb_det_repo: DetectionRepo
 
     def __init__(self):
-        self.emb_det_repo = EmbDetectionRepo()
+        self.emb_det_repo = DetectionRepo()
 
     def __enter__(self) -> "AppContext":
         self.executor = ThreadPoolExecutor()

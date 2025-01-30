@@ -5,7 +5,7 @@
  * and run json-schema-to-typescript to regenerate this file.
  */
 
-export interface EmbDetectionRunData {
+export interface DetectionTaskData {
   uuid: string;
   cfg: EmbDetectionConfigData;
   launchedDate: string;

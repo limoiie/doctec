@@ -1,0 +1,43 @@
+{
+  "properties": {
+    "uuid": {
+      "type": "string"
+    },
+    "username": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "avatar": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "sessionToken": {
+      "type": "string"
+    },
+    "created": {
+      "type": "string"
+    },
+    "updated": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "uuid",
+    "username",
+    "email",
+    "avatar",
+    "sessionToken",
+    "created",
+    "updated"
+  ],
+  "title": "UserData",
+  "type": "object"
+}

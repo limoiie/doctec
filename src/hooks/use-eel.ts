@@ -1,8 +1,8 @@
 import { eel } from "@/eel";
 import { EmbDetectionResultDataWithoutRun } from "@/types/EmbDetectionResultDataWithoutRun.schema";
-import { EmbDetectionRunData } from "@/types/EmbDetectionRunData.schema";
+import { DetectionTaskData } from "@/types/DetectionTaskData.schema";
 import { EmbDetectionConfigData } from "@/types/EmbDetectionConfigData.schema";
-import { User } from "@/contexts/auth-context";
+import { UserData } from "@/types/UserData.schema";
 
 interface Eel {
   exit(): void;
@@ -14,11 +14,11 @@ interface Eel {
   fetchEmbeddingDetectionRuns(
     page_no: number,
     page_size: number,
-  ): () => Promise<EmbDetectionRunData[]>;
+  ): () => Promise<DetectionTaskData[]>;
 
   fetchEmbeddingDetectionRunByUuid(
     run_uuid: string,
-  ): () => Promise<EmbDetectionRunData>;
+  ): () => Promise<DetectionTaskData>;
 
   fetchEmbeddingDetectionResultByRunUuid(
     run_id: string,
@@ -37,9 +37,9 @@ interface Eel {
 
   deleteRun(run_uuid: string): () => Promise<boolean>;
 
-  login(email: string, password: string): () => Promise<User>;
+  login(email: string, password: string): () => Promise<UserData>;
 
-  validate_session(token: string): () => Promise<User | null>;
+  validate_session(token: string): () => Promise<UserData | null>;
 
   logout(token: string): () => Promise<boolean>;
 

@@ -6,14 +6,14 @@ import pytest
 from doctec.models import (
     EmbeddedFile,
     FileMetadata,
-    EmbDetectionStatus,
+    TaskStatus,
 )
-from doctec.repos.emb_detection_repo import EmbDetectionRepo
+from doctec.repos.detection_repo import DetectionRepo
 
 
 @pytest.fixture
 def repo():
-    return EmbDetectionRepo()
+    return DetectionRepo()
 
 
 @pytest.fixture
@@ -34,7 +34,7 @@ def test_fetch_or_create_config(repo):
 def test_init_run(repo, cfg):
     res = repo.init_run(cfg)
     assert res.run.cfg == cfg
-    assert res.run.status == EmbDetectionStatus.PENDING
+    assert res.run.status == TaskStatus.PENDING
 
 
 def test_fetch_all_runs(repo):
@@ -57,15 +57,15 @@ def test_fetch_one_result_by_run_id(repo, cfg):
 def test_is_run_cancelled(repo, cfg):
     res = repo.init_run(cfg)
     assert not repo.is_run_cancelled(res.run.uuid)
-    repo.update_run(res.run.uuid, status=EmbDetectionStatus.CANCELLED)
+    repo.update_run(res.run.uuid, status=TaskStatus.CANCELLED)
     assert repo.is_run_cancelled(res.run.uuid)
 
 
 def test_update_run(repo, cfg):
     res = repo.init_run(cfg)
-    repo.update_run(res.run.uuid, status=EmbDetectionStatus.COMPLETED)
+    repo.update_run(res.run.uuid, status=TaskStatus.COMPLETED)
     updated_run = repo.fetch_one_run_by_id(res.run.uuid)
-    assert updated_run.status == EmbDetectionStatus.COMPLETED
+    assert updated_run.status == TaskStatus.COMPLETED
 
 
 def test_fetch_or_create_file_data(repo, resources):

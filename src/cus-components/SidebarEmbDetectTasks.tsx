@@ -2,7 +2,7 @@ import * as React from "react";
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { CalendarPlusIcon, IdCardIcon, PercentIcon } from "lucide-react";
-import { EmbDetectionRunData } from "@/types/EmbDetectionRunData.schema";
+import { DetectionTaskData } from "@/types/DetectionTaskData.schema";
 import { StatusIcon } from "@/cus-components/StatusIcon";
 import { formatDateTime } from "@/utils";
 import { useEel } from "@/hooks/use-eel";
@@ -13,13 +13,13 @@ import {
 } from "@/components/ui/tooltip";
 
 export function SidebarEmbDetectTasks() {
-  const [detectRuns, setDetectRuns] = React.useState<EmbDetectionRunData[]>([]);
+  const [detectRuns, setDetectRuns] = React.useState<DetectionTaskData[]>([]);
   const { eel } = useEel();
 
   useEffect(() => {
     eel
       .fetchEmbeddingDetectionRuns(0, 1000)()
-      .then((runs: EmbDetectionRunData[]) => {
+      .then((runs: DetectionTaskData[]) => {
         console.log("fetchEmbeddingDetectionRuns", runs);
         setDetectRuns(runs);
       });

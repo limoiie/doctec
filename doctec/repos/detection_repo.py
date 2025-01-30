@@ -7,17 +7,17 @@ from uuid import UUID
 from peewee import DoesNotExist
 
 from doctec.models import (
+    DetectionTask,
     EmbDetectionConfig,
     EmbDetectionResult,
-    EmbDetectionRun,
-    EmbDetectionStatus,
     EmbeddedFile,
     FileBody,
     FileMetadata,
+    TaskStatus,
 )
 
 
-class EmbDetectionRepo:
+class DetectionRepo:
     def __init__(self):
         pass
 
@@ -56,10 +56,10 @@ class EmbDetectionRepo:
         :param cfg: the configuration of the detection run
         :return: the initialized result object
         """
-        run = EmbDetectionRun.create(
+        run = DetectionTask.create(
             cfg=cfg.uuid,
             launchedDate=datetime.now(UTC),
-            status=EmbDetectionStatus.PENDING,
+            status=TaskStatus.PENDING,
         )
         res = EmbDetectionResult.create(run=run)
         return res
@@ -67,14 +67,14 @@ class EmbDetectionRepo:
     @staticmethod
     def fetch_runs(
         page_no: int = 0, page_size: int = -1, order_by="launchedDate", desc=True
-    ) -> List[EmbDetectionRun]:
-        query = EmbDetectionRun.select()
+    ) -> List[DetectionTask]:
+        query = DetectionTask.select()
         # Sorting the results by the specified field
         if order_by:
             query = query.order_by(
-                getattr(EmbDetectionRun, order_by).desc()
+                getattr(DetectionTask, order_by).desc()
                 if desc
-                else getattr(EmbDetectionRun, order_by).incr()
+                else getattr(DetectionTask, order_by).incr()
             )
         # Implementing pagination if page_size is specified
         if page_size and page_size > 0:
@@ -82,8 +82,8 @@ class EmbDetectionRepo:
         return list(query)
 
     @staticmethod
-    def fetch_one_run_by_id(run_id: Union[str, UUID]) -> EmbDetectionRun:
-        return EmbDetectionRun.get_by_id(run_id)
+    def fetch_one_run_by_id(run_id: Union[str, UUID]) -> DetectionTask:
+        return DetectionTask.get_by_id(run_id)
 
     @staticmethod
     def fetch_one_result_by_run_id(run_id: Union[str, UUID]) -> EmbDetectionResult:
@@ -93,7 +93,7 @@ class EmbDetectionRepo:
     def delete_run_result_by_run_id(run_id: Union[str, UUID]) -> bool:
         result = False
         try:
-            run_to_delete = EmbDetectionRun.get(EmbDetectionRun.uuid == run_id)
+            run_to_delete = DetectionTask.get(DetectionTask.uuid == run_id)
 
             run_to_delete.delete_instance(recursive=True)
 
@@ -119,36 +119,36 @@ class EmbDetectionRepo:
     @staticmethod
     def is_run_cancelled(run_id: Union[str, UUID]) -> bool:
         return (
-            EmbDetectionRun.select(EmbDetectionRun.status)
-            .where(EmbDetectionRun.uuid == run_id)
+            DetectionTask.select(DetectionTask.status)
+            .where(DetectionTask.uuid == run_id)
             .scalar()
-            == EmbDetectionStatus.CANCELLED
+            == TaskStatus.CANCELLED
         )
 
     @staticmethod
     def update_run(
         run_id: Union[str, UUID],
         *,
-        status: EmbDetectionStatus = None,
+        status: TaskStatus = None,
         error: str = None,
         n_total: int = None,
         n_processed: int = None,
         finished_date: datetime = None,
     ):
-        EmbDetectionRun.update(
+        DetectionTask.update(
             dict(
                 filter(
                     lambda x: x[1] is not None,
                     [
-                        (EmbDetectionRun.status, status),
-                        (EmbDetectionRun.error, error),
-                        (EmbDetectionRun.nTotal, n_total),
-                        (EmbDetectionRun.nProcessed, n_processed),
-                        (EmbDetectionRun.finishedDate, finished_date),
+                        (DetectionTask.status, status),
+                        (DetectionTask.error, error),
+                        (DetectionTask.nTotal, n_total),
+                        (DetectionTask.nProcessed, n_processed),
+                        (DetectionTask.finishedDate, finished_date),
                     ],
                 )
             ),
-        ).where(EmbDetectionRun.uuid == run_id).execute()
+        ).where(DetectionTask.uuid == run_id).execute()
 
     @staticmethod
     def fetch_or_create_file_data(filepath) -> Tuple[FileBody, bool]:
@@ -167,7 +167,7 @@ class EmbDetectionRepo:
 
     @staticmethod
     def create_file_metadata(filepath: str, *, creator, modifier) -> FileMetadata:
-        data, _ = EmbDetectionRepo.fetch_or_create_file_data(filepath)
+        data, _ = DetectionRepo.fetch_or_create_file_data(filepath)
         metadata = FileMetadata.create(
             path=filepath,
             data=data,

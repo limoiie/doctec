@@ -1,4 +1,3 @@
-import datetime
 from abc import abstractmethod
 from typing import Optional, Unpack, Set, Type, Generator, Any, Dict
 from uuid import UUID
@@ -6,17 +5,21 @@ from uuid import UUID
 from pydantic import BaseModel, ConfigDict
 
 from doctec.models import (
+    DetectionTask,
     EmbDetectionConfig,
-    EmbDetectionRun,
-    EmbeddedFile,
     EmbDetectionResult,
+    EmbeddedFile,
+    FileMetadata,
+    FileBody,
+    User,
 )
 
 __all__ = [
     "EmbDetectionConfigData",
-    "EmbDetectionRunData",
+    "DetectionTaskData",
     "EmbeddedFileData",
     "EmbDetectionResultDataWithoutRun",
+    "UserData",
     "generate_jsonschema",
 ]
 
@@ -55,10 +58,36 @@ class SchemaBaseModel(BaseModel):
         pass
 
 
+class UserData(SchemaBaseModel):
+    uuid: str
+    username: str
+    email: str
+    avatar: Optional[str]
+    sessionToken: str
+    created: str
+    updated: str
+
+    @classmethod
+    def from_pw_model(cls, m: User):
+        return UserData(
+            uuid=m.uuid.hex if isinstance(m.uuid, UUID) else m.uuid,
+            username=m.username,
+            email=m.email,
+            avatar=m.avatar,
+            sessionToken="",
+            created=str(m.created_at),
+            updated=str(m.updated_at),
+        )
+
+    def with_session_token(self, token: str) -> "UserData":
+        self.sessionToken = token
+        return self
+
+
 class EmbDetectionConfigData(SchemaBaseModel):
     uuid: str
     targetDirs: list[str]
-    saveDirs:str
+    saveDirs: str
     maxDepth: int
 
     @classmethod
@@ -71,7 +100,7 @@ class EmbDetectionConfigData(SchemaBaseModel):
         )
 
 
-class EmbDetectionRunData(SchemaBaseModel):
+class DetectionTaskData(SchemaBaseModel):
     uuid: str
     cfg: EmbDetectionConfigData
     launchedDate: str
@@ -82,8 +111,8 @@ class EmbDetectionRunData(SchemaBaseModel):
     nProcessed: int
 
     @classmethod
-    def from_pw_model(cls, m: EmbDetectionRun):
-        return EmbDetectionRunData(
+    def from_pw_model(cls, m: DetectionTask):
+        return DetectionTaskData(
             uuid=m.uuid.hex if isinstance(m.uuid, UUID) else m.uuid,
             cfg=EmbDetectionConfigData.from_pw_model(m.cfg),
             launchedDate=str(m.launchedDate),
@@ -102,7 +131,7 @@ class FileBodyData(SchemaBaseModel):
     data: Optional[bytes] = None
 
     @classmethod
-    def from_pw_model(cls, m):
+    def from_pw_model(cls, m: FileBody):
         return FileBodyData(
             md5=m.md5,
             size=m.size,
@@ -120,7 +149,7 @@ class FileMetadataData(SchemaBaseModel):
     modifier: str
 
     @classmethod
-    def from_pw_model(cls, m):
+    def from_pw_model(cls, m: FileMetadata):
         return FileMetadataData(
             id=m.id,
             path=m.path,

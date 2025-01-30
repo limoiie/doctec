@@ -7,6 +7,7 @@ import eel
 from doctec import schemas
 from doctec.ctx import AppContext
 from doctec.models import User, UserSession, init_db
+from doctec.schemas import UserData
 from doctec.utils.loggings import get_logger, init_logging
 
 
@@ -28,7 +29,7 @@ def log_on_calling(fn):
 @log_on_calling
 def fetchEmbeddingDetectionRuns(
     page_no: int = 0, page_size: int = -1
-) -> List[schemas.EmbDetectionRunData]:
+) -> List[schemas.DetectionTaskData]:
     """
     Fetch the embedding detection runs.
 
@@ -37,13 +38,13 @@ def fetchEmbeddingDetectionRuns(
     :return: a list of embedding detection results in JSON format
     """
     runs = APP.emb_det_repo.fetch_runs(page_no, page_size)
-    return [schemas.EmbDetectionRunData.from_pw_model(run).model_dump() for run in runs]
+    return [schemas.DetectionTaskData.from_pw_model(run).model_dump() for run in runs]
 
 
 # noinspection PyPep8Naming
 @eel.expose
 @log_on_calling
-def fetchEmbeddingDetectionRunByUuid(run_uuid: str) -> schemas.EmbDetectionRunData:
+def fetchEmbeddingDetectionRunByUuid(run_uuid: str) -> schemas.DetectionTaskData:
     """
     Fetch the embedding detection run by id.
 
@@ -51,7 +52,7 @@ def fetchEmbeddingDetectionRunByUuid(run_uuid: str) -> schemas.EmbDetectionRunDa
     :return: the embedding detection run in JSON format
     """
     run = APP.emb_det_repo.fetch_one_run_by_id(run_uuid)
-    return schemas.EmbDetectionRunData.from_pw_model(run).model_dump()
+    return schemas.DetectionTaskData.from_pw_model(run).model_dump()
 
 
 # noinspection PyPep8Naming
@@ -77,7 +78,9 @@ def fetchEmbeddingDetectionConfigs(
 # noinspection PyPep8Naming
 @eel.expose
 @log_on_calling
-def fetchEmbeddingDetectionConfigByUuid(config_uuid: str) -> dict:
+def fetchEmbeddingDetectionConfigByUuid(
+    config_uuid: str,
+) -> schemas.EmbDetectionConfigData:
     """
     Fetch an embedding detection configuration by its UUID.
 
@@ -156,7 +159,7 @@ def debug(msg: str):
 
 @eel.expose
 @log_on_calling
-def login(email: str, password: str) -> Dict:
+def login(email: str, password: str) -> UserData:
     """
     Authenticate a user and create a session.
 
@@ -176,7 +179,11 @@ def login(email: str, password: str) -> Dict:
         if user.verify_password(password):
             # Create a new session
             session = user.create_session(expires_in_days=1)
-            return user.to_dict(session_token=session.token)
+            return (
+                UserData.from_pw_model(user)
+                .with_session_token(session.token)
+                .model_dump()
+            )
         raise Exception("Invalid password")
     except User.DoesNotExist:
         raise Exception("User not found")
@@ -184,7 +191,7 @@ def login(email: str, password: str) -> Dict:
 
 @eel.expose
 @log_on_calling
-def validate_session(token: str) -> Optional[Dict]:
+def validate_session(token: str) -> Optional[UserData]:
     """
     Validate a session token and return user information if valid.
 
@@ -196,7 +203,9 @@ def validate_session(token: str) -> Optional[Dict]:
     """
     session = UserSession.get_valid_session(token)
     if session:
-        return session.user.to_dict(session_token=token)
+        return (
+            UserData.from_pw_model(session.user).with_session_token(token).model_dump()
+        )
     return None
 
 
@@ -223,7 +232,7 @@ def logout(token: str) -> bool:
 
 @eel.expose
 @log_on_calling
-def register(username: str, email: str, password: str) -> Dict:
+def register(username: str, email: str, password: str) -> UserData:
     """
     Register a new user.
 
@@ -247,7 +256,7 @@ def register(username: str, email: str, password: str) -> Dict:
 
         # Create new user
         user = User.create_user(username=username, email=email, password=password)
-        return user.to_dict()
+        return UserData.from_pw_model(user).model_dump()
     except Exception as e:
         raise Exception(f"Registration failed: {str(e)}")
 
