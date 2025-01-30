@@ -10,7 +10,7 @@ const { Title, Text } = Typography;
 
 export function EmbeddingDetectionPage() {
   const [targetDirs, setTargetDirs] = useState("C:\\Projects\\samples");
-  const [saveDirs, setSaveDirs] = useState("C:\\Projects\\samples_to_save");
+  const [saveDir, setSaveDir] = useState("C:\\Projects\\samples_to_save");
 
   const navigate = useNavigate();
 
@@ -18,7 +18,7 @@ export function EmbeddingDetectionPage() {
     const cfg: EmbDetectionConfigData = {
       uuid: "",
       targetDirs: targetDirs.split(";"),
-      saveDirs: saveDirs,
+      saveDir: saveDir,
       maxDepth: 5,
     };
     // noinspection JSUnresolvedReference
@@ -62,15 +62,15 @@ export function EmbeddingDetectionPage() {
               <Text strong>提取文件的保存目录:</Text>
               <Input
                 placeholder="Enter directories or files to save results"
-                value={saveDirs}
-                onChange={(e) => setSaveDirs(e.target.value)}
+                value={saveDir}
+                onChange={(e) => setSaveDir(e.target.value)}
                 style={{ width: "300px" }}
               />
             </Space>
             <Button
               type="primary"
               block
-              disabled={!targetDirs || !saveDirs}
+              disabled={!targetDirs || !saveDir}
               onClick={detect}
             >
               Start Detection

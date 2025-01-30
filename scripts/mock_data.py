@@ -75,7 +75,7 @@ def create_mock_emb_detection_config(num_records: int = 15) -> List[EmbDetection
             targetDirs=[
                 str(Path(fake.file_path(depth=1))) for _ in range(random.randint(1, 3))
             ],
-            saveDirs=str(Path(fake.file_path(depth=1))),
+            saveDir=str(Path(fake.file_path(depth=1))),
             maxDepth=random.randint(1, 5),
         )
         records.append(record)

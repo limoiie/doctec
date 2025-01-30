@@ -84,7 +84,7 @@ export function EmbeddingDetectionCfgHoverCard({
               <div className="flex items-center pt-2">
                 <SaveIcon className="mr-2 h-4 w-4 opacity-70" />{" "}
                 <span className="text-xs text-muted-foreground">
-                  Save Directory: <code>{cfg.saveDirs}</code>
+                  Save Directory: <code>{cfg.saveDir}</code>
                 </span>{" "}
               </div>
             </div>

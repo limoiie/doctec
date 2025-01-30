@@ -9,7 +9,7 @@
       },
       "type": "array"
     },
-    "saveDirs": {
+    "saveDir": {
       "type": "string"
     },
     "maxDepth": {
@@ -19,7 +19,7 @@
   "required": [
     "uuid",
     "targetDirs",
-    "saveDirs",
+    "saveDir",
     "maxDepth"
   ],
   "title": "EmbDetectionConfigData",
