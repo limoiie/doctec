@@ -73,9 +73,8 @@ export default function DashboardPage() {
                 .filter((item) => item.length > 0)
                 .slice(0, -1)
                 .map((item, index, array) => (
-                  <>
+                  <React.Fragment key={`breadcrumb-${index}`}>
                     <BreadcrumbItem
-                      key={index}
                       className={
                         index === array.length - 1 ? "hidden md:block" : ""
                       }
@@ -83,7 +82,7 @@ export default function DashboardPage() {
                       <BreadcrumbLink href="#">{item}</BreadcrumbLink>
                     </BreadcrumbItem>
                     <BreadcrumbSeparator className="hidden md:block" />
-                  </>
+                  </React.Fragment>
                 ))}
               <BreadcrumbItem>
                 <BreadcrumbPage>
