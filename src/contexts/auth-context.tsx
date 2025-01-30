@@ -28,16 +28,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const storedUser = localStorage.getItem("user");
         if (storedUser) {
           const parsedUser = JSON.parse(storedUser) as UserData;
-          if (parsedUser.session_token) {
+          if (parsedUser.sessionToken) {
             // Validate the session token
             const validUser = await eel.validate_session(
               parsedUser.sessionToken,
             )();
+            console.log("Valid user:", validUser);
             if (validUser) {
               // Make sure to include the session_token in the user object
               setUser({
                 ...validUser,
-                session_token: parsedUser.session_token,
+                sessionToken: parsedUser.sessionToken,
               });
               setIsAuthenticated(true);
               console.log("User is authenticated");
@@ -81,7 +82,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = async () => {
     try {
-      if (user?.session_token) {
+      if (user?.sessionToken) {
         await eel.logout(user.sessionToken)();
       }
     } finally {
