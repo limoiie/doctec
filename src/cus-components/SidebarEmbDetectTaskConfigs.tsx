@@ -18,9 +18,9 @@ export function SidebarEmbDetectTaskConfigs() {
 
   useEffect(() => {
     eel
-      .fetchEmbeddingDetectionConfigs(0, 1000)()
+      .fetchDetectionTaskCfgs(0, 1000)()
       .then((configs: EmbDetectionConfigData[]) => {
-        console.log("fetchEmbeddingDetectionConfigs", configs);
+        console.log("fetchDetectionTaskCfgs", configs);
         setDetectConfigs(configs);
       });
   }, []);

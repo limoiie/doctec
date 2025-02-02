@@ -3,86 +3,93 @@
 
 
 import os
-
 import re
 import zipfile
-from . import xml_feature
-from . import olevba
 
 from . import msodde
+from . import olevba
+from . import xml_feature
+
+LOCATIONS = [
+    "document.xml",
+    "endnotes.xml",
+    "footnotes.xml",
+    "header1.xml",
+    "footer1.xml",
+    "header2.xml",
+    "footer2.xml",
+    "comments.xml",
+]
 
 
-LOCATIONS = ['document.xml','endnotes.xml','footnotes.xml','header1.xml',
-             'footer1.xml','header2.xml','footer2.xml','comments.xml']
+XML_FEATURE = os.path.join(os.path.dirname(__file__), "nodes", "xml_feature_final.txt")
 
 
-
-XML_FEATURE = os.path.join(os.path.dirname(__file__), "nodes","xml_feature_final.txt")
 class xml_parser(olevba.VBA_Parser_CLI):
 
     def __init__(self, *args, **kwargs):
         super(xml_parser, self).__init__(*args, **kwargs)
 
-
     def get_xml_dde(self):
 
-        res = ''
+        res = ""
         res += msodde.process_file(self.filename)
         return res
 
     def get_xml_feature(self):
         node = {}
-        outputfile = open(XML_FEATURE,'r')
+        outputfile = open(XML_FEATURE, "r")
 
         dict = {}
         for line in outputfile:
-            line = line.replace('\n','')
-            if line not in dict: # 将所有的路径值设为0
+            line = line.replace("\n", "")
+            if line not in dict:  # 将所有的路径值设为0
                 dict[line] = 0
 
-        #sort_dict = sorted(dict.keys())
-        #print dict
-        with zipfile.ZipFile(self.filename, 'r') as fr:
+        # sort_dict = sorted(dict.keys())
+        # print dict
+        with zipfile.ZipFile(self.filename, "r") as fr:
             for subfile in fr.namelist():
                 # subfile: [Content_Types].xml
-                if os.path.splitext(subfile)[1] == '.xml':
-                    f = subfile.split('/')  #['[Content_Types].xml'],['word', 'document.xml'],['word', 'theme', 'theme1.xml']
+                if os.path.splitext(subfile)[1] == ".xml":
+                    f = subfile.split(
+                        "/"
+                    )  # ['[Content_Types].xml'],['word', 'document.xml'],['word', 'theme', 'theme1.xml']
                     # ['[Content_Types].xml']
-                    if len(f) == 1: # 直接为xml文件
-                        f = f[0] + '\\'
+                    if len(f) == 1:  # 直接为xml文件
+                        f = f[0] + "\\"
                     elif len(f) == 2:
-                        f = f[0] + '\\' + f[1] + '\\'
+                        f = f[0] + "\\" + f[1] + "\\"
                     elif len(f) == 3:
-                        f = f[0] + '\\' + f[1] + '\\' + f[2] + '\\'
+                        f = f[0] + "\\" + f[1] + "\\" + f[2] + "\\"
                     # f: [Content_Types].xml\, word\document.xml\, word\theme\theme1.xml\
                     xml = fr.open(subfile).read()
 
                     res = OfficeNode(f, xml)
 
-
-                    for i in res.result:    # res:result, 每个xml文件中每个元素的名称
+                    for i in res.result:  # res:result, 每个xml文件中每个元素的名称
                         if i in dict.keys():
                             dict[i] = 1
         outputfile.close()
-        result = ''
+        result = ""
         for key in sorted(dict.keys()):
             result += str(dict[key])
-        res = ''
-        for i in result:    #5 00
-            res += i + ','
+        res = ""
+        for i in result:  # 5 00
+            res += i + ","
 
         res = res[:-1]
-        res = res + '\n'
+        res = res + "\n"
         return res
 
 
 class OfficeNode:
 
-    def __init__(self, result,xml=None):
+    def __init__(self, result, xml=None):
         # result: [Content_Types].xml\
         # xml: b'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 
-        self.indata = xml   # xml内容
+        self.indata = xml  # xml内容
         self.result = [result]  # xml文件路径
 
         if xml:
@@ -96,8 +103,8 @@ class OfficeNode:
 
         for key in dict_xml.keys():
             # key：元素名称和属性名称
-            current_path = parent_path + str(key) + '\\' + ''
-            if not re.findall(r'@', key):
+            current_path = parent_path + str(key) + "\\" + ""
+            if not re.findall(r"@", key):
                 self.result.append(current_path)
             else:
                 continue
@@ -108,7 +115,3 @@ class OfficeNode:
                 for v in val:
                     if isinstance(v, dict):
                         self.__myParseTag(v, current_path)
-
-
-
-

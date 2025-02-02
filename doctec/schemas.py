@@ -1,25 +1,34 @@
 from abc import abstractmethod
-from typing import Optional, Unpack, Set, Type, Generator, Any, Dict
+from typing import Optional, Unpack, Set, Type, Generator, Any, Dict, Union, Literal
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict
 
 from doctec.models import (
-    DetectionTask,
-    EmbDetectionConfig,
-    EmbDetectionResult,
-    EmbeddedFile,
+    DetectionTaskJob,
     FileMetadata,
-    FileBody,
+    FileData,
     User,
+    DetectionTaskCfg,
+    DetectedFile,
 )
+from doctec.tasks.detection import DetectionTaskType
 
 __all__ = [
-    "EmbDetectionConfigData",
-    "DetectionTaskData",
-    "EmbeddedFileData",
-    "EmbDetectionResultDataWithoutRun",
+    "DetectedFileData",
+    "DetectionTaskJobData",
+    "DetectionTaskResData",
+    "DetectionTaskCfgData",
+    "DetectionTaskResDataType",
+    "DetectionTaskCfgDataType",
+    "EmbeddedFileDetectionTaskCfgData",
+    "EmbeddedFileDetectionTaskResData",
+    "FileDataData",
+    "FileMetadataData",
+    "MaliciousDocDetectionTaskCfgData",
+    "MaliciousDocDetectionTaskResData",
     "UserData",
+    "detection_task_cfg_of_dict",
     "generate_jsonschema",
 ]
 
@@ -84,65 +93,27 @@ class UserData(SchemaBaseModel):
         return self
 
 
-class EmbDetectionConfigData(SchemaBaseModel):
-    uuid: str
-    targetDirs: list[str]
-    saveDir: str
-    maxDepth: int
-
-    @classmethod
-    def from_pw_model(cls, m: EmbDetectionConfig):
-        return EmbDetectionConfigData(
-            uuid=m.uuid.hex if isinstance(m.uuid, UUID) else m.uuid,
-            targetDirs=m.targetDirs,
-            saveDir=m.saveDir,
-            maxDepth=m.maxDepth,
-        )
-
-
-class DetectionTaskData(SchemaBaseModel):
-    uuid: str
-    cfg: EmbDetectionConfigData
-    launchedDate: str
-    finishedDate: Optional[str]
-    status: str
-    error: Optional[str]
-    nTotal: int
-    nProcessed: int
-
-    @classmethod
-    def from_pw_model(cls, m: DetectionTask):
-        return DetectionTaskData(
-            uuid=m.uuid.hex if isinstance(m.uuid, UUID) else m.uuid,
-            cfg=EmbDetectionConfigData.from_pw_model(m.cfg),
-            launchedDate=str(m.launchedDate),
-            finishedDate=str(m.finishedDate),
-            status=m.status.value,
-            error=m.error,
-            nTotal=m.nTotal,
-            nProcessed=m.nProcessed,
-        )
-
-
-class FileBodyData(SchemaBaseModel):
+class FileDataData(SchemaBaseModel):
     md5: str
     size: int
     kind: str
-    data: Optional[bytes] = None
+    mime: Optional[str] = None
+    body: Optional[bytes] = None
 
     @classmethod
-    def from_pw_model(cls, m: FileBody):
-        return FileBodyData(
+    def from_pw_model(cls, m: FileData):
+        return FileDataData(
             md5=m.md5,
             size=m.size,
             kind=m.kind,
+            mime=m.mime,
         )
 
 
 class FileMetadataData(SchemaBaseModel):
     id: int
     path: str
-    data: FileBodyData
+    data: FileDataData
     created: str
     modified: str
     creator: str
@@ -153,7 +124,7 @@ class FileMetadataData(SchemaBaseModel):
         return FileMetadataData(
             id=m.id,
             path=m.path,
-            data=FileBodyData.from_pw_model(m.data),
+            data=FileDataData.from_pw_model(m.data),
             created=str(m.created),
             modified=str(m.modified),
             creator=m.creator,
@@ -161,33 +132,165 @@ class FileMetadataData(SchemaBaseModel):
         )
 
 
-class EmbeddedFileData(SchemaBaseModel):
+class DetectedFileData(SchemaBaseModel):
     id: int
-    resultId: int
+    jobUuid: str
     metadata: FileMetadataData
-    parentId: Optional[int]
+    results: list["DetectionTaskResDataType"]
 
     @classmethod
-    def from_pw_model(cls, m: EmbeddedFile):
-        return EmbeddedFileData(
+    def from_pw_model(cls, m: DetectedFile):
+        return DetectedFileData(
             id=m.id,
-            resultId=m.result.id,
+            jobUuid=m.job.uuid.hex if isinstance(m.job.uuid, UUID) else m.job.uuid,
             metadata=FileMetadataData.from_pw_model(m.metadata),
-            parentId=m.parent.id if m.parent else None,
+            results=[cls.parse_result(result) for result in m.results],
+        )
+
+    @classmethod
+    def parse_result(cls, result: dict):
+        match result["type"]:
+            case DetectionTaskType.EMBEDDED_FILE.name:
+                return EmbeddedFileDetectionTaskResData.model_validate(result)
+            case DetectionTaskType.MALICIOUS_DOC.name:
+                return MaliciousDocDetectionTaskResData.model_validate(result)
+            case typ:
+                raise ValueError(f"Unknown detection type: {typ}")
+
+
+class DetectionTaskCfgData(SchemaBaseModel):
+    uuid: str
+    targetDirs: list[str]
+    saveDir: str
+    configs: list["DetectionTaskCfgDataType"]
+
+    @classmethod
+    def from_pw_model(cls, m: DetectionTaskCfg):
+        return DetectionTaskCfgData(
+            uuid=m.uuid.hex if isinstance(m.uuid, UUID) else m.uuid,
+            targetDirs=m.targetDirs,
+            saveDir=m.saveDir,
+            configs=[cls.parse_config(config) for config in m.parameters],
+        )
+
+    @classmethod
+    def parse_config(cls, config: dict):
+        match config["type"]:
+            case DetectionTaskType.EMBEDDED_FILE.name:
+                return EmbeddedFileDetectionTaskCfgData.model_validate(config)
+            case DetectionTaskType.MALICIOUS_DOC.name:
+                return MaliciousDocDetectionTaskCfgData.model_validate(config)
+            case typ:
+                raise ValueError(f"Unknown detection type: {typ}")
+
+
+class DetectionTaskJobData(SchemaBaseModel):
+    uuid: str
+    cfg: DetectionTaskCfgData
+    launchedDate: str
+    finishedDate: Optional[str]
+    status: str
+    error: Optional[str]
+    nTotal: int
+    nProcessed: int
+
+    @classmethod
+    def from_pw_model(cls, m: DetectionTaskJob):
+        return DetectionTaskJobData(
+            uuid=m.uuid.hex if isinstance(m.uuid, UUID) else m.uuid,
+            cfg=DetectionTaskCfgData.from_pw_model(m.cfg),
+            launchedDate=str(m.launchedDate),
+            finishedDate=str(m.finishedDate),
+            status=m.status.value,
+            error=m.error,
+            nTotal=m.nTotal,
+            nProcessed=m.nProcessed,
         )
 
 
-class EmbDetectionResultDataWithoutRun(SchemaBaseModel):
-    id: int
-    runUuid: str
-    detectedFiles: list[EmbeddedFileData]
+class DetectionTaskResData(SchemaBaseModel):
+    jobUuid: str
+    detectedFiles: list[DetectedFileData]
 
     @classmethod
-    def from_pw_model(cls, m: EmbDetectionResult):
-        return EmbDetectionResultDataWithoutRun(
-            id=m.id,
-            runUuid=m.run.uuid.hex if isinstance(m.run.uuid, UUID) else m.run.uuid,
+    def from_pw_model(cls, m):
+        raise RuntimeError("Invalid operation")
+
+    @classmethod
+    def from_(cls, job_uuid: Union[str, UUID], detected_files: list[DetectedFile]):
+        return DetectionTaskResData(
+            jobUuid=job_uuid.hex if isinstance(job_uuid, UUID) else job_uuid,
             detectedFiles=[
-                EmbeddedFileData.from_pw_model(df) for df in getattr(m, "detectedFiles")
+                DetectedFileData.from_pw_model(file) for file in detected_files
             ],
         )
+
+
+class EmbeddedFileDetectionTaskCfgData(SchemaBaseModel):
+    maxDepth: int
+    type: Literal[DetectionTaskType.EMBEDDED_FILE] = DetectionTaskType.EMBEDDED_FILE
+
+    @classmethod
+    def from_pw_model(cls, m):
+        raise RuntimeError("Invalid operation")
+
+
+class EmbeddedFileDetectionTaskResData(SchemaBaseModel):
+    parentId: Optional[int]
+    """
+    The ID of the DetectedFile parent that contains this embedded file.
+    """
+
+    childIds: list[int]
+    """
+    The IDs of the DetectedFile children embedded in this file.
+    """
+
+    type: Literal[DetectionTaskType.EMBEDDED_FILE] = DetectionTaskType.EMBEDDED_FILE
+
+    @classmethod
+    def from_pw_model(cls, m):
+        raise RuntimeError("Invalid operation")
+
+
+class MaliciousDocDetectionTaskCfgData(SchemaBaseModel):
+    severityThreshold: float
+    type: Literal[DetectionTaskType.MALICIOUS_DOC] = DetectionTaskType.MALICIOUS_DOC
+
+    @classmethod
+    def from_pw_model(cls, m):
+        raise RuntimeError("Invalid operation")
+
+
+class MaliciousDocDetectionTaskResData(SchemaBaseModel):
+    severity: str  # e.g., "high", "medium", "low"
+    category: str  # e.g., "shellcode", "malform", "upload"
+    description: str
+    confidence: float
+    remediation: str  # Suggested fix or mitigation
+    type: Literal[DetectionTaskType.MALICIOUS_DOC] = DetectionTaskType.MALICIOUS_DOC
+
+    @classmethod
+    def from_pw_model(cls, m):
+        raise RuntimeError("Invalid operation")
+
+
+DetectionTaskResDataType = Union[
+    MaliciousDocDetectionTaskResData,
+    EmbeddedFileDetectionTaskResData,
+]
+
+DetectionTaskCfgDataType = Union[
+    EmbeddedFileDetectionTaskCfgData,
+    MaliciousDocDetectionTaskCfgData,
+]
+
+
+def detection_task_cfg_of_dict(parameters: dict):
+    match parameters["type"]:
+        case DetectionTaskType.EMBEDDED_FILE.name:
+            return EmbeddedFileDetectionTaskCfgData.model_validate(parameters)
+        case DetectionTaskType.MALICIOUS_DOC.name:
+            return MaliciousDocDetectionTaskCfgData.model_validate(parameters)
+        case typ:
+            raise ValueError(f"Unsupported task type: {typ}")

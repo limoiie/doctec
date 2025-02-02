@@ -27,123 +27,117 @@ def log_on_calling(fn):
 # noinspection PyPep8Naming
 @eel.expose
 @log_on_calling
-def fetchEmbeddingDetectionRuns(
+def fetchDetectionTaskJobs(
     page_no: int = 0, page_size: int = -1
-) -> List[schemas.DetectionTaskData]:
+) -> List[schemas.DetectionTaskJobData]:
     """
-    Fetch the embedding detection runs.
+    Fetch the detection jobs.
 
     :param page_no:
     :param page_size:
-    :return: a list of embedding detection results in JSON format
+    :return: a list of detection results in JSON format
     """
-    runs = APP.emb_det_repo.fetch_runs(page_no, page_size)
-    return [schemas.DetectionTaskData.from_pw_model(run).model_dump() for run in runs]
-
-
-# noinspection PyPep8Naming
-@eel.expose
-@log_on_calling
-def fetchEmbeddingDetectionRunByUuid(run_uuid: str) -> schemas.DetectionTaskData:
-    """
-    Fetch the embedding detection run by id.
-
-    :param run_uuid:
-    :return: the embedding detection run in JSON format
-    """
-    run = APP.emb_det_repo.fetch_one_run_by_id(run_uuid)
-    return schemas.DetectionTaskData.from_pw_model(run).model_dump()
-
-
-# noinspection PyPep8Naming
-@eel.expose
-@log_on_calling
-def fetchEmbeddingDetectionConfigs(
-    page_no: int = 0, page_size: int = -1
-) -> List[schemas.EmbDetectionConfigData]:
-    """
-    Fetch the embedding detection configs.
-
-    :param page_no:
-    :param page_size:
-    :return: a list of embedding detection configs in JSON format
-    """
-    configs = APP.emb_det_repo.fetch_configs(page_no, page_size)
+    jobs = APP.det_repo.fetch_jobs(page_no, page_size)
     return [
-        schemas.EmbDetectionConfigData.from_pw_model(cfg).model_dump()
-        for cfg in configs
+        schemas.DetectionTaskJobData.from_pw_model(job).model_dump() for job in jobs
     ]
 
 
 # noinspection PyPep8Naming
 @eel.expose
 @log_on_calling
-def fetchEmbeddingDetectionConfigByUuid(
+def fetchDetectionTaskJobByUuid(job_uuid: str) -> schemas.DetectionTaskJobData:
+    """
+    Fetch the detection job by id.
+
+    :param job_uuid:
+    :return: the detection job in JSON format
+    """
+    job = APP.det_repo.fetch_one_job_by_uuid(job_uuid)
+    return schemas.DetectionTaskJobData.from_pw_model(job).model_dump()
+
+
+# noinspection PyPep8Naming
+@eel.expose
+@log_on_calling
+def fetchDetectionTaskCfgs(
+    page_no: int = 0, page_size: int = -1
+) -> List[schemas.DetectionTaskCfgData]:
+    """
+    Fetch the detection configs.
+
+    :param page_no:
+    :param page_size:
+    :return: a list of detection configs in JSON format
+    """
+    configs = APP.det_repo.fetch_configs(page_no, page_size)
+    return [
+        schemas.DetectionTaskCfgData.from_pw_model(cfg).model_dump() for cfg in configs
+    ]
+
+
+# noinspection PyPep8Naming
+@eel.expose
+@log_on_calling
+def fetchDetectionTaskCfgByUuid(
     config_uuid: str,
-) -> schemas.EmbDetectionConfigData:
+) -> schemas.DetectionTaskCfgData:
     """
-    Fetch an embedding detection configuration by its UUID.
+    Fetch a detection configuration by its UUID.
 
-    Args:
-        config_uuid (str): The UUID of the configuration to fetch.
-
-    Returns:
-        dict: The configuration data formatted as JSON.
+    :param config_uuid: The UUID of the configuration to fetch.
+    :return: The configuration data formatted as JSON.
     """
-    _LOGGER.info(f"Debug (py): Fetching config with UUID {config_uuid}")
-    cfg = APP.emb_det_repo.fetch_one_config_by_id(config_uuid)
-    return schemas.EmbDetectionConfigData.from_pw_model(cfg).model_dump()
+    cfg = APP.det_repo.fetch_one_config_by_id(config_uuid)
+    return schemas.DetectionTaskCfgData.from_pw_model(cfg).model_dump()
 
 
 # noinspection PyPep8Naming
 @eel.expose
 @log_on_calling
-def fetchEmbeddingDetectionResultByRunUuid(
-    run_id: str,
-) -> schemas.EmbDetectionResultDataWithoutRun:
+def fetchDetectionTaskResByJobUuid(
+    job_uuid: str,
+) -> schemas.DetectionTaskResData:
     """
-    Fetch the embedding detection result by run id.
+    Fetch the detection result by job id.
 
-    :param run_id:
-    :return: the embedding detection result in JSON format
+    :param job_uuid:
+    :return: the detection result in JSON format
     """
-    result = APP.emb_det_repo.fetch_one_result_by_run_id(run_id)
-    return schemas.EmbDetectionResultDataWithoutRun.from_pw_model(result).model_dump()
+    detected_files = APP.det_repo.fetch_detected_files_by_job_uuid(job_uuid)
+    return schemas.DetectionTaskResData.from_(job_uuid, detected_files).model_dump()
 
 
 # noinspection PyPep8Naming
 @eel.expose
 @log_on_calling
-def detectEmbeddedFiles(cfg: Dict[str, object]) -> str:
+def launchDetectionTask(cfg_dto: Dict[str, object]) -> str:
     """
-    Launch the embedding detection task.
+    Launch the detection task.
 
-    :return: uuid of the detection run
+    :return: uuid of the detection job
     """
-    from doctec.tasks.emb_detection import EmbDetectionJob
+    from doctec.tasks.detection import DetectionTask
 
-    cfg, _ = APP.emb_det_repo.fetch_or_create_config(**cfg)
-    res = APP.emb_det_repo.init_run(cfg)
-    job = EmbDetectionJob(cfg=cfg, res=res)
-    APP.executor.submit(job.do, app=APP)
-    return res.run.uuid.hex
+    cfg_dto = schemas.DetectionTaskCfgData.model_validate(cfg_dto)
+    cfg, _ = APP.det_repo.fetch_or_create_config(cfg_dto)
+    job = APP.det_repo.init_job(cfg)
+    task = DetectionTask(cfg=cfg, job=job)
+    APP.executor.submit(task.do, app=APP)
+    return task.job.uuid.hex
 
 
 # noinspection PyPep8Naming
 @eel.expose
 @log_on_calling
-def deleteRun(run_uuid: str) -> bool:
+def deleteDetectionTaskJobByUuid(job_uuid: str) -> bool:
     """
-    Delete the embedding detection run by id.
+    Delete the detection job by uuid.
 
-    :param run_uuid:
-    :return: delete status:True/false
+    :param job_uuid: the uuid of the detection job
+    :return: whether the deletion is successful
     """
-    result = APP.emb_det_repo.delete_run_result_by_run_id(run_uuid)
-    print("11111111111111111111\n")
-    print(result)
-
-    return result
+    return APP.det_repo.delete_job_by_uuid(job_uuid)
 
 
 @eel.expose
@@ -163,15 +157,10 @@ def login(email: str, password: str) -> UserData:
     """
     Authenticate a user and create a session.
 
-    Args:
-        email: User's email
-        password: User's password
-
-    Returns:
-        Dict containing user information and session token if authentication successful
-
-    Raises:
-        Exception if authentication fails
+    :param email: User's email
+    :param password: User's password
+    :return: Dict containing user information and session token if authentication successful
+    :raise: Exception if authentication fails
     """
     # noinspection PyUnresolvedReferences
     try:
@@ -195,11 +184,8 @@ def validate_session(token: str) -> Optional[UserData]:
     """
     Validate a session token and return user information if valid.
 
-    Args:
-        token: Session token to validate
-
-    Returns:
-        Dict containing user information if session is valid, None otherwise
+    :param token: Session token to validate
+    :return: Dict containing user information if session is valid, None otherwise
     """
     session = UserSession.get_valid_session(token)
     if session:
@@ -215,11 +201,8 @@ def logout(token: str) -> bool:
     """
     Invalidate a session token.
 
-    Args:
-        token: Session token to invalidate
-
-    Returns:
-        True if session was invalidated, False otherwise
+    :param token: Session token to invalidate
+    :return: True if session was invalidated, False otherwise
     """
     # noinspection PyUnresolvedReferences
     try:
@@ -236,16 +219,11 @@ def register(username: str, email: str, password: str) -> UserData:
     """
     Register a new user.
 
-    Args:
-        username: Desired username
-        email: User's email
-        password: User's password
-
-    Returns:
-        Dict containing user information if registration successful
-
-    Raises:
-        Exception if registration fails
+    :param username: Desired username
+    :param email: User's email
+    :param password: User's password
+    :return: Dict containing user information if registration successful
+    :raise: Exception if registration fails
     """
     try:
         # Check if user already exists

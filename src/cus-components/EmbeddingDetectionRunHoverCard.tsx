@@ -55,28 +55,29 @@ export function EmbeddingDetectionRunHoverCard({
                 </span>
               </div>
               {run.error && (
-                <div className="flex items-center pt-2">
-                  <CircleAlertIcon className="mr-2 h-4 w-4 opacity-70" />{" "}
-                  <span className="text-xs text-muted-foreground">
-                    The run has encountered an error: <code>{run.error}</code>.
+                <div className="flex pt-2">
+                  <CircleAlertIcon className="mr-2 h-4 w-4 min-w-4 opacity-70" />{" "}
+                  <span className="text-xs text-muted-foreground ">
+                    The task has encountered an error:{" "}
+                    <p className="text-red-500">{run.error}</p>
                   </span>
                 </div>
               )}
-              <div className="flex items-center pt-2">
-                <PercentIcon className="mr-2 h-4 w-4 opacity-70" />{" "}
+              <div className="flex pt-2">
+                <PercentIcon className="mr-2 h-4 w-4 min-w-4 opacity-70" />{" "}
                 <span className="text-xs text-muted-foreground">
                   Processed {run.nProcessed} / {run.nTotal}
                 </span>
               </div>
-              <div className="flex items-center pt-2">
-                <CalendarPlusIcon className="mr-2 h-4 w-4 opacity-70" />{" "}
+              <div className="flex pt-2">
+                <CalendarPlusIcon className="mr-2 h-4 w-4 min-w-4 opacity-70" />{" "}
                 <span className="text-xs text-muted-foreground">
                   Launched {formatDateTime(run.launchedDate)}
                 </span>
               </div>
               {run.finishedDate && (
-                <div className="flex items-center pt-2">
-                  <CalendarCheckIcon className="mr-2 h-4 w-4 opacity-70" />{" "}
+                <div className="flex pt-2">
+                  <CalendarCheckIcon className="mr-2 h-4 w-4 min-w-4 opacity-70" />{" "}
                   <span className="text-xs text-muted-foreground">
                     Finished {formatDateTime(run.finishedDate)}
                   </span>

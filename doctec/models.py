@@ -5,7 +5,6 @@ The models are supposed to be used between the backend service and the database.
 """
 
 import datetime
-import enum
 import secrets
 from pathlib import Path
 from typing import List, Optional
@@ -14,6 +13,7 @@ from uuid import UUID, uuid4
 import bcrypt
 from peewee import *
 
+from doctec.tasks.types import TaskStatus
 from doctec.utils.peewees import EnumField, JSONField
 
 DB_PROXY = DatabaseProxy()
@@ -27,23 +27,14 @@ def init_db(db_path: str):
         [
             User,
             UserSession,
-            FileBody,
+            FileData,
             FileMetadata,
-            EmbeddedFile,
-            EmbDetectionConfig,
-            DetectionTask,
-            EmbDetectionResult,
+            DetectionTaskCfg,
+            DetectionTaskJob,
+            DetectedFile,
         ],
         safe=True,
     )
-
-
-class TaskStatus(enum.Enum):
-    PENDING = "pending"
-    IN_PROGRESS = "in-progress"
-    COMPLETED = "completed"
-    FAILED = "failed"
-    CANCELLED = "cancelled"
 
 
 class BaseModel(Model):
@@ -109,11 +100,12 @@ class UserSession(BaseModel):
             return None
 
 
-class FileBody(BaseModel):
-    md5: str = TextField(primary_key=True)
+class FileData(BaseModel):
+    md5: str = CharField(primary_key=True, max_length=32)
     size: int = IntegerField(constraints=[Check("size >= 0")])
-    kind: str = TextField(null=False)
-    data: bytes = BlobField(null=False)
+    mime: str = CharField(max_length=50, null=False)
+    kind: str = CharField(max_length=50, null=False)
+    body: bytes = BlobField(null=False)
 
     class Meta:
         database = DB_PROXY
@@ -122,12 +114,12 @@ class FileBody(BaseModel):
 
 class FileMetadata(BaseModel):
     id: int = AutoField(primary_key=True)
-    path: str = TextField(index=True)
-    data: FileBody = ForeignKeyField(FileBody, backref="metadata", on_delete="CASCADE")
+    path: str = CharField(index=True, max_length=1024)
+    data: FileData = ForeignKeyField(FileData, backref="metadata", on_delete="CASCADE")
     created: datetime.datetime = DateTimeField(index=True)
     modified: datetime.datetime = DateTimeField(index=True)
-    creator: str = TextField()
-    modifier: str = TextField()
+    creator: str = CharField(max_length=50)
+    modifier: str = CharField(max_length=50)
 
     class Meta:
         indexes = ((("path", "created"), True),)
@@ -144,21 +136,21 @@ class FileMetadata(BaseModel):
         return str(Path(self.path).parent)
 
 
-class EmbDetectionConfig(BaseModel):
+class DetectionTaskCfg(BaseModel):
     uuid: UUID = UUIDField(primary_key=True, unique=True, default=uuid4)
     targetDirs: List[str] = JSONField(null=False)
     saveDir: str = TextField(null=False)
-    maxDepth: int = IntegerField(constraints=[Check("maxDepth >= 0")])
+    parameters: List[dict] = JSONField(null=False)
 
     class Meta:
         database = DB_PROXY
         indexes = ((("uuid",), True),)
 
 
-class DetectionTask(BaseModel):
+class DetectionTaskJob(BaseModel):
     uuid: UUID = UUIDField(primary_key=True, unique=True, default=uuid4)
-    cfg: EmbDetectionConfig = ForeignKeyField(
-        EmbDetectionConfig, backref="runs", null=False
+    cfg: DetectionTaskCfg = ForeignKeyField(
+        DetectionTaskCfg, backref="jobs", null=False
     )
     launchedDate = DateTimeField(default=datetime.datetime.now, index=True, null=False)
     finishedDate = DateTimeField(default=None, null=True, index=True)
@@ -176,54 +168,30 @@ class DetectionTask(BaseModel):
 
     @property
     def duration(self) -> datetime.timedelta:
-        """Return the duration of the run."""
+        """Return the duration of the task execution."""
         assert isinstance(self.launchedDate, datetime.datetime)
         if self.finishedDate:
             return self.finishedDate - self.launchedDate
         return datetime.datetime.now() - self.launchedDate
 
     def mark_completed(self):
-        """Mark the run as completed."""
+        """Mark the task as completed."""
         self.status = TaskStatus.COMPLETED
         self.finishedDate = datetime.datetime.now()
         self.save()
 
     def mark_failed(self, error: str):
-        """Mark the run as failed with an error message."""
+        """Mark the task as failed with an error message."""
         self.status = TaskStatus.FAILED
         self.error = error
         self.finishedDate = datetime.datetime.now()
         self.save()
 
 
-class EmbDetectionResult(BaseModel):
+class DetectedFile(BaseModel):
     id: int = AutoField(primary_key=True)
-    run: DetectionTask = ForeignKeyField(
-        DetectionTask, backref="res", unique=True, on_delete="CASCADE"
-    )
-
-
-class EmbeddedFile(BaseModel):
-    id: int = AutoField(primary_key=True)
-    result: EmbDetectionResult = ForeignKeyField(
-        EmbDetectionResult, backref="detectedFiles", on_delete="CASCADE"
+    job: DetectionTaskJob = ForeignKeyField(
+        DetectionTaskJob, backref="results", unique=True, on_delete="CASCADE"
     )
     metadata: FileMetadata = ForeignKeyField(FileMetadata, on_delete="CASCADE")
-    parent: "EmbeddedFile" = ForeignKeyField(
-        "self", null=True, backref="children", on_delete="CASCADE"
-    )
-
-    @property
-    def has_children(self) -> bool:
-        """Check if the file has any embedded children."""
-        # noinspection PyUnresolvedReferences
-        return bool(self.children.count())
-
-    def get_all_children(self) -> List["EmbeddedFile"]:
-        """Get all children recursively."""
-        result = []
-        # noinspection PyUnresolvedReferences
-        for child in self.children:
-            result.append(child)
-            result.extend(child.get_all_children())
-        return result
+    results: List[dict] = JSONField(null=False, default=[])

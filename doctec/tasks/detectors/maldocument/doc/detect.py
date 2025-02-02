@@ -1,10 +1,15 @@
 # -*- coding: utf-8 -*-
+import os
+
 import joblib
 import numpy as np
-import os
-from . import get_doc_feature
+
+from doctec.tasks.detectors.maldocument.shared.feature_analysis import (
+    analyze_vector_features,
+)
 from . import extractFeature
-from shared.feature_analysis import analyze_vector_features
+from . import get_doc_feature
+
 
 def detect(filename):
     MODEL_SAVE_PATH = os.path.join(os.path.dirname(__file__), "random_forest_model.pkl")
@@ -19,6 +24,7 @@ def detect(filename):
 
     return probabilities
 
+
 def describe(filename):
     try:
         analysis = extractFeature.OfficeFeatureExtractor(filename)
@@ -27,10 +33,11 @@ def describe(filename):
         vector = analysis.print_analysis(all_ole_code)
         vector = [int(x) for x in vector.split(",")]
         result = analysis.showResults(all_ole_code)
-        
+
         return analyze_vector_features(vector, result)
     except:
         raise
+
 
 def describe_chinese(filename):
     try:
@@ -40,7 +47,7 @@ def describe_chinese(filename):
         vector = analysis.print_analysis(all_ole_code)
         vector = [int(x) for x in vector.split(",")]
         result = analysis.showResults(all_ole_code)
-        
+
         return analyze_vector_features(vector, result, chinese=True)
     except:
         raise

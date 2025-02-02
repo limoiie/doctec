@@ -11,7 +11,7 @@ interface Eel {
 
   /// Following are the functions that are exposed to the frontend, see index.py
 
-  fetchEmbeddingDetectionRuns(
+  fetchDetectionTaskJobs(
     page_no: number,
     page_size: number,
   ): () => Promise<DetectionTaskData[]>;
@@ -20,22 +20,22 @@ interface Eel {
     run_uuid: string,
   ): () => Promise<DetectionTaskData>;
 
-  fetchEmbeddingDetectionResultByRunUuid(
+  fetchDetectionTaskResByJobUuid(
     run_id: string,
   ): () => Promise<EmbDetectionResultDataWithoutRun>;
 
-  fetchEmbeddingDetectionConfigs(
+  fetchDetectionTaskCfgs(
     page_no: number,
     page_size: number,
   ): () => Promise<EmbDetectionConfigData[]>;
 
-  fetchEmbeddingDetectionConfigByUuid(
+  fetchDetectionTaskCfgByUuid(
     config_uuid: string,
   ): () => Promise<EmbDetectionConfigData>;
 
-  detectEmbeddedFiles(cfg: any): () => Promise<string>;
+  launchDetectionTask(cfg: any): () => Promise<string>;
 
-  deleteRun(run_uuid: string): () => Promise<boolean>;
+  deleteDetectionTaskJobByUuid(run_uuid: string): () => Promise<boolean>;
 
   login(email: string, password: string): () => Promise<UserData>;
 

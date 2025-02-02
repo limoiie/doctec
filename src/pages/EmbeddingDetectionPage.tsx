@@ -22,7 +22,7 @@ export function EmbeddingDetectionPage() {
       maxDepth: 5,
     };
     // noinspection JSUnresolvedReference
-    eel.detectEmbeddedFiles(cfg)(function (runUuid: string) {
+    eel.launchDetectionTask(cfg)(function (runUuid: string) {
       // redirect to results page
       navigate("/run/" + runUuid);
     });

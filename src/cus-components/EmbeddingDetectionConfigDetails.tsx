@@ -19,7 +19,7 @@ export function EmbeddingDetectionConfigDetails({
     setLoading(true);
     setError(null);
 
-    eel.fetchEmbeddingDetectionConfigByUuid(configUuid)(
+    eel.fetchDetectionTaskCfgByUuid(configUuid)(
       function (config: EmbDetectionConfigData) {
         setLoading(false);
         setConfig(config);
@@ -36,7 +36,7 @@ export function EmbeddingDetectionConfigDetails({
   function startDetection() {
     if (!config) return;
 
-    eel.detectEmbeddedFiles(config)(function (runUuid: string) {
+    eel.launchDetectionTask(config)(function (runUuid: string) {
       navigate(`/dashboard/detection/task-run/${runUuid}`);
     });
   }

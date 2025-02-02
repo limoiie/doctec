@@ -32,7 +32,7 @@ export function EmbeddingDetectionRunDetails({ runUuid }: { runUuid: string }) {
       },
     );
 
-    eel.fetchEmbeddingDetectionResultByRunUuid(runUuid)(
+    eel.fetchDetectionTaskResByJobUuid(runUuid)(
       function (result: EmbDetectionResultDataWithoutRun) {
         setLoading(false);
         setResult(result);

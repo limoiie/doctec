@@ -6,8 +6,8 @@ try:
     from defusedexpat import pyexpat as expat
 except ImportError:
     from xml.parsers import expat
-from xml.sax.saxutils import XMLGenerator
 from xml.sax.xmlreader import AttributesImpl
+
 try:  # pragma no cover
     from cStringIO import StringIO
 except ImportError:  # pragma no cover
@@ -32,9 +32,9 @@ try:  # pragma no cover
 except NameError:  # pragma no cover
     _unicode = str
 
-__author__ = 'Martin Blech'
-__version__ = '0.10.2'
-__license__ = 'MIT'
+__author__ = "Martin Blech"
+__version__ = "0.10.2"
+__license__ = "MIT"
 
 
 class ParsingInterrupted(Exception):
@@ -42,20 +42,22 @@ class ParsingInterrupted(Exception):
 
 
 class _DictSAXHandler(object):
-    def __init__(self,
-                 item_depth=0,
-                 item_callback=lambda *args: True,
-                 xml_attribs=True,
-                 attr_prefix='@',
-                 cdata_key='#text',
-                 force_cdata=False,
-                 cdata_separator='',
-                 postprocessor=None,
-                 dict_constructor=OrderedDict,
-                 strip_whitespace=True,
-                 namespace_separator=':',
-                 namespaces=None,
-                 force_list=None):
+    def __init__(
+        self,
+        item_depth=0,
+        item_callback=lambda *args: True,
+        xml_attribs=True,
+        attr_prefix="@",
+        cdata_key="#text",
+        force_cdata=False,
+        cdata_separator="",
+        postprocessor=None,
+        dict_constructor=OrderedDict,
+        strip_whitespace=True,
+        namespace_separator=":",
+        namespaces=None,
+        force_list=None,
+    ):
         self.path = []
         self.stack = []
         self.data = []
@@ -80,7 +82,7 @@ class _DictSAXHandler(object):
         i = full_name.rfind(self.namespace_separator)
         if i == -1:
             return full_name
-        namespace, name = full_name[:i], full_name[i+1:]
+        namespace, name = full_name[:i], full_name[i + 1 :]
         short_namespace = self.namespaces.get(namespace, namespace)
         if not short_namespace:
             return name
@@ -93,9 +95,13 @@ class _DictSAXHandler(object):
             return attrs
         return self.dict_constructor(zip(attrs[0::2], attrs[1::2]))
 
-    def startElement(self, full_name, attrs):   # full_name: 元素开头的名称（dcterms:created），attrs：元素的属性值[xsi:type,"dcterms:W3CDTF"]。如<dcterms:created xsi:type="dcterms:W3CDTF">
-        name = self._build_name(full_name)  #不变
-        attrs = self._attrs_to_dict(attrs)  #OrderedDict([(u'xsi:type', u'dcterms:W3CDTF')])
+    def startElement(
+        self, full_name, attrs
+    ):  # full_name: 元素开头的名称（dcterms:created），attrs：元素的属性值[xsi:type,"dcterms:W3CDTF"]。如<dcterms:created xsi:type="dcterms:W3CDTF">
+        name = self._build_name(full_name)  # 不变
+        attrs = self._attrs_to_dict(
+            attrs
+        )  # OrderedDict([(u'xsi:type', u'dcterms:W3CDTF')])
         self.path.append((name, attrs or None))
 
         if len(self.path) > self.item_depth:
@@ -104,13 +110,15 @@ class _DictSAXHandler(object):
             if self.xml_attribs:
                 attr_entries = []
                 for key, value in attrs.items():
-                    key = self.attr_prefix+self._build_name(key)    #@xmlns:cp
+                    key = self.attr_prefix + self._build_name(key)  # @xmlns:cp
                     if self.postprocessor:
                         entry = self.postprocessor(self.path, key, value)
-                    else:   # 进入
+                    else:  # 进入
                         entry = (key, value)
                     if entry:
-                        attr_entries.append(entry)      # [(u'@xsi:type', u'dcterms:W3CDTF')]
+                        attr_entries.append(
+                            entry
+                        )  # [(u'@xsi:type', u'dcterms:W3CDTF')]
                 attrs = self.dict_constructor(attr_entries)
             else:
                 attrs = None
@@ -124,16 +132,14 @@ class _DictSAXHandler(object):
         if len(self.path) == self.item_depth:
             item = self.item
             if item is None:
-                item = (None if not self.data
-                        else self.cdata_separator.join(self.data))
+                item = None if not self.data else self.cdata_separator.join(self.data)
 
             should_continue = self.item_callback(self.path, item)
             if not should_continue:
                 raise ParsingInterrupted()
         if len(self.stack):
 
-            data = (None if not self.data
-                    else self.cdata_separator.join(self.data))
+            data = None if not self.data else self.cdata_separator.join(self.data)
             item = self.item
             self.item, self.data = self.stack.pop()
             if self.strip_whitespace and data:
@@ -187,21 +193,26 @@ class _DictSAXHandler(object):
             return self.force_list(self.path[:-1], key, value)
 
 
-def parse(xml_input, encoding=None, expat=expat, process_namespaces=False,
-          namespace_separator=':', **kwargs):
+def parse(
+    xml_input,
+    encoding=None,
+    expat=expat,
+    process_namespaces=False,
+    namespace_separator=":",
+    **kwargs
+):
 
-    handler = _DictSAXHandler(namespace_separator=namespace_separator,
-                              **kwargs)
+    handler = _DictSAXHandler(namespace_separator=namespace_separator, **kwargs)
     if isinstance(xml_input, _unicode):
         if not encoding:
-            encoding = 'utf-8'
+            encoding = "utf-8"
         xml_input = xml_input.encode(encoding)
 
-    if not process_namespaces:  #进入
+    if not process_namespaces:  # 进入
         namespace_separator = None
     # print 'namespace_separator:',namespace_separator  None
     # # 创建新的解析器，返回xmlparser对象。encoding:设置编码方式（utf-8），namespace_separator：命名空间处理
-    parser = expat.ParserCreate(encoding,namespace_separator)
+    parser = expat.ParserCreate(encoding, namespace_separator)
     # print 'parser:',parser    parser: <pyexpat.xmlparser object at 0x00000000045592E8>
     try:
         parser.ordered_attributes = True
@@ -220,27 +231,33 @@ def parse(xml_input, encoding=None, expat=expat, process_namespaces=False,
     return handler.item
 
 
-def _emit(key, value, content_handler,
-          attr_prefix='@',
-          cdata_key='#text',
-          depth=0,
-          preprocessor=None,
-          pretty=False,
-          newl='\n',
-          indent='\t',
-          full_document=True):
+def _emit(
+    key,
+    value,
+    content_handler,
+    attr_prefix="@",
+    cdata_key="#text",
+    depth=0,
+    preprocessor=None,
+    pretty=False,
+    newl="\n",
+    indent="\t",
+    full_document=True,
+):
     if preprocessor is not None:
         result = preprocessor(key, value)
         if result is None:
             return
         key, value = result
-    if (not hasattr(value, '__iter__')
-            or isinstance(value, _basestring)
-            or isinstance(value, dict)):
+    if (
+        not hasattr(value, "__iter__")
+        or isinstance(value, _basestring)
+        or isinstance(value, dict)
+    ):
         value = [value]
     for index, v in enumerate(value):
         if full_document and depth == 0 and index > 0:
-            raise ValueError('document with multiple roots')
+            raise ValueError("document with multiple roots")
         if v is None:
             v = OrderedDict()
         elif not isinstance(v, dict):
@@ -257,7 +274,7 @@ def _emit(key, value, content_handler,
             if ik.startswith(attr_prefix):
                 if not isinstance(iv, _unicode):
                     iv = _unicode(iv)
-                attrs[ik[len(attr_prefix):]] = iv
+                attrs[ik[len(attr_prefix) :]] = iv
                 continue
             children.append((ik, iv))
         if pretty:
@@ -266,9 +283,18 @@ def _emit(key, value, content_handler,
         if pretty and children:
             content_handler.ignorableWhitespace(newl)
         for child_key, child_value in children:
-            _emit(child_key, child_value, content_handler,
-                  attr_prefix, cdata_key, depth+1, preprocessor,
-                  pretty, newl, indent)
+            _emit(
+                child_key,
+                child_value,
+                content_handler,
+                attr_prefix,
+                cdata_key,
+                depth + 1,
+                preprocessor,
+                pretty,
+                newl,
+                indent,
+            )
         if cdata is not None:
             content_handler.characters(cdata)
         if pretty and children:
@@ -277,6 +303,7 @@ def _emit(key, value, content_handler,
         if pretty and depth:
             content_handler.ignorableWhitespace(newl)
 
+
 """
     This is a example for using:
 """
@@ -284,7 +311,4 @@ def _emit(key, value, content_handler,
 
 # xml = open('D:/keyan/03_malware/code/mdds/test_word/test\docProps/core.xml', 'r').read()
 # doc = parse(xml)
-#print doc
-        
-
-        
+# print doc

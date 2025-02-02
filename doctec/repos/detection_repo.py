@@ -1,20 +1,20 @@
 import hashlib
 import os
 from datetime import UTC, datetime
-from typing import Dict, List, Tuple, Union
+from typing import List, Tuple, Union, Optional
 from uuid import UUID
 
-from peewee import DoesNotExist
+import magic
 
 from doctec.models import (
-    DetectionTask,
-    EmbDetectionConfig,
-    EmbDetectionResult,
-    EmbeddedFile,
-    FileBody,
+    DetectedFile,
+    DetectionTaskJob,
+    DetectionTaskCfg,
+    FileData,
     FileMetadata,
-    TaskStatus,
 )
+from doctec.tasks.types import TaskStatus
+from doctec.schemas import DetectionTaskResDataType, DetectionTaskCfgData
 
 
 class DetectionRepo:
@@ -24,14 +24,14 @@ class DetectionRepo:
     @staticmethod
     def fetch_configs(
         page_no: int = 0, page_size: int = -1, order_by="uuid", desc=True
-    ) -> List[EmbDetectionConfig]:
-        query = EmbDetectionConfig.select()
+    ) -> List[DetectionTaskCfg]:
+        query = DetectionTaskCfg.select()
         # Sorting the results by the specified field
         if order_by:
             query = query.order_by(
-                getattr(EmbDetectionConfig, order_by).desc()
+                getattr(DetectionTaskCfg, order_by).desc()
                 if desc
-                else getattr(EmbDetectionConfig, order_by).incr()
+                else getattr(DetectionTaskCfg, order_by).incr()
             )
         # Implementing pagination if page_size is specified
         if page_size and page_size > 0:
@@ -39,42 +39,41 @@ class DetectionRepo:
         return list(query)
 
     @staticmethod
-    def fetch_one_config_by_id(config_id: Union[str, UUID]) -> EmbDetectionConfig:
-        return EmbDetectionConfig.get_by_id(config_id)
+    def fetch_one_config_by_id(config_id: Union[str, UUID]) -> DetectionTaskCfg:
+        return DetectionTaskCfg.get_by_id(config_id)
 
     @staticmethod
     def fetch_or_create_config(
-        **cfg: Dict[str, object]
-    ) -> Tuple[EmbDetectionConfig, bool]:
-        return EmbDetectionConfig.get_or_create(**cfg)
+        cfg: DetectionTaskCfgData,
+    ) -> Tuple[DetectionTaskCfg, bool]:
+        return DetectionTaskCfg.get_or_create(**cfg.model_dump())
 
     @staticmethod
-    def init_run(cfg: EmbDetectionConfig) -> EmbDetectionResult:
+    def init_job(cfg: DetectionTaskCfg) -> DetectionTaskJob:
         """
-        Initialize a new embedding detection run.
+        Initialize a new detection job.
 
-        :param cfg: the configuration of the detection run
-        :return: the initialized result object
+        :param cfg: the configuration of the detection job
+        :return: the initialized job
         """
-        run = DetectionTask.create(
+        job = DetectionTaskJob.create(
             cfg=cfg.uuid,
             launchedDate=datetime.now(UTC),
             status=TaskStatus.PENDING,
         )
-        res = EmbDetectionResult.create(run=run)
-        return res
+        return job
 
     @staticmethod
-    def fetch_runs(
+    def fetch_jobs(
         page_no: int = 0, page_size: int = -1, order_by="launchedDate", desc=True
-    ) -> List[DetectionTask]:
-        query = DetectionTask.select()
+    ) -> List[DetectionTaskJob]:
+        query = DetectionTaskJob.select()
         # Sorting the results by the specified field
         if order_by:
             query = query.order_by(
-                getattr(DetectionTask, order_by).desc()
+                getattr(DetectionTaskJob, order_by).desc()
                 if desc
-                else getattr(DetectionTask, order_by).incr()
+                else getattr(DetectionTaskJob, order_by).incr()
             )
         # Implementing pagination if page_size is specified
         if page_size and page_size > 0:
@@ -82,52 +81,33 @@ class DetectionRepo:
         return list(query)
 
     @staticmethod
-    def fetch_one_run_by_id(run_id: Union[str, UUID]) -> DetectionTask:
-        return DetectionTask.get_by_id(run_id)
+    def fetch_one_job_by_uuid(job_uuid: Union[str, UUID]) -> DetectionTaskJob:
+        return DetectionTaskJob.get_by_id(job_uuid)
 
     @staticmethod
-    def fetch_one_result_by_run_id(run_id: Union[str, UUID]) -> EmbDetectionResult:
-        return EmbDetectionResult.get(EmbDetectionResult.run == run_id)
+    def fetch_detected_files_by_job_uuid(
+        job_uuid: Union[str, UUID]
+    ) -> list[DetectedFile]:
+        return DetectedFile.get(DetectedFile.job == job_uuid)
 
     @staticmethod
-    def delete_run_result_by_run_id(run_id: Union[str, UUID]) -> bool:
-        result = False
-        try:
-            run_to_delete = DetectionTask.get(DetectionTask.uuid == run_id)
-
-            run_to_delete.delete_instance(recursive=True)
-
-            cfg_to_delete = EmbDetectionConfig.get(
-                EmbDetectionConfig.uuid == run_to_delete.cfg
-            )
-
-            run_to_delete.delete_instance(recursive=True)
-            cfg_to_delete.delete_instance()
-
-            result = True
-            return result
-
-        except DoesNotExist:
-            print("指定的记录不存在，无法删除。")
-            result = False
-            return result  # 删除失败
-        except Exception as e:
-            print(f"删除过程中发生错误: {e}")
-            result = False
-            return result  # 删除失败
+    def delete_job_by_uuid(job_uuid: Union[str, UUID]) -> bool:
+        job_to_delete = DetectionTaskJob.get(DetectionTaskJob.uuid == job_uuid)
+        job_to_delete.delete_instance(recursive=True)
+        return True
 
     @staticmethod
-    def is_run_cancelled(run_id: Union[str, UUID]) -> bool:
+    def is_job_cancelled(job_uuid: Union[str, UUID]) -> bool:
         return (
-            DetectionTask.select(DetectionTask.status)
-            .where(DetectionTask.uuid == run_id)
+            DetectionTaskJob.select(DetectionTaskJob.status)
+            .where(DetectionTaskJob.uuid == job_uuid)
             .scalar()
             == TaskStatus.CANCELLED
         )
 
     @staticmethod
-    def update_run(
-        run_id: Union[str, UUID],
+    def update_job(
+        job_uuid: Union[str, UUID],
         *,
         status: TaskStatus = None,
         error: str = None,
@@ -135,38 +115,41 @@ class DetectionRepo:
         n_processed: int = None,
         finished_date: datetime = None,
     ):
-        DetectionTask.update(
+        DetectionTaskJob.update(
             dict(
                 filter(
                     lambda x: x[1] is not None,
                     [
-                        (DetectionTask.status, status),
-                        (DetectionTask.error, error),
-                        (DetectionTask.nTotal, n_total),
-                        (DetectionTask.nProcessed, n_processed),
-                        (DetectionTask.finishedDate, finished_date),
+                        (DetectionTaskJob.status, status),
+                        (DetectionTaskJob.error, error),
+                        (DetectionTaskJob.nTotal, n_total),
+                        (DetectionTaskJob.nProcessed, n_processed),
+                        (DetectionTaskJob.finishedDate, finished_date),
                     ],
                 )
             ),
-        ).where(DetectionTask.uuid == run_id).execute()
+        ).where(DetectionTaskJob.uuid == job_uuid).execute()
 
     @staticmethod
-    def fetch_or_create_file_data(filepath) -> Tuple[FileBody, bool]:
+    def fetch_or_create_file_data(filepath: str) -> Tuple[FileData, bool]:
         md5 = hashlib.md5()
         with open(filepath, "rb") as f:
             while chunk := f.read(4096):
                 md5.update(chunk)
 
         # TODO: decide if we want to store the file body in the database
-        return FileBody.get_or_create(
+        return FileData.get_or_create(
             md5=md5.hexdigest(),
             size=os.path.getsize(filepath),
-            kind=os.path.splitext(filepath)[1],
-            data=b"todo",
+            mime=magic.from_file(filepath, mime=True) or "application/octet-stream",
+            kind=magic.from_file(filepath, mime=False) or "unknown",
+            body=b"todo",
         )
 
     @staticmethod
-    def create_file_metadata(filepath: str, *, creator, modifier) -> FileMetadata:
+    def create_file_metadata(
+        filepath: str, *, creator: str, modifier: str
+    ) -> FileMetadata:
         data, _ = DetectionRepo.fetch_or_create_file_data(filepath)
         metadata = FileMetadata.create(
             path=filepath,
@@ -179,18 +162,18 @@ class DetectionRepo:
         return metadata
 
     @staticmethod
-    def create_embedded_file(
-        result: EmbDetectionResult,
+    def store_detected_file(
+        job: DetectionTaskJob,
         metadata: FileMetadata,
-        parent: EmbeddedFile = None,
-    ) -> EmbeddedFile:
-        return EmbeddedFile.create(
-            result=result,
+        results: List[Optional[DetectionTaskResDataType]],
+    ) -> DetectedFile:
+        return DetectedFile.create(
+            job=job,
             metadata=metadata,
-            parent=parent,
+            results=[result.model_dump() for result in results],
         )
 
     @staticmethod
-    def add_detected_file(result_id: int, detected_file: EmbeddedFile):
-        detected_file.result_id = result_id
+    def add_detected_file(job_uuid: Union[str, UUID], detected_file: DetectedFile):
+        detected_file.job_id = job_uuid
         detected_file.save()

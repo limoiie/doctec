@@ -3,9 +3,9 @@ from uuid import UUID
 from doctec.models import (
     EmbDetectionConfig,
     EmbDetectionResult,
-    DetectionTask,
+    DetectionTaskJob,
     EmbeddedFile,
-    FileBody,
+    FileData,
     FileMetadata,
     init_db,
 )
@@ -15,7 +15,7 @@ import peewee
 
 def delete_run_result_by_run_id(run_id: Union[str, UUID]) -> bool:
     try:
-        run_to_delete = DetectionTask.get(DetectionTask.uuid == run_id)
+        run_to_delete = DetectionTaskJob.get(DetectionTaskJob.uuid == run_id)
 
         run_to_delete.delete_instance(recursive=True)
 

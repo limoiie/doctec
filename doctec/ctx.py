@@ -6,10 +6,10 @@ from doctec.repos.detection_repo import DetectionRepo
 
 class AppContext(AbstractContextManager):
     executor: ThreadPoolExecutor
-    emb_det_repo: DetectionRepo
+    det_repo: DetectionRepo
 
     def __init__(self):
-        self.emb_det_repo = DetectionRepo()
+        self.det_repo = DetectionRepo()
 
     def __enter__(self) -> "AppContext":
         self.executor = ThreadPoolExecutor()

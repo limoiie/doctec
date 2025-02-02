@@ -18,9 +18,9 @@ export function SidebarEmbDetectTasks() {
 
   useEffect(() => {
     eel
-      .fetchEmbeddingDetectionRuns(0, 1000)()
+      .fetchDetectionTaskJobs(0, 1000)()
       .then((runs: DetectionTaskData[]) => {
-        console.log("fetchEmbeddingDetectionRuns", runs);
+        console.log("fetchDetectionTaskJobs", runs);
         setDetectRuns(runs);
       });
   }, []);
