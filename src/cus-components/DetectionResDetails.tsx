@@ -3,9 +3,26 @@ import type { DetectionTaskResData } from "@/types/DetectionTaskResData.schema";
 import { EmbeddedFileList } from "./EmbeddedFileList";
 import { EmbeddedFileTree } from "./EmbeddedFileTree";
 import { ListIcon, ListTreeIcon } from "lucide-react";
+import { useEffect, useState } from "react";
+import { DetectionTaskJobData } from "@/types/DetectionTaskJobData.schema";
+import { useEel } from "@/hooks/use-eel";
+import { toast } from "sonner";
 
 export function DetectionResDetails({ res }: { res: DetectionTaskResData }) {
-  console.log(res.detectedFiles);
+  const [job, setJob] = useState<DetectionTaskJobData>();
+  const { eel } = useEel();
+
+  useEffect(() => {
+    eel
+      .fetchDetectionTaskJobByUuid(res.jobUuid)()
+      .then((job: DetectionTaskJobData) => {
+        setJob(job);
+      })
+      .catch((reason: any) => {
+        toast.error("Failed to fetch job by uuid:", reason);
+      });
+  }, [res.jobUuid]);
+
   return (
     <div className="h-[calc(100%-42px)] flex flex-col gap-2 items-baseline">
       <Tabs defaultValue="List" className="w-full">
@@ -18,10 +35,10 @@ export function DetectionResDetails({ res }: { res: DetectionTaskResData }) {
           </TabsTrigger>
         </TabsList>
         <TabsContent value="List">
-          <EmbeddedFileList files={res.detectedFiles} />
+          {job && <EmbeddedFileList job={job} files={res.detectedFiles} />}
         </TabsContent>
         <TabsContent value="Tree">
-          <EmbeddedFileTree files={res.detectedFiles} />
+          {job && <EmbeddedFileTree job={job} files={res.detectedFiles} />}
         </TabsContent>
       </Tabs>
     </div>

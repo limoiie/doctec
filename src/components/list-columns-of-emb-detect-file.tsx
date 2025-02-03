@@ -9,24 +9,36 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { bytesToSize, formatDateTime } from "@/utils";
+import { DetectionTaskCfgData } from "@/types/DetectionTaskCfgData.schema";
+import { EmbeddedFileDetectionTaskResData } from "@/types/EmbeddedFileDetectionTaskResData.schema";
+import { MaliciousDocDetectionTaskResData } from "@/types/MaliciousDocDetectionTaskResData.schema";
+import { Badge } from "./ui/badge";
 
-export const listColumnsOfEmbDetectFile: ColumnDef<DetectedFileVO>[] = [
-  // {
-  //   accessorKey: "embPath",
-  //   header: ({ column }) => (
-  //     <DataTableColumnHeader column={column} title="Relationship" />
-  //   ),
-  //   cell: ({ row }) => <div>{row.getValue("embPath")}</div>,
-  // },
+export function listColumnsOfEmbDetectFile(
+  cfg: DetectionTaskCfgData,
+): ColumnDef<DetectedFileVO>[] {
+  let columns: ColumnDef<DetectedFileVO>[] = [...basicColumns];
+  if (cfg.configs.some((c) => c.type === "embedded-file")) {
+    columns = [...columns, ...embeddedFileColumns];
+  }
+  if (cfg.configs.some((c) => c.type === "malicious-doc")) {
+    columns = [...columns, ...maliciousDocColumns];
+  }
+  return columns;
+}
+
+const basicColumns: ColumnDef<DetectedFileVO>[] = [
   {
-    accessorKey: "filepath",
+    id: "filepath",
+    accessorFn: (row) => row.data.metadata.path,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="FilePath" />
     ),
     cell: ({ row }) => <div>{row.getValue("filepath")}</div>,
   },
   {
-    accessorKey: "size",
+    id: "size",
+    accessorFn: (row) => row.data.metadata.data.size,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Size" />
     ),
@@ -39,7 +51,8 @@ export const listColumnsOfEmbDetectFile: ColumnDef<DetectedFileVO>[] = [
     ),
   },
   {
-    accessorKey: "md5",
+    id: "md5",
+    accessorFn: (row) => row.data.metadata.data.md5,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="MD5" />
     ),
@@ -56,7 +69,8 @@ export const listColumnsOfEmbDetectFile: ColumnDef<DetectedFileVO>[] = [
     },
   },
   {
-    accessorKey: "kind",
+    id: "kind",
+    accessorFn: (row) => row.data.metadata.data.kind,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Kind" />
     ),
@@ -66,21 +80,24 @@ export const listColumnsOfEmbDetectFile: ColumnDef<DetectedFileVO>[] = [
     },
   },
   {
-    accessorKey: "created",
+    id: "created",
+    accessorFn: (row) => row.data.metadata.created,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Created" />
     ),
     cell: ({ row }) => <div>{formatDateTime(row.getValue("created"))}</div>,
   },
   {
-    accessorKey: "modified",
+    id: "modified",
+    accessorFn: (row) => row.data.metadata.modified,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Modified" />
     ),
     cell: ({ row }) => <div>{formatDateTime(row.getValue("modified"))}</div>,
   },
   {
-    accessorKey: "creator",
+    id: "creator",
+    accessorFn: (row) => row.data.metadata.creator,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Creator" />
     ),
@@ -90,7 +107,8 @@ export const listColumnsOfEmbDetectFile: ColumnDef<DetectedFileVO>[] = [
     },
   },
   {
-    accessorKey: "modifier",
+    id: "modifier",
+    accessorFn: (row) => row.data.metadata.modifier,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Modifier" />
     ),
@@ -100,3 +118,73 @@ export const listColumnsOfEmbDetectFile: ColumnDef<DetectedFileVO>[] = [
     },
   },
 ];
+
+const embeddedFileColumns: ColumnDef<DetectedFileVO>[] = [];
+
+const maliciousDocColumns: ColumnDef<DetectedFileVO>[] = [
+  {
+    id: "mal-category",
+    accessorFn: (row) => resultOf("malicious-doc", row.data.results).confidence,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Mal Category" />
+    ),
+    cell: ({ row }) => {
+      const res: MaliciousDocDetectionTaskResData = resultOf(
+        "malicious-doc",
+        row.original.data.results,
+      ) as MaliciousDocDetectionTaskResData;
+      return (
+        <div>
+          <Tooltip>
+            <TooltipTrigger>
+              <Badge variant="outline">{res.category}</Badge>
+            </TooltipTrigger>
+            <TooltipContent>{res.description}</TooltipContent>
+          </Tooltip>
+        </div>
+      );
+    },
+  },
+  {
+    id: "mal-confidence",
+    accessorFn: (row) => resultOf("malicious-doc", row.data.results).confidence,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Mal Confidence" />
+    ),
+    cell: ({ row }) => {
+      const res: MaliciousDocDetectionTaskResData = resultOf(
+        "malicious-doc",
+        row.original.data.results,
+      ) as MaliciousDocDetectionTaskResData;
+      return (
+        <div>
+          {res.confidence}{" "}
+          {
+            res.severity === "high" ? (
+              <span className="text-xs text-red-500">({res.severity})</span>
+            ) : res.severity === "medium" ? (
+              <span className="text-xs text-yellow-500">({res.severity})</span>
+            ) : (
+              <span className="text-xs text-green-500">({res.severity})</span>
+            )
+          }
+        </div>
+      );
+    },
+  },
+];
+
+function resultOf(
+  type: "malicious-doc" | "embedded-file",
+  results: (
+    | MaliciousDocDetectionTaskResData
+    | EmbeddedFileDetectionTaskResData
+  )[],
+) {
+  for (const result of results) {
+    if (result.type == type) {
+      return result;
+    }
+  }
+  throw new Error(`No result found for type: ${type}`);
+}

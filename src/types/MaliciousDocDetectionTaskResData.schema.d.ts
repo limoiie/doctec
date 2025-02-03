@@ -12,5 +12,6 @@ export interface MaliciousDocDetectionTaskResData {
   confidence: number;
   remediation: string;
   type?: "malicious-doc";
+
   [k: string]: unknown;
 }

@@ -32,6 +32,7 @@ import { ExpandedState } from "@tanstack/table-core";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
+  initInvisibleColumns: string[];
   facedFilters: FacedFilterDef[];
   searchColumnKey: string;
   data: TData[];
@@ -40,6 +41,7 @@ interface DataTableProps<TData, TValue> {
 
 export function TreeTable<TData, TValue>({
   columns,
+  initInvisibleColumns,
   facedFilters,
   searchColumnKey,
   data,
@@ -48,7 +50,12 @@ export function TreeTable<TData, TValue>({
   const [rowSelection, setRowSelection] = React.useState({});
   const [expanded, setExpanded] = React.useState<ExpandedState>({});
   const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
+    React.useState<VisibilityState>(
+      initInvisibleColumns.reduce((acc, col) => {
+        acc[col] = false;
+        return acc;
+      }, {} as VisibilityState),
+    );
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
   );

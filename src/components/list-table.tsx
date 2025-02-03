@@ -30,6 +30,7 @@ import { DataTableToolbar, FacedFilterDef } from "./data-table-toolbar";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
+  initInvisibleColumns: string[];
   facedFilters: FacedFilterDef[];
   searchColumnKey: string;
   data: TData[];
@@ -37,13 +38,19 @@ interface DataTableProps<TData, TValue> {
 
 export function ListTable<TData, TValue>({
   columns,
+  initInvisibleColumns,
   facedFilters,
   searchColumnKey,
   data,
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
+    React.useState<VisibilityState>(
+      initInvisibleColumns.reduce((acc, col) => {
+        acc[col] = false;
+        return acc;
+      }, {} as VisibilityState),
+    );
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
   );

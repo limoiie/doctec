@@ -5,8 +5,15 @@ import { DetectedFileVO } from "@/data/schema";
 import { buildEmbFileDataTree } from "@/cus-components/EmbeddedFileList";
 import { treeColumnsOfEmbDetectFile } from "@/components/tree-columns-of-emb-detect-file";
 import { TreeTable } from "@/components/tree-table";
+import { DetectionTaskJobData } from "@/types/DetectionTaskJobData.schema";
 
-export function EmbeddedFileTree({ files }: { files: DetectedFileData[] }) {
+export function EmbeddedFileTree({
+  job,
+  files,
+}: {
+  job: DetectionTaskJobData;
+  files: DetectedFileData[];
+}) {
   const [kinds, setKinds] = React.useState<string[]>([]);
   const [creators, setCreators] = React.useState<string[]>([]);
   const [modifiers, setModifiers] = React.useState<string[]>([]);
@@ -28,7 +35,7 @@ export function EmbeddedFileTree({ files }: { files: DetectedFileData[] }) {
     setCreators([...new Set(files.map((e) => e.metadata.creator))]);
     setModifiers([...new Set(files.map((e) => e.metadata.modifier))]);
 
-    const dataSource = buildEmbFileDataTree(files);
+    const dataSource = buildEmbFileDataTree(job, files);
     const sortedDataSource = dataSource
       .filter((item) => item.ancestors.length === 0)
       .sort((a: DetectedFileVO, b: DetectedFileVO) => {
@@ -46,7 +53,8 @@ export function EmbeddedFileTree({ files }: { files: DetectedFileData[] }) {
     <TreeTable
       data={dataSource}
       getChildrenData={getChildren}
-      columns={treeColumnsOfEmbDetectFile}
+      columns={treeColumnsOfEmbDetectFile(job.cfg)}
+      initInvisibleColumns={["created", "modified"]}
       facedFilters={[
         {
           columnKey: "kind",

@@ -9,5 +9,6 @@ export interface EmbeddedFileDetectionTaskResData {
   parentId: number | null;
   childIds: number[];
   type?: "embedded-file";
+
   [k: string]: unknown;
 }
