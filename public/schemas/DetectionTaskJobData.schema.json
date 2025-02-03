@@ -4,7 +4,7 @@
       "type": "string"
     },
     "cfg": {
-      "$ref": "EmbDetectionConfigData.schema.json#"
+      "$ref": "DetectionTaskCfgData.schema.json#"
     },
     "launchedDate": {
       "type": "string"
@@ -49,6 +49,6 @@
     "nTotal",
     "nProcessed"
   ],
-  "title": "DetectionTaskData",
+  "title": "DetectionTaskJobData",
   "type": "object"
 }

@@ -88,7 +88,7 @@ class DetectionRepo:
     def fetch_detected_files_by_job_uuid(
         job_uuid: Union[str, UUID]
     ) -> list[DetectedFile]:
-        return DetectedFile.get(DetectedFile.job == job_uuid)
+        return list(DetectedFile.select().where(DetectedFile.job == job_uuid))
 
     @staticmethod
     def delete_job_by_uuid(job_uuid: Union[str, UUID]) -> bool:

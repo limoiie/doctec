@@ -1,8 +1,10 @@
 import { eel } from "@/eel";
-import { EmbDetectionResultDataWithoutRun } from "@/types/EmbDetectionResultDataWithoutRun.schema";
-import { DetectionTaskData } from "@/types/DetectionTaskData.schema";
-import { EmbDetectionConfigData } from "@/types/EmbDetectionConfigData.schema";
 import { UserData } from "@/types/UserData.schema";
+import {
+  DetectionTaskCfgData,
+  DetectionTaskJobData,
+} from "@/types/DetectionTaskJobData.schema";
+import { DetectionTaskResData } from "@/types/DetectionTaskResData.schema";
 
 interface Eel {
   exit(): void;
@@ -14,28 +16,28 @@ interface Eel {
   fetchDetectionTaskJobs(
     page_no: number,
     page_size: number,
-  ): () => Promise<DetectionTaskData[]>;
+  ): () => Promise<DetectionTaskJobData[]>;
 
-  fetchEmbeddingDetectionRunByUuid(
-    run_uuid: string,
-  ): () => Promise<DetectionTaskData>;
-
-  fetchDetectionTaskResByJobUuid(
-    run_id: string,
-  ): () => Promise<EmbDetectionResultDataWithoutRun>;
+  fetchDetectionTaskJobByUuid(
+    job_uuid: string,
+  ): () => Promise<DetectionTaskJobData>;
 
   fetchDetectionTaskCfgs(
     page_no: number,
     page_size: number,
-  ): () => Promise<EmbDetectionConfigData[]>;
+  ): () => Promise<DetectionTaskCfgData[]>;
 
   fetchDetectionTaskCfgByUuid(
     config_uuid: string,
-  ): () => Promise<EmbDetectionConfigData>;
+  ): () => Promise<DetectionTaskCfgData>;
+
+  fetchDetectionTaskResByJobUuid(
+    job_uuid: string,
+  ): () => Promise<DetectionTaskResData>;
 
   launchDetectionTask(cfg: any): () => Promise<string>;
 
-  deleteDetectionTaskJobByUuid(run_uuid: string): () => Promise<boolean>;
+  deleteDetectionTaskJobByUuid(job_uuid: string): () => Promise<boolean>;
 
   login(email: string, password: string): () => Promise<UserData>;
 

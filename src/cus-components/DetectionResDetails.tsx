@@ -1,14 +1,11 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { EmbDetectionResultDataWithoutRun } from "@/types/EmbDetectionResultDataWithoutRun.schema.d";
+import type { DetectionTaskResData } from "@/types/DetectionTaskResData.schema";
 import { EmbeddedFileList } from "./EmbeddedFileList";
 import { EmbeddedFileTree } from "./EmbeddedFileTree";
 import { ListIcon, ListTreeIcon } from "lucide-react";
 
-export function EmbeddingDetectionResDetails({
-  res,
-}: {
-  res: EmbDetectionResultDataWithoutRun;
-}) {
+export function DetectionResDetails({ res }: { res: DetectionTaskResData }) {
+  console.log(res.detectedFiles);
   return (
     <div className="h-[calc(100%-42px)] flex flex-col gap-2 items-baseline">
       <Tabs defaultValue="List" className="w-full">

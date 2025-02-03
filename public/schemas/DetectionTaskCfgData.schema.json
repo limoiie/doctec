@@ -1,0 +1,37 @@
+{
+  "properties": {
+    "uuid": {
+      "type": "string"
+    },
+    "targetDirs": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "saveDir": {
+      "type": "string"
+    },
+    "configs": {
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "EmbeddedFileDetectionTaskCfgData.schema.json#"
+          },
+          {
+            "$ref": "MaliciousDocDetectionTaskCfgData.schema.json#"
+          }
+        ]
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "uuid",
+    "targetDirs",
+    "saveDir",
+    "configs"
+  ],
+  "title": "DetectionTaskCfgData",
+  "type": "object"
+}

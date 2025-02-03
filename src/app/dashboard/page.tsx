@@ -21,28 +21,28 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { EmbeddingDetectionRunDetails } from "@/cus-components/EmbeddingDetectionRunDetails";
-import { EmbeddingDetectionRunDetailsUnselected } from "@/cus-components/EmbeddingDetectionRunDetailsUnselected";
-import { EmbeddingDetectionConfigDetails } from "@/cus-components/EmbeddingDetectionConfigDetails";
+import { DetectionJobDetails } from "@/cus-components/DetectionJobDetails";
+import { DetectionJobDetailsUnselected } from "@/cus-components/DetectionJobDetailsUnselected";
+import { DetectionTaskCfgDetails } from "@/cus-components/DetectionTaskCfgDetails";
 import { navMain } from "@/cus-components/SidebarNavData";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 // Create a wrapper component to get the URL parameter
 const RunDetailsWrapper = () => {
-  const { runUuid } = useParams();
-  if (!runUuid) {
-    return <Navigate to="/dashboard/detection/task-run" replace />;
+  const { jobUuid } = useParams();
+  if (!jobUuid) {
+    return <Navigate to="/dashboard/detection/task-job" replace />;
   }
-  return <EmbeddingDetectionRunDetails runUuid={runUuid} />;
+  return <DetectionJobDetails jobUuid={jobUuid} />;
 };
 
 // Create a wrapper component to get the URL parameter for config details
 const ConfigDetailsWrapper = () => {
   const { configUuid } = useParams();
   if (!configUuid) {
-    return <Navigate to="/dashboard/detection/task-config" replace />;
+    return <Navigate to="/dashboard/detection/task-cfg" replace />;
   }
-  return <EmbeddingDetectionConfigDetails configUuid={configUuid} />;
+  return <DetectionTaskCfgDetails configUuid={configUuid} />;
 };
 
 export default function DashboardPage() {
@@ -104,18 +104,18 @@ export default function DashboardPage() {
           <Routes>
             <Route
               path="/"
-              element={<Navigate to="detection/task-run" replace />}
+              element={<Navigate to="detection/task-job" replace />}
             />
             <Route
-              path="detection/task-run"
-              element={<EmbeddingDetectionRunDetailsUnselected />}
+              path="detection/task-job"
+              element={<DetectionJobDetailsUnselected />}
             />
             <Route
-              path="detection/task-run/:runUuid"
+              path="detection/task-job/:jobUuid"
               element={<RunDetailsWrapper />}
             />
             <Route
-              path="detection/task-config/:configUuid"
+              path="detection/task-cfg/:configUuid"
               element={<ConfigDetailsWrapper />}
             />
           </Routes>

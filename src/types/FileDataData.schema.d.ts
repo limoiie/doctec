@@ -5,16 +5,6 @@
  * and run json-schema-to-typescript to regenerate this file.
  */
 
-export interface FileMetadataData {
-  id: number;
-  path: string;
-  data: FileDataData;
-  created: string;
-  modified: string;
-  creator: string;
-  modifier: string;
-  [k: string]: unknown;
-}
 export interface FileDataData {
   md5: string;
   size: number;

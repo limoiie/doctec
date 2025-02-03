@@ -1,4 +1,4 @@
-import type { EmbDetectionConfigData } from "@/types/EmbDetectionConfigData.schema";
+import type { DetectionTaskCfgData } from "@/types/DetectionTaskCfgData.schema";
 import {
   HoverCard,
   HoverCardContent,
@@ -19,11 +19,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Avatar } from "@/components/ui/avatar";
 
-export function EmbeddingDetectionCfgHoverCard({
-  cfg,
-}: {
-  cfg: EmbDetectionConfigData;
-}) {
+export function DetectionCfgHoverCard({ cfg }: { cfg: DetectionTaskCfgData }) {
   return (
     <div>
       <HoverCard>
@@ -34,9 +30,6 @@ export function EmbeddingDetectionCfgHoverCard({
         </HoverCardTrigger>
         <HoverCardContent className="w-80">
           <div className="flex space-x-4">
-            {/*<h4 className="text-sm font-semibold mb-1">*/}
-            {/*  Configuration Details*/}
-            {/*</h4>*/}
             <Avatar>
               <Settings2Icon size={42} />
             </Avatar>
@@ -53,12 +46,6 @@ export function EmbeddingDetectionCfgHoverCard({
                     </TooltipTrigger>
                     <TooltipContent>{cfg.uuid}</TooltipContent>
                   </Tooltip>
-                </span>
-              </div>
-              <div className="flex items-center pt-2">
-                <RulerIcon className="mr-2 h-4 w-4 opacity-70" />{" "}
-                <span className="text-xs text-muted-foreground">
-                  Max Depth: {cfg.maxDepth}
                 </span>
               </div>
               <div className="flex flex-col space-y-1">
@@ -87,6 +74,28 @@ export function EmbeddingDetectionCfgHoverCard({
                   Save Directory: <code>{cfg.saveDir}</code>
                 </span>{" "}
               </div>
+              {cfg.configs.map((config) => {
+                switch (config.type) {
+                  case "embedded-file":
+                    return (
+                      <div className="flex items-center pt-2">
+                        <RulerIcon className="mr-2 h-4 w-4 opacity-70" />{" "}
+                        <span className="text-xs text-muted-foreground">
+                          Max Depth: {config.maxDepth}
+                        </span>
+                      </div>
+                    );
+                  case "malicious-doc":
+                    return (
+                      <div className="flex items-center pt-2">
+                        <RulerIcon className="mr-2 h-4 w-4 opacity-70" />{" "}
+                        <span className="text-xs text-muted-foreground">
+                          Severity Threshold: {config.severityThreshold}
+                        </span>
+                      </div>
+                    );
+                }
+              })}
             </div>
           </div>
         </HoverCardContent>

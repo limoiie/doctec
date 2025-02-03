@@ -5,9 +5,9 @@
  * and run json-schema-to-typescript to regenerate this file.
  */
 
-export interface DetectionTaskData {
+export interface DetectionTaskJobData {
   uuid: string;
-  cfg: EmbDetectionConfigData;
+  cfg: DetectionTaskCfgData;
   launchedDate: string;
   finishedDate: string | null;
   status: string;
@@ -16,10 +16,20 @@ export interface DetectionTaskData {
   nProcessed: number;
   [k: string]: unknown;
 }
-export interface EmbDetectionConfigData {
+export interface DetectionTaskCfgData {
   uuid: string;
   targetDirs: string[];
   saveDir: string;
+  configs: (EmbeddedFileDetectionTaskCfgData | MaliciousDocDetectionTaskCfgData)[];
+  [k: string]: unknown;
+}
+export interface EmbeddedFileDetectionTaskCfgData {
   maxDepth: number;
+  type?: "embedded-file";
+  [k: string]: unknown;
+}
+export interface MaliciousDocDetectionTaskCfgData {
+  severityThreshold: number;
+  type?: "malicious-doc";
   [k: string]: unknown;
 }

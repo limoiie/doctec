@@ -5,10 +5,8 @@
  * and run json-schema-to-typescript to regenerate this file.
  */
 
-export interface FileBodyData {
-  md5: string;
-  size: number;
-  kind: string;
-  data?: string | null;
+export interface EmbeddedFileDetectionTaskCfgData {
+  maxDepth: number;
+  type?: "embedded-file";
   [k: string]: unknown;
 }

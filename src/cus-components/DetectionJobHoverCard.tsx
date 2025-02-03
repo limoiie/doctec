@@ -1,4 +1,4 @@
-import type { DetectionTaskData } from "@/types/DetectionTaskData.schema.d";
+import type { DetectionTaskJobData } from "@/types/DetectionTaskJobData.schema";
 import { StatusIcon } from "./StatusIcon";
 import {
   HoverCard,
@@ -21,23 +21,19 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-export function EmbeddingDetectionRunHoverCard({
-  run,
-}: {
-  run: DetectionTaskData;
-}) {
+export function DetectionJobHoverCard({ job }: { job: DetectionTaskJobData }) {
   return (
     <div>
       <HoverCard>
         <HoverCardTrigger asChild>
           <Button variant="outline" size="icon">
-            <StatusIcon status={run.status} showText={false} />
+            <StatusIcon status={job.status} showText={false} />
           </Button>
         </HoverCardTrigger>
         <HoverCardContent className="w-80">
           <div className="flex space-x-4">
             <Avatar>
-              <StatusIcon status={run.status} showText={false} size={42} />
+              <StatusIcon status={job.status} showText={false} size={42} />
             </Avatar>
             <div className="space-y-1">
               <div className="flex items-center pt-2">
@@ -47,39 +43,39 @@ export function EmbeddingDetectionRunHoverCard({
                   <Tooltip>
                     <TooltipTrigger className="font-mono">
                       <span className="inline-block">
-                        {run.uuid.substring(0, 16)}
+                        {job.uuid.substring(0, 16)}
                       </span>
                     </TooltipTrigger>
-                    <TooltipContent>{run.uuid}</TooltipContent>
+                    <TooltipContent>{job.uuid}</TooltipContent>
                   </Tooltip>
                 </span>
               </div>
-              {run.error && (
+              {job.error && (
                 <div className="flex pt-2">
                   <CircleAlertIcon className="mr-2 h-4 w-4 min-w-4 opacity-70" />{" "}
                   <span className="text-xs text-muted-foreground ">
                     The task has encountered an error:{" "}
-                    <p className="text-red-500">{run.error}</p>
+                    <p className="text-red-500">{job.error}</p>
                   </span>
                 </div>
               )}
               <div className="flex pt-2">
                 <PercentIcon className="mr-2 h-4 w-4 min-w-4 opacity-70" />{" "}
                 <span className="text-xs text-muted-foreground">
-                  Processed {run.nProcessed} / {run.nTotal}
+                  Processed {job.nProcessed} / {job.nTotal}
                 </span>
               </div>
               <div className="flex pt-2">
                 <CalendarPlusIcon className="mr-2 h-4 w-4 min-w-4 opacity-70" />{" "}
                 <span className="text-xs text-muted-foreground">
-                  Launched {formatDateTime(run.launchedDate)}
+                  Launched {formatDateTime(job.launchedDate)}
                 </span>
               </div>
-              {run.finishedDate && (
+              {job.finishedDate && (
                 <div className="flex pt-2">
                   <CalendarCheckIcon className="mr-2 h-4 w-4 min-w-4 opacity-70" />{" "}
                   <span className="text-xs text-muted-foreground">
-                    Finished {formatDateTime(run.finishedDate)}
+                    Finished {formatDateTime(job.finishedDate)}
                   </span>
                 </div>
               )}

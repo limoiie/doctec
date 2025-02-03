@@ -1,0 +1,17 @@
+{
+  "properties": {
+    "maxDepth": {
+      "type": "integer"
+    },
+    "type": {
+      "const": "embedded-file",
+      "default": "embedded-file",
+      "type": "string"
+    }
+  },
+  "required": [
+    "maxDepth"
+  ],
+  "title": "EmbeddedFileDetectionTaskCfgData",
+  "type": "object"
+}

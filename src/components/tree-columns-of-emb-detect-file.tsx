@@ -1,7 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { EmbDetectFileVO } from "@/data/schema";
+import { DetectedFileVO } from "@/data/schema";
 import { DataTableColumnHeader } from "./data-table-column-header";
 import {
   Tooltip,
@@ -13,7 +13,7 @@ import { FileIcon, FileMinus2Icon, FilePlus2Icon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DataTableExpandableColumnHeader } from "@/components/data-table-expandable-column-header";
 
-export const treeColumnsOfEmbDetectFile: ColumnDef<EmbDetectFileVO>[] = [
+export const treeColumnsOfEmbDetectFile: ColumnDef<DetectedFileVO>[] = [
   // {
   //   accessorKey: "ancestors",
   //   header: ({ column }) => (

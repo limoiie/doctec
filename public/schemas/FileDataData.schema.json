@@ -9,7 +9,18 @@
     "kind": {
       "type": "string"
     },
-    "data": {
+    "mime": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "body": {
       "anyOf": [
         {
           "format": "binary",
@@ -27,6 +38,6 @@
     "size",
     "kind"
   ],
-  "title": "FileBodyData",
+  "title": "FileDataData",
   "type": "object"
 }

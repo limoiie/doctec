@@ -16,8 +16,8 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { SidebarEmbDetectTasks } from "@/cus-components/SidebarEmbDetectTasks";
-import { SidebarEmbDetectTaskConfigs } from "@/cus-components/SidebarEmbDetectTaskConfigs";
+import { SidebarDetectionTaskJobs } from "@/cus-components/SidebarDetectionTaskJobs";
+import { SidebarDetectionTaskCfgs } from "@/cus-components/SidebarDetectionTaskCfgs";
 import { Modules, NavItem, navMain } from "@/cus-components/SidebarNavData";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useAuth } from "@/contexts/auth-context";
@@ -114,10 +114,10 @@ export function AppSidebar({ activeItem, ...props }: AppSidebarProps) {
             <SidebarGroupContent>
               {(() => {
                 switch (activeItem.module) {
-                  case Modules.DETECTION_TASKS:
-                    return <SidebarEmbDetectTasks />;
-                  case Modules.DETECTION_TASK_CONFIGS:
-                    return <SidebarEmbDetectTaskConfigs />;
+                  case Modules.DETECTION_TASK_JOBS:
+                    return <SidebarDetectionTaskJobs />;
+                  case Modules.DETECTION_TASK_CFGS:
+                    return <SidebarDetectionTaskCfgs />;
                   default:
                     return null;
                 }

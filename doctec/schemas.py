@@ -12,7 +12,7 @@ from doctec.models import (
     DetectionTaskCfg,
     DetectedFile,
 )
-from doctec.tasks.detection import DetectionTaskType
+from doctec.tasks.types import DetectionTaskType
 
 __all__ = [
     "DetectedFileData",
@@ -49,6 +49,8 @@ class SchemaBaseModel(BaseModel):
         __ALL_SCHEMA_MODELS__.add(cls)
 
     class Config:
+        use_enum_values = True
+
         @staticmethod
         def json_schema_extra(schema: Dict[str, Any], _model):
             """
@@ -149,10 +151,11 @@ class DetectedFileData(SchemaBaseModel):
 
     @classmethod
     def parse_result(cls, result: dict):
+        result["type"] = DetectionTaskType.of(result["type"])
         match result["type"]:
-            case DetectionTaskType.EMBEDDED_FILE.name:
+            case DetectionTaskType.EMBEDDED_FILE:
                 return EmbeddedFileDetectionTaskResData.model_validate(result)
-            case DetectionTaskType.MALICIOUS_DOC.name:
+            case DetectionTaskType.MALICIOUS_DOC:
                 return MaliciousDocDetectionTaskResData.model_validate(result)
             case typ:
                 raise ValueError(f"Unknown detection type: {typ}")
@@ -175,10 +178,11 @@ class DetectionTaskCfgData(SchemaBaseModel):
 
     @classmethod
     def parse_config(cls, config: dict):
+        config["type"] = DetectionTaskType.of(config["type"])
         match config["type"]:
-            case DetectionTaskType.EMBEDDED_FILE.name:
+            case DetectionTaskType.EMBEDDED_FILE:
                 return EmbeddedFileDetectionTaskCfgData.model_validate(config)
-            case DetectionTaskType.MALICIOUS_DOC.name:
+            case DetectionTaskType.MALICIOUS_DOC:
                 return MaliciousDocDetectionTaskCfgData.model_validate(config)
             case typ:
                 raise ValueError(f"Unknown detection type: {typ}")
@@ -287,10 +291,11 @@ DetectionTaskCfgDataType = Union[
 
 
 def detection_task_cfg_of_dict(parameters: dict):
+    parameters["type"] = DetectionTaskType.of(parameters["type"])
     match parameters["type"]:
-        case DetectionTaskType.EMBEDDED_FILE.name:
+        case DetectionTaskType.EMBEDDED_FILE:
             return EmbeddedFileDetectionTaskCfgData.model_validate(parameters)
-        case DetectionTaskType.MALICIOUS_DOC.name:
+        case DetectionTaskType.MALICIOUS_DOC:
             return MaliciousDocDetectionTaskCfgData.model_validate(parameters)
         case typ:
             raise ValueError(f"Unsupported task type: {typ}")

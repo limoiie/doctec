@@ -1,0 +1,17 @@
+{
+  "properties": {
+    "severityThreshold": {
+      "type": "number"
+    },
+    "type": {
+      "const": "malicious-doc",
+      "default": "malicious-doc",
+      "type": "string"
+    }
+  },
+  "required": [
+    "severityThreshold"
+  ],
+  "title": "MaliciousDocDetectionTaskCfgData",
+  "type": "object"
+}

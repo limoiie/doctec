@@ -1,7 +1,7 @@
 import random
 
 from doctec.models import *
-from doctec.tasks.types import TaskStatus, DetectionTaskType
+from doctec.tasks.types import DetectionTaskType, TaskStatus
 
 # Initialize the database
 db = SqliteDatabase("fake_database.db")
@@ -19,6 +19,153 @@ db.create_tables(
         DetectedFile,
     ]
 )
+
+
+def create_detected_files_for_job(
+    job: DetectionTaskJob, metadata_entries: List[FileMetadata]
+):
+    """Create multiple detected files for a job with proper tree structure."""
+
+    def create_file_tree(
+        parent_id: Optional[int], depth: int = 0, max_depth: int = 3
+    ) -> List[DetectedFile]:
+        """Create a tree of detected files and return their IDs."""
+        if depth >= max_depth or random.random() < 0.3:  # 30% chance to stop branching
+            return []
+
+        num_children = random.randint(1, 5)
+        children = []
+
+        for _ in range(num_children):
+            # Create child file detection with proper parentId
+            child = DetectedFile.create(
+                job=job,
+                metadata=random.choice(metadata_entries),
+                results=[
+                    {
+                        "type": DetectionTaskType.EMBEDDED_FILE.name,
+                        "parentId": parent_id,  # Set parent ID during creation
+                        "childIds": [],  # Will be updated after creating children
+                        "depth": depth,
+                    },
+                    {
+                        "type": DetectionTaskType.MALICIOUS_DOC.name,
+                        "severity": random.choice(["high", "medium", "low"]),
+                        "category": random.choice(
+                            [
+                                "shellcode",
+                                "malform",
+                                "upload",
+                                "macro",
+                                "exploit",
+                                "obfuscation",
+                            ]
+                        ),
+                        "description": random.choice(
+                            [
+                                "Suspicious macro detected",
+                                "Potential shellcode found",
+                                "Obfuscated content detected",
+                                "Suspicious embedded objects",
+                                "Malformed document structure",
+                            ]
+                        ),
+                        "confidence": round(random.uniform(0.5, 1.0), 2),
+                        "remediation": random.choice(
+                            [
+                                "Review and disable macros",
+                                "Scan with updated antivirus",
+                                "Check embedded content",
+                                "Verify document source",
+                                "Remove suspicious elements",
+                            ]
+                        ),
+                    },
+                ],
+            )
+
+            # Recursively create children for this node
+            grandchildren = create_file_tree(child.id, depth + 1, max_depth)
+
+            # Update the child's childIds
+            if grandchildren:
+                child.results[0]["childIds"] = [
+                    grandchild.id for grandchild in grandchildren
+                ]
+                child.save()  # Save the updated results
+
+                # Update all grandchildren to ensure their parentId is set correctly
+                for grandchild in grandchildren:
+                    grandchild.results[0]["parentId"] = child.id
+                    grandchild.save()
+
+            children.append(child)
+
+        return children
+
+    # Generate 5-15 root level files per job
+    num_root_files = random.randint(5, 15)
+
+    for _ in range(num_root_files):
+        # Create root level detection
+        root = DetectedFile.create(
+            job=job,
+            metadata=random.choice(metadata_entries),
+            results=[
+                {
+                    "type": DetectionTaskType.EMBEDDED_FILE.name,
+                    "parentId": None,  # Root has no parent
+                    "childIds": [],  # Will be updated after creating children
+                    "depth": 0,
+                },
+                {
+                    "type": DetectionTaskType.MALICIOUS_DOC.name,
+                    "severity": random.choice(["high", "medium", "low"]),
+                    "category": random.choice(
+                        [
+                            "shellcode",
+                            "malform",
+                            "upload",
+                            "macro",
+                            "exploit",
+                            "obfuscation",
+                        ]
+                    ),
+                    "description": random.choice(
+                        [
+                            "Suspicious macro detected",
+                            "Potential shellcode found",
+                            "Obfuscated content detected",
+                            "Suspicious embedded objects",
+                            "Malformed document structure",
+                        ]
+                    ),
+                    "confidence": round(random.uniform(0.5, 1.0), 2),
+                    "remediation": random.choice(
+                        [
+                            "Review and disable macros",
+                            "Scan with updated antivirus",
+                            "Check embedded content",
+                            "Verify document source",
+                            "Remove suspicious elements",
+                        ]
+                    ),
+                },
+            ],
+        )
+
+        # Create child files and get their IDs
+        root_children = create_file_tree(root.id)
+
+        # Update root's childIds if it has children
+        if root_children:
+            root.results[0]["childIds"] = [child.id for child in root_children]
+            root.save()  # Save the updated results
+
+            # Update all children to ensure their parentId is set correctly
+            for child in root_children:
+                child.results[0]["parentId"] = root.id
+                child.save()
 
 
 def generate_fake_data():
@@ -100,29 +247,9 @@ def generate_fake_data():
         )
         task_jobs.append(job)
 
-    # Generate DetectedFile
+    # Generate DetectedFile with valid tree structure
     for job in task_jobs:
-        DetectedFile.create(
-            job=job,
-            metadata=random.choice(file_metadata_entries),
-            results=[
-                {
-                    "type": DetectionTaskType.EMBEDDED_FILE.name,
-                    "parentId": None,
-                    "childIds": [
-                        random.randint(1, 100) for _ in range(random.randint(0, 3))
-                    ],
-                },
-                {
-                    "type": DetectionTaskType.MALICIOUS_DOC.name,
-                    "severity": random.choice(["high", "medium", "low"]),
-                    "category": random.choice(["shellcode", "malform", "upload"]),
-                    "description": "Suspicious content detected",
-                    "confidence": random.uniform(0.1, 1.0),
-                    "remediation": "Please review the file content",
-                },
-            ],
-        )
+        create_detected_files_for_job(job, file_metadata_entries)
 
 
 if __name__ == "__main__":

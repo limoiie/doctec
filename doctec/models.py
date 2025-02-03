@@ -191,7 +191,7 @@ class DetectionTaskJob(BaseModel):
 class DetectedFile(BaseModel):
     id: int = AutoField(primary_key=True)
     job: DetectionTaskJob = ForeignKeyField(
-        DetectionTaskJob, backref="results", unique=True, on_delete="CASCADE"
+        DetectionTaskJob, backref="results", on_delete="CASCADE"
     )
     metadata: FileMetadata = ForeignKeyField(FileMetadata, on_delete="CASCADE")
     results: List[dict] = JSONField(null=False, default=[])

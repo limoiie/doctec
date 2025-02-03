@@ -16,4 +16,4 @@ export const embDetectFileSchema = z.object({
   modifier: z.string(),
 });
 
-export type EmbDetectFileVO = z.infer<typeof embDetectFileSchema>;
+export type DetectedFileVO = z.infer<typeof embDetectFileSchema>;

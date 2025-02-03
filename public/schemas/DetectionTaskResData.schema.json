@@ -1,23 +1,19 @@
 {
   "properties": {
-    "id": {
-      "type": "integer"
-    },
-    "runUuid": {
+    "jobUuid": {
       "type": "string"
     },
     "detectedFiles": {
       "items": {
-        "$ref": "EmbeddedFileData.schema.json#"
+        "$ref": "DetectedFileData.schema.json#"
       },
       "type": "array"
     }
   },
   "required": [
-    "id",
-    "runUuid",
+    "jobUuid",
     "detectedFiles"
   ],
-  "title": "EmbDetectionResultDataWithoutRun",
+  "title": "DetectionTaskResData",
   "type": "object"
 }

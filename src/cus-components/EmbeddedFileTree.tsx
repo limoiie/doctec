@@ -1,21 +1,21 @@
 import React, { useEffect } from "react";
 
-import type { EmbeddedFileData } from "@/types/EmbeddedFileData.schema.d";
-import { EmbDetectFileVO } from "@/data/schema";
+import type { DetectedFileData } from "@/types/DetectedFileData.schema";
+import { DetectedFileVO } from "@/data/schema";
 import { buildEmbFileDataTree } from "@/cus-components/EmbeddedFileList";
 import { treeColumnsOfEmbDetectFile } from "@/components/tree-columns-of-emb-detect-file";
 import { TreeTable } from "@/components/tree-table";
 
-export function EmbeddedFileTree({ files }: { files: EmbeddedFileData[] }) {
+export function EmbeddedFileTree({ files }: { files: DetectedFileData[] }) {
   const [kinds, setKinds] = React.useState<string[]>([]);
   const [creators, setCreators] = React.useState<string[]>([]);
   const [modifiers, setModifiers] = React.useState<string[]>([]);
-  const [dataSource, setDataSource] = React.useState<EmbDetectFileVO[]>([]);
+  const [dataSource, setDataSource] = React.useState<DetectedFileVO[]>([]);
   const [dataSourceMap, setDataSourceMap] = React.useState<
-    Map<number, EmbDetectFileVO>
+    Map<number, DetectedFileVO>
   >(new Map());
 
-  function getChildren(item: EmbDetectFileVO): EmbDetectFileVO[] | undefined {
+  function getChildren(item: DetectedFileVO): DetectedFileVO[] | undefined {
     if (!item.children || item.children.length === 0) {
       return undefined;
     }
@@ -31,14 +31,14 @@ export function EmbeddedFileTree({ files }: { files: EmbeddedFileData[] }) {
     const dataSource = buildEmbFileDataTree(files);
     const sortedDataSource = dataSource
       .filter((item) => item.ancestors.length === 0)
-      .sort((a: EmbDetectFileVO, b: EmbDetectFileVO) => {
+      .sort((a: DetectedFileVO, b: DetectedFileVO) => {
         return a.embPath.localeCompare(b.embPath);
       });
     setDataSource(sortedDataSource);
 
     const dataSourceMap = dataSource.reduce((acc, item) => {
       return acc.set(item.id, item);
-    }, new Map<number, EmbDetectFileVO>());
+    }, new Map<number, DetectedFileVO>());
     setDataSourceMap(dataSourceMap);
   }, [files]);
 

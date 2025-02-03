@@ -1,24 +1,39 @@
 import React, { useEffect } from "react";
-import type { EmbeddedFileData } from "@/types/EmbeddedFileData.schema.d";
+import type { DetectedFileData } from "@/types/DetectedFileData.schema";
 import { splitPathName } from "@/utils";
 import { ListTable } from "@/components/list-table";
 import { listColumnsOfEmbDetectFile } from "@/components/list-columns-of-emb-detect-file";
-import { EmbDetectFileVO } from "@/data/schema";
+import { DetectedFileVO } from "@/data/schema";
 
 /**
  * Build the embedded file data tree
  */
 export function buildEmbFileDataTree(
-  files: EmbeddedFileData[],
-): EmbDetectFileVO[] {
-  const dataSource: EmbDetectFileVO[] = files.map((e: EmbeddedFileData) => {
+  files: DetectedFileData[],
+): DetectedFileVO[] {
+  const dataSource: DetectedFileVO[] = files.map((e: DetectedFileData) => {
+    let parentId = null;
+    let children: number[] = [];
+
+    for (const res of e.results) {
+      switch (res.type) {
+        case "embedded-file":
+          parentId = res.parentId;
+          children = res.childIds;
+          break;
+        case "malicious-doc":
+          break;
+      }
+      console.log(res.type);
+    }
+
     return {
       id: e.id,
       filepath: e.metadata.path,
       embPath: "",
-      parentId: e.parentId,
+      parentId: parentId,
       ancestors: [] as number[],
-      children: [] as number[],
+      children: children,
       size: e.metadata.data.size,
       md5: e.metadata.data.md5,
       kind: e.metadata.data.kind,
@@ -31,11 +46,11 @@ export function buildEmbFileDataTree(
 
   const id2EmbeddedFileMap = dataSource.reduce(
     (acc, cur) => acc.set(cur.id, cur),
-    new Map<number, EmbDetectFileVO>(),
+    new Map<number, DetectedFileVO>(),
   );
   const visited = new Set();
 
-  function buildRelationship(file: EmbDetectFileVO): EmbDetectFileVO {
+  function buildRelationship(file: DetectedFileVO): DetectedFileVO {
     if (visited.has(file.id)) {
       return file;
     }
@@ -56,9 +71,6 @@ export function buildEmbFileDataTree(
       "#" +
       file.id;
     file.ancestors = [...parent.ancestors, parent.id];
-    if (!parent.children.includes(file.id)) {
-      parent.children.push(file.id);
-    }
     visited.add(file.id);
     return file;
   }
@@ -67,11 +79,11 @@ export function buildEmbFileDataTree(
   return dataSource;
 }
 
-export function EmbeddedFileList({ files }: { files: EmbeddedFileData[] }) {
+export function EmbeddedFileList({ files }: { files: DetectedFileData[] }) {
   const [kinds, setKinds] = React.useState<string[]>([]);
   const [creators, setCreators] = React.useState<string[]>([]);
   const [modifiers, setModifiers] = React.useState<string[]>([]);
-  const [dataSource, setDataSource] = React.useState<EmbDetectFileVO[]>([]);
+  const [dataSource, setDataSource] = React.useState<DetectedFileVO[]>([]);
 
   useEffect(() => {
     // noinspection DuplicatedCode
@@ -81,7 +93,7 @@ export function EmbeddedFileList({ files }: { files: EmbeddedFileData[] }) {
 
     const dataSource = buildEmbFileDataTree(files);
     const sortedData = dataSource.sort(
-      (a: EmbDetectFileVO, b: EmbDetectFileVO) => {
+      (a: DetectedFileVO, b: DetectedFileVO) => {
         return a.embPath.localeCompare(b.embPath);
       },
     );

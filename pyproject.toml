@@ -24,6 +24,7 @@ oletools = "0.60.2"
 pcodedmp = "1.2.6"
 pandas = "^2.2.3"
 pymupdf = "^1.25.2"
+python-magic = "^0.4.27"
 
 
 [tool.poetry.group.test.dependencies]

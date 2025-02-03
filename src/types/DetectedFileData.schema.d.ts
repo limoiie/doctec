@@ -5,6 +5,13 @@
  * and run json-schema-to-typescript to regenerate this file.
  */
 
+export interface DetectedFileData {
+  id: number;
+  jobUuid: string;
+  metadata: FileMetadataData;
+  results: (MaliciousDocDetectionTaskResData | EmbeddedFileDetectionTaskResData)[];
+  [k: string]: unknown;
+}
 export interface FileMetadataData {
   id: number;
   path: string;
@@ -21,5 +28,20 @@ export interface FileDataData {
   kind: string;
   mime?: string | null;
   body?: string | null;
+  [k: string]: unknown;
+}
+export interface MaliciousDocDetectionTaskResData {
+  severity: string;
+  category: string;
+  description: string;
+  confidence: number;
+  remediation: string;
+  type?: "malicious-doc";
+  [k: string]: unknown;
+}
+export interface EmbeddedFileDetectionTaskResData {
+  parentId: number | null;
+  childIds: number[];
+  type?: "embedded-file";
   [k: string]: unknown;
 }

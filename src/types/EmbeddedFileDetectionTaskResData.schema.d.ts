@@ -5,10 +5,9 @@
  * and run json-schema-to-typescript to regenerate this file.
  */
 
-export interface EmbDetectionConfigData {
-  uuid: string;
-  targetDirs: string[];
-  saveDir: string;
-  maxDepth: number;
+export interface EmbeddedFileDetectionTaskResData {
+  parentId: number | null;
+  childIds: number[];
+  type?: "embedded-file";
   [k: string]: unknown;
 }

@@ -1,0 +1,31 @@
+{
+  "properties": {
+    "parentId": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "childIds": {
+      "items": {
+        "type": "integer"
+      },
+      "type": "array"
+    },
+    "type": {
+      "const": "embedded-file",
+      "default": "embedded-file",
+      "type": "string"
+    }
+  },
+  "required": [
+    "parentId",
+    "childIds"
+  ],
+  "title": "EmbeddedFileDetectionTaskResData",
+  "type": "object"
+}

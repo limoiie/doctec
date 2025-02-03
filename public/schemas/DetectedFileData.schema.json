@@ -1,0 +1,34 @@
+{
+  "properties": {
+    "id": {
+      "type": "integer"
+    },
+    "jobUuid": {
+      "type": "string"
+    },
+    "metadata": {
+      "$ref": "FileMetadataData.schema.json#"
+    },
+    "results": {
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "MaliciousDocDetectionTaskResData.schema.json#"
+          },
+          {
+            "$ref": "EmbeddedFileDetectionTaskResData.schema.json#"
+          }
+        ]
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "id",
+    "jobUuid",
+    "metadata",
+    "results"
+  ],
+  "title": "DetectedFileData",
+  "type": "object"
+}

@@ -1,13 +1,16 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { EmbDetectFileVO } from "@/data/schema";
+import { DetectedFileVO } from "@/data/schema";
 import { DataTableColumnHeader } from "./data-table-column-header";
-import { Tooltip } from "@/components/ui/tooltip";
-import { TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { bytesToSize, formatDateTime } from "@/utils";
 
-export const listColumnsOfEmbDetectFile: ColumnDef<EmbDetectFileVO>[] = [
+export const listColumnsOfEmbDetectFile: ColumnDef<DetectedFileVO>[] = [
   // {
   //   accessorKey: "embPath",
   //   header: ({ column }) => (

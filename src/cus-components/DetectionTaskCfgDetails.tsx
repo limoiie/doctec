@@ -2,17 +2,20 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { eel } from "@/eel";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { EmbDetectionConfigData } from "@/types/EmbDetectionConfigData.schema";
-import { EmbeddingDetectionCfgHoverCard } from "@/cus-components/EmbeddingDetectionCfgHoverCard";
+import type { DetectionTaskCfgData } from "@/types/DetectionTaskCfgData.schema";
+import { DetectionCfgHoverCard } from "@/cus-components/DetectionCfgHoverCard";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { PlayCircleIcon } from "lucide-react";
 
-export function EmbeddingDetectionConfigDetails({
+export function DetectionTaskCfgDetails({
   configUuid,
 }: {
   configUuid: string;
 }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [config, setConfig] = useState<EmbDetectionConfigData | null>(null);
+  const [config, setConfig] = useState<DetectionTaskCfgData | null>(null);
   const navigate = useNavigate();
 
   function loadData() {
@@ -20,7 +23,7 @@ export function EmbeddingDetectionConfigDetails({
     setError(null);
 
     eel.fetchDetectionTaskCfgByUuid(configUuid)(
-      function (config: EmbDetectionConfigData) {
+      function (config: DetectionTaskCfgData) {
         setLoading(false);
         setConfig(config);
       },
@@ -34,10 +37,13 @@ export function EmbeddingDetectionConfigDetails({
   useEffect(() => loadData(), [configUuid]);
 
   function startDetection() {
-    if (!config) return;
+    if (!config) {
+      toast.error("Failed to start detection task, config not loaded");
+      return;
+    }
 
-    eel.launchDetectionTask(config)(function (runUuid: string) {
-      navigate(`/dashboard/detection/task-run/${runUuid}`);
+    eel.launchDetectionTask(config)(function (jobUuid: string) {
+      navigate(`/dashboard/detection/task-job/${jobUuid}`);
     });
   }
 
@@ -45,9 +51,13 @@ export function EmbeddingDetectionConfigDetails({
     <div className="flex flex-col gap-2">
       {loading && <Skeleton />}
 
-      {!loading && !error && config && (
-        <EmbeddingDetectionCfgHoverCard cfg={config} />
-      )}
+      {!loading && !error && config && <DetectionCfgHoverCard cfg={config} />}
+      <Button
+        onClick={startDetection}
+        disabled={loading || error || config?.status !== "READY"}
+      >
+        <PlayCircleIcon className="mr-2 h-4 w-4 opacity-70" />
+      </Button>
 
       {error && (
         <span>

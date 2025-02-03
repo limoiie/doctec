@@ -7,7 +7,7 @@
       "type": "string"
     },
     "data": {
-      "$ref": "FileBodyData.schema.json#"
+      "$ref": "FileDataData.schema.json#"
     },
     "created": {
       "type": "string"
