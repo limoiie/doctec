@@ -49,14 +49,16 @@ export function SidebarDetectionTaskCfgs() {
               </span>
             </div>
           </div>
-          {cfg.configs.map((config) => {
-            switch (config.type) {
-              case "embedded-file":
-                return <Badge variant="destructive">EmbFile</Badge>;
-              case "malicious-doc":
-                return <Badge variant="destructive">MalDoc</Badge>;
-            }
-          })}
+          <div className="flex flex-wrap gap-2 ml-auto">
+            {cfg.configs.map((config) => {
+              switch (config.type) {
+                case "embedded-file":
+                  return <Badge variant="outline">EmbFile</Badge>;
+                case "malicious-doc":
+                  return <Badge variant="outline">MalDoc</Badge>;
+              }
+            })}
+          </div>
         </Link>
       ))}
     </>

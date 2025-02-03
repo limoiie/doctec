@@ -26,6 +26,7 @@ import { DetectionJobDetailsUnselected } from "@/cus-components/DetectionJobDeta
 import { DetectionTaskCfgDetails } from "@/cus-components/DetectionTaskCfgDetails";
 import { navMain } from "@/cus-components/SidebarNavData";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { NewDetectionButton } from "@/components/new-detection-button";
 
 // Create a wrapper component to get the URL parameter
 const RunDetailsWrapper = () => {
@@ -97,6 +98,9 @@ export default function DashboardPage() {
             </BreadcrumbList>
           </Breadcrumb>
           <div className="ml-auto">
+            <NewDetectionButton />
+          </div>
+          <div className="">
             <ThemeToggle />
           </div>
         </header>

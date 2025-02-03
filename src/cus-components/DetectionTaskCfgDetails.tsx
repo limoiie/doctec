@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { eel } from "@/eel";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { DetectionTaskCfgData } from "@/types/DetectionTaskCfgData.schema";
 import { DetectionCfgHoverCard } from "@/cus-components/DetectionCfgHoverCard";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { PlayCircleIcon } from "lucide-react";
-
+import { useEel } from "@/hooks/use-eel";
 export function DetectionTaskCfgDetails({
   configUuid,
 }: {
@@ -16,22 +15,24 @@ export function DetectionTaskCfgDetails({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [config, setConfig] = useState<DetectionTaskCfgData | null>(null);
+
+  const { eel } = useEel();
   const navigate = useNavigate();
 
   function loadData() {
     setLoading(true);
     setError(null);
 
-    eel.fetchDetectionTaskCfgByUuid(configUuid)(
-      function (config: DetectionTaskCfgData) {
+    eel
+      .fetchDetectionTaskCfgByUuid(configUuid)()
+      .then(function (config: DetectionTaskCfgData) {
         setLoading(false);
         setConfig(config);
-      },
-      function (error: never) {
+      })
+      .catch(function (error: any) {
         setLoading(false);
         setError(error);
-      },
-    );
+      });
   }
 
   useEffect(() => loadData(), [configUuid]);
@@ -42,22 +43,26 @@ export function DetectionTaskCfgDetails({
       return;
     }
 
-    eel.launchDetectionTask(config)(function (jobUuid: string) {
-      navigate(`/dashboard/detection/task-job/${jobUuid}`);
-    });
+    eel
+      .launchDetectionTask(config)()
+      .then(function (jobUuid: string) {
+        navigate(`/dashboard/detection/task-job/${jobUuid}`);
+      });
   }
 
   return (
     <div className="flex flex-col gap-2">
       {loading && <Skeleton />}
 
-      {!loading && !error && config && <DetectionCfgHoverCard cfg={config} />}
-      <Button
-        onClick={startDetection}
-        disabled={loading || error || config?.status !== "READY"}
-      >
-        <PlayCircleIcon className="mr-2 h-4 w-4 opacity-70" />
-      </Button>
+      <div className="flex flex-col items-start gap-2">
+        {!loading && !error && config && <DetectionCfgHoverCard cfg={config} />}
+        {!loading && !error && config && (
+            <Button onClick={startDetection} variant="outline">
+              <PlayCircleIcon />
+              New Detection With Current Config
+            </Button>
+        )}
+      </div>
 
       {error && (
         <span>
