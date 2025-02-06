@@ -5,13 +5,13 @@ from typing import Generic, TypeVar
 from doctec.ctx import AppContext
 
 TCfg = TypeVar("TCfg")
-TRes = TypeVar("TRes")
+TJob = TypeVar("TJob")
 
 
 @dataclass
-class BaseJob(Generic[TCfg, TRes]):
+class BaseTask(Generic[TCfg, TJob]):
     cfg: TCfg
-    res: TRes
+    job: TJob
 
     @abstractmethod
     def do(self, app: AppContext, *args, **kwargs):

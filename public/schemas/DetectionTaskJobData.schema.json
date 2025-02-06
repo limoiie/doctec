@@ -1,0 +1,54 @@
+{
+  "properties": {
+    "uuid": {
+      "type": "string"
+    },
+    "cfg": {
+      "$ref": "DetectionTaskCfgData.schema.json#"
+    },
+    "launchedDate": {
+      "type": "string"
+    },
+    "finishedDate": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "status": {
+      "type": "string"
+    },
+    "error": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "nTotal": {
+      "type": "integer"
+    },
+    "nProcessed": {
+      "type": "integer"
+    }
+  },
+  "required": [
+    "uuid",
+    "cfg",
+    "launchedDate",
+    "finishedDate",
+    "status",
+    "error",
+    "nTotal",
+    "nProcessed"
+  ],
+  "title": "DetectionTaskJobData",
+  "type": "object"
+}

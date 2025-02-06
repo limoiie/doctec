@@ -1,0 +1,33 @@
+{
+  "properties": {
+    "severity": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number"
+    },
+    "remediation": {
+      "type": "string"
+    },
+    "type": {
+      "const": "malicious-doc",
+      "default": "malicious-doc",
+      "type": "string"
+    }
+  },
+  "required": [
+    "severity",
+    "category",
+    "description",
+    "confidence",
+    "remediation"
+  ],
+  "title": "MaliciousDocDetectionTaskResData",
+  "type": "object"
+}

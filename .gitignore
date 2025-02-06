@@ -25,6 +25,10 @@ yarn-error.log*
 /react-eel-app.spec
 __pycache__
 
+# next
+.next
+next-env.d.ts
+
 # ide
 /.idea
 /.vscode

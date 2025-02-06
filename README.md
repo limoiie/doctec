@@ -45,7 +45,7 @@ The project is structured as follows:
 ├── doctec/    # Backend (Python) code
 ├── src/       # Frontend (React) code
 ├── scripts/   # Development-related scripts
-├── public/    # Static files (images, fonts, etc.) 
+├── public/    # Static files (images, fonts, etc.)
                # All files here will be copied to dist,
                # allowing the app to access them after installation.
 ├── dist/      # Built app
@@ -90,7 +90,7 @@ The exposed Python functions are available in the `eel` object in JavaScript,
 allowing you to call this function from JavaScript.
 
 ```javascript
-import {eel} from "../eel.js";
+import { eel } from "../eel.js";
 
 // Call the Python function and log the result
 eel.my_python_function()().then(console.log);
@@ -163,22 +163,20 @@ The persistence mechanism is supported by the Python framework [peewee](http://d
 
 `doctec/models.py` is used for defining data models for database,
 it mainly focuses on data persistence.
-Generally, each data model class corresponds to one database table. 
-You should follow the database design guideline to define the database models. 
+Generally, each data model class corresponds to one database table.
+You should follow the database design guideline to define the database models.
 
 Meanwhile,
 `doctec/schemas.py` is used for defining data transfer schemas between Python and JavaScript,
 which mainly focuses on providing enough information to meet the needs from frontend.  
 Different from the data model class,
-a data schema class is generally created from several data model objects fetched from the database. 
+a data schema class is generally created from several data model objects fetched from the database.
 
 A general workflow for creating new data classes is as follows:
 
--  Collect requirements from the frontend: What information do you want to display on the web page?
--  Design a data schema class in `doctec/schemas.py`: Construct a class with the necessary fields to provide the required information.
--  Check if existing data model classes in `doctec/models.py` can supply the needed information:
-    - Yes: Use the existing data model class.
-    - No: Create new data model classes in `doctec/models.py` to store the required information.
--  Implement the data fetching logic in `doctec/index.py`: Retrieve the necessary data models from the database and construct the data schema object.
-
-
+- Collect requirements from the frontend: What information do you want to display on the web page?
+- Design a data schema class in `doctec/schemas.py`: Construct a class with the necessary fields to provide the required information.
+- Check if existing data model classes in `doctec/models.py` can supply the needed information:
+  - Yes: Use the existing data model class.
+  - No: Create new data model classes in `doctec/models.py` to store the required information.
+- Implement the data fetching logic in `doctec/index.py`: Retrieve the necessary data models from the database and construct the data schema object.

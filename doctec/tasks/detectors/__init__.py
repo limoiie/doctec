@@ -1,0 +1,2 @@
+from .embedded_file_detector import EmbeddedFileDetector
+from .malicious_doc_detector import MaliciousDocDetector

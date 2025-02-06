@@ -6,14 +6,14 @@ import pytest
 from doctec.models import (
     EmbeddedFile,
     FileMetadata,
-    EmbDetectionStatus,
 )
-from doctec.repos.emb_detection_repo import EmbDetectionRepo
+from doctec.tasks.types import TaskStatus
+from doctec.repos.detection_repo import DetectionRepo
 
 
 @pytest.fixture
 def repo():
-    return EmbDetectionRepo()
+    return DetectionRepo()
 
 
 @pytest.fixture
@@ -32,40 +32,40 @@ def test_fetch_or_create_config(repo):
 
 
 def test_init_run(repo, cfg):
-    res = repo.init_run(cfg)
-    assert res.run.cfg == cfg
-    assert res.run.status == EmbDetectionStatus.PENDING
+    res = repo.init_job(cfg)
+    assert res.job.cfg == cfg
+    assert res.job.status == TaskStatus.PENDING
 
 
 def test_fetch_all_runs(repo):
-    runs = repo.fetch_runs()
+    runs = repo.fetch_jobs()
     assert isinstance(runs, list)
 
 
 def test_fetch_one_run_by_id(repo, cfg):
-    res = repo.init_run(cfg)
-    run = repo.fetch_one_run_by_id(res.run.uuid)
-    assert run.uuid == res.run.uuid
+    res = repo.init_job(cfg)
+    run = repo.fetch_one_job_by_uuid(res.job.uuid)
+    assert run.uuid == res.job.uuid
 
 
 def test_fetch_one_result_by_run_id(repo, cfg):
-    res = repo.init_run(cfg)
-    result = repo.fetch_one_result_by_run_id(res.run.uuid)
-    assert result.run.uuid == res.run.uuid
+    res = repo.init_job(cfg)
+    result = repo.fetch_detected_files_by_job_uuid(res.job.uuid)
+    assert result.job.uuid == res.job.uuid
 
 
 def test_is_run_cancelled(repo, cfg):
-    res = repo.init_run(cfg)
-    assert not repo.is_run_cancelled(res.run.uuid)
-    repo.update_run(res.run.uuid, status=EmbDetectionStatus.CANCELLED)
-    assert repo.is_run_cancelled(res.run.uuid)
+    res = repo.init_job(cfg)
+    assert not repo.is_job_cancelled(res.job.uuid)
+    repo.update_job(res.job.uuid, status=TaskStatus.CANCELLED)
+    assert repo.is_job_cancelled(res.job.uuid)
 
 
 def test_update_run(repo, cfg):
-    res = repo.init_run(cfg)
-    repo.update_run(res.run.uuid, status=EmbDetectionStatus.COMPLETED)
-    updated_run = repo.fetch_one_run_by_id(res.run.uuid)
-    assert updated_run.status == EmbDetectionStatus.COMPLETED
+    res = repo.init_job(cfg)
+    repo.update_job(res.job.uuid, status=TaskStatus.COMPLETED)
+    updated_run = repo.fetch_one_job_by_uuid(res.job.uuid)
+    assert updated_run.status == TaskStatus.COMPLETED
 
 
 def test_fetch_or_create_file_data(repo, resources):
@@ -81,7 +81,7 @@ def test_create_file_metadata(repo, resources):
 
 
 def test_create_embedded_file(repo, cfg, resources):
-    res = repo.init_run(cfg)
+    res = repo.init_job(cfg)
     data, _ = repo.fetch_or_create_file_data(resources / "dummy-file")
     metadata = FileMetadata.create(
         path=resources / "dummy-file",
@@ -91,12 +91,12 @@ def test_create_embedded_file(repo, cfg, resources):
         creator="test",
         modifier="test",
     )
-    embedded_file = repo.create_embedded_file(res, metadata)
+    embedded_file = repo.store_detected_file(res, metadata)
     assert embedded_file.result == res
 
 
 def test_add_detected_file(repo, cfg, resources):
-    res = repo.init_run(cfg)
+    res = repo.init_job(cfg)
     data, _ = repo.fetch_or_create_file_data(resources / "dummy-file")
     metadata = FileMetadata.create(
         path=resources / "dummy-file",

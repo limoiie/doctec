@@ -1,0 +1,19 @@
+{
+  "properties": {
+    "jobUuid": {
+      "type": "string"
+    },
+    "detectedFiles": {
+      "items": {
+        "$ref": "DetectedFileData.schema.json#"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "jobUuid",
+    "detectedFiles"
+  ],
+  "title": "DetectionTaskResData",
+  "type": "object"
+}

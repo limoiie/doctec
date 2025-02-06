@@ -1,0 +1,179 @@
+import { Button } from "@/components/ui/button";
+import { useEel } from "@/hooks/use-eel";
+import type { 
+  DetectionTaskCfgData,
+  EmbeddedFileDetectionTaskCfgData,
+  MaliciousDocDetectionTaskCfgData 
+} from "@/types/DetectionTaskCfgData.schema";
+import { CirclePlusIcon } from "lucide-react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "./ui/dialog";
+import { Label } from "./ui/label";
+import { Input } from "./ui/input";
+import { Switch } from "@/components/ui/switch";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+export function NewDetectionButton() {
+  const [targetDirs, setTargetDirs] = useState("C:\\\\Projects\\samples");
+  const [saveDir, setSaveDir] = useState("C:\\\\Projects\\samples_to_save");
+  
+  // Configuration toggles
+  const [enableEmbeddedFile, setEnableEmbeddedFile] = useState(false);
+  const [enableMaliciousDoc, setEnableMaliciousDoc] = useState(false);
+  
+  // Configuration values
+  const [embeddedFileConfig, setEmbeddedFileConfig] = useState<EmbeddedFileDetectionTaskCfgData>({
+    maxDepth: 3,
+    type: "embedded-file"
+  });
+  
+  const [maliciousDocConfig, setMaliciousDocConfig] = useState<MaliciousDocDetectionTaskCfgData>({
+    severityThreshold: 0.5,
+    type: "malicious-doc"
+  });
+
+  const { eel } = useEel();
+  const navigate = useNavigate();
+
+  function detect() {
+    const configs = [];
+    if (enableEmbeddedFile) {
+      configs.push(embeddedFileConfig);
+    }
+    if (enableMaliciousDoc) {
+      configs.push(maliciousDocConfig);
+    }
+
+    const cfg: DetectionTaskCfgData = {
+      uuid: "",
+      targetDirs: targetDirs.split(";"),
+      saveDir: saveDir,
+      configs: configs,
+    };
+
+    eel
+      .launchDetectionTask(cfg)()
+      .then((jobUuid: string) => {
+        navigate("/dashboard/detection/task-job/" + jobUuid);
+      });
+  }
+
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="outline">
+          <CirclePlusIcon className="w-4 h-4 mr-2" />
+          New Detection
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-3xl">
+        <DialogHeader>
+          <DialogTitle>New Detection</DialogTitle>
+          <DialogDescription>
+            Create a new detection task to analyze your files.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-6">
+          <div className="grid gap-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label className="text-right">Target Directories</Label>
+              <Input
+                value={targetDirs}
+                onChange={(e) => setTargetDirs(e.target.value)}
+                className="col-span-3"
+                placeholder="Enter directories separated by semicolon"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label className="text-right">Save Directory</Label>
+              <Input
+                value={saveDir}
+                onChange={(e) => setSaveDir(e.target.value)}
+                className="col-span-3"
+                placeholder="Enter save directory path"
+              />
+            </div>
+          </div>
+
+          <div className="grid gap-4">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle>Embedded File Detection</CardTitle>
+                  <Switch
+                    checked={enableEmbeddedFile}
+                    onCheckedChange={setEnableEmbeddedFile}
+                  />
+                </div>
+              </CardHeader>
+              <CardContent>
+                {enableEmbeddedFile && (
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label className="text-right">Max Depth</Label>
+                    <Input
+                      type="number"
+                      value={embeddedFileConfig.maxDepth}
+                      onChange={(e) => setEmbeddedFileConfig({
+                        ...embeddedFileConfig,
+                        maxDepth: parseInt(e.target.value)
+                      })}
+                      className="col-span-3"
+                    />
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle>Malicious Document Detection</CardTitle>
+                  <Switch
+                    checked={enableMaliciousDoc}
+                    onCheckedChange={setEnableMaliciousDoc}
+                  />
+                </div>
+              </CardHeader>
+              <CardContent>
+                {enableMaliciousDoc && (
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label className="text-right">Severity Threshold</Label>
+                    <Input
+                      type="number"
+                      step="0.1"
+                      min="0"
+                      max="1"
+                      value={maliciousDocConfig.severityThreshold}
+                      onChange={(e) => setMaliciousDocConfig({
+                        ...maliciousDocConfig,
+                        severityThreshold: parseFloat(e.target.value)
+                      })}
+                      className="col-span-3"
+                    />
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="flex justify-end">
+            <Button 
+              onClick={detect} 
+              disabled={!enableEmbeddedFile && !enableMaliciousDoc}
+            >
+              Create Detection Task
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
