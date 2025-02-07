@@ -9,24 +9,16 @@ export interface DetectionTaskCfgData {
   uuid: string;
   targetDirs: string[];
   saveDir: string;
-  configs: (
-    | EmbeddedFileDetectionTaskCfgData
-    | MaliciousDocDetectionTaskCfgData
-  )[];
-
+  configs: (EmbeddedFileDetectionTaskCfgData | MaliciousDocDetectionTaskCfgData)[];
   [k: string]: unknown;
 }
-
 export interface EmbeddedFileDetectionTaskCfgData {
   maxDepth: number;
   type?: "embedded-file";
-  
   [k: string]: unknown;
 }
-
 export interface MaliciousDocDetectionTaskCfgData {
   severityThreshold: number;
   type?: "malicious-doc";
-
   [k: string]: unknown;
 }

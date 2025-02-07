@@ -153,18 +153,18 @@ def debug(msg: str):
 
 @eel.expose
 @log_on_calling
-def login(email: str, password: str) -> UserData:
+def login(username: str, password: str) -> UserData:
     """
     Authenticate a user and create a session.
 
-    :param email: User's email
+    :param username: User's username
     :param password: User's password
     :return: Dict containing user information and session token if authentication successful
     :raise: Exception if authentication fails
     """
     # noinspection PyUnresolvedReferences
     try:
-        user = User.get(User.email == email)
+        user = User.get(User.username == username)
         if user.verify_password(password):
             # Create a new session
             session = user.create_session(expires_in_days=1)
@@ -215,25 +215,22 @@ def logout(token: str) -> bool:
 
 @eel.expose
 @log_on_calling
-def register(username: str, email: str, password: str) -> UserData:
+def register(username: str, password: str) -> UserData:
     """
     Register a new user.
 
     :param username: Desired username
-    :param email: User's email
     :param password: User's password
     :return: Dict containing user information if registration successful
     :raise: Exception if registration fails
     """
     try:
         # Check if user already exists
-        if User.select().where(User.email == email).exists():
-            raise Exception("Email already registered")
         if User.select().where(User.username == username).exists():
             raise Exception("Username already taken")
 
         # Create new user
-        user = User.create_user(username=username, email=email, password=password)
+        user = User.create_user(username=username, password=password)
         return UserData.from_pw_model(user).model_dump()
     except Exception as e:
         raise Exception(f"Registration failed: {str(e)}")

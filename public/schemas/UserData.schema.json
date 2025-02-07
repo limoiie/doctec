@@ -6,9 +6,6 @@
     "username": {
       "type": "string"
     },
-    "email": {
-      "type": "string"
-    },
     "avatar": {
       "anyOf": [
         {
@@ -32,7 +29,6 @@
   "required": [
     "uuid",
     "username",
-    "email",
     "avatar",
     "sessionToken",
     "created",

@@ -174,7 +174,6 @@ def generate_fake_data():
     for i in range(20):
         user = User.create(
             username=f"user{i}",
-            email=f"user{i}@example.com",
             password_hash=bcrypt.hashpw(
                 f"password{i}".encode("utf-8"), bcrypt.gensalt()
             ).decode("utf-8"),

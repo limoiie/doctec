@@ -18,6 +18,9 @@
     "type": {
       "const": "malicious-doc",
       "default": "malicious-doc",
+      "enum": [
+        "malicious-doc"
+      ],
       "type": "string"
     }
   },

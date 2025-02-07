@@ -72,7 +72,6 @@ export function NavUser({ user }: { user: UserData }) {
                   <span className="truncate font-semibold">
                     {user.username}
                   </span>
-                  <span className="truncate text-xs">{user.email}</span>
                 </div>
                 <ChevronsUpDown className="ml-auto size-4" />
               </SidebarMenuButton>
@@ -96,38 +95,16 @@ export function NavUser({ user }: { user: UserData }) {
                     <span className="truncate font-semibold">
                       {user.username}
                     </span>
-                    <span className="truncate text-xs">{user.email}</span>
                   </div>
                 </div>
               </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuGroup>
-                <DropdownMenuItem>
-                  <Sparkles />
-                  Upgrade to Pro
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
-              <DropdownMenuSeparator />
-              <DropdownMenuGroup>
-                <DropdownMenuItem>
-                  <BadgeCheck />
-                  Account
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <CreditCard />
-                  Billing
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Bell />
-                  Notifications
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
+          
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() => setShowLogoutConfirmDialog(true)}
               >
                 <LogOut />
-                Log out
+                退出
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -136,20 +113,19 @@ export function NavUser({ user }: { user: UserData }) {
       <AlertDialog open={showLogoutConfirmDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogTitle>您确定退出吗？</AlertDialogTitle>
             <AlertDialogDescription>
-              Exit now, your unfinished tasks will be terminated and will never
-              be able to revoke. Please think twice before you proceed.
+            立即退出，您未完成的任务将被终止并且永远不能够撤销。请在退出之前三思而后行。
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel
               onClick={() => setShowLogoutConfirmDialog(false)}
             >
-              Cancel
+              取消
             </AlertDialogCancel>
             <AlertDialogAction onClick={handleLogout}>
-              Continue
+              退出
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

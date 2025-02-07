@@ -45,19 +45,17 @@ class BaseModel(Model):
 class User(BaseModel):
     uuid: UUID = UUIDField(primary_key=True, unique=True, default=uuid4)
     username: str = CharField(unique=True)
-    email: str = CharField(unique=True)
     password_hash: str = CharField()
     avatar: str = CharField(null=True)
     created_at = DateTimeField(default=datetime.datetime.now)
     updated_at = DateTimeField(default=datetime.datetime.now)
 
     @classmethod
-    def create_user(cls, username: str, email: str, password: str) -> "User":
+    def create_user(cls, username: str, password: str) -> "User":
         """Create a new user with hashed password."""
         password_hash = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
         return cls.create(
             username=username,
-            email=email,
             password_hash=password_hash.decode("utf-8"),
             avatar="/avatars/shadcn.jpg",
         )

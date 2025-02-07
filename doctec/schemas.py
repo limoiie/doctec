@@ -72,7 +72,6 @@ class SchemaBaseModel(BaseModel):
 class UserData(SchemaBaseModel):
     uuid: str
     username: str
-    email: str
     avatar: Optional[str]
     sessionToken: str
     created: str
@@ -83,7 +82,6 @@ class UserData(SchemaBaseModel):
         return UserData(
             uuid=m.uuid.hex if isinstance(m.uuid, UUID) else m.uuid,
             username=m.username,
-            email=m.email,
             avatar=m.avatar,
             sessionToken="",
             created=str(m.created_at),

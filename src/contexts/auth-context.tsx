@@ -7,7 +7,7 @@ import { UserData } from "@/types/UserData.schema";
 interface AuthContextType {
   isAuthenticated: boolean;
   user: UserData | null;
-  login: (email: string, password: string) => Promise<void>;
+  login: (username: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   isLoading: boolean;
 }
@@ -65,13 +65,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     checkAuth();
   }, [eel]);
 
-  const login = async (email: string, password: string) => {
+  const login = async (username: string, password: string) => {
     try {
-      const user = await eel.login(email, password)();
+      const user = await eel.login(username, password)();
       localStorage.setItem("user", JSON.stringify(user));
       setUser(user);
       setIsAuthenticated(true);
       toast.success("Successfully logged in");
+
       navigate("/dashboard");
     } catch (error) {
       console.error("Login error:", error);

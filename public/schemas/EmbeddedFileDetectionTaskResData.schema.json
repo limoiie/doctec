@@ -19,6 +19,9 @@
     "type": {
       "const": "embedded-file",
       "default": "embedded-file",
+      "enum": [
+        "embedded-file"
+      ],
       "type": "string"
     }
   },
