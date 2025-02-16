@@ -28,8 +28,12 @@ class DetectionTask(BaseTask[DetectionTaskCfg, DetectionTaskJob]):
     _detector_cfgs: dict[DetectionTaskType, DetectionTaskCfgData] = None
 
     def __post_init__(self):
+        # noinspection PyUnresolvedReferences
+        import doctec.tasks.detectors
+
         for config in self.cfg.configs:
             cfg = detection_task_cfg_of_dict(config)
+            cfg.type = DetectionTaskType.of(cfg.type)
             self._detectors[cfg.type] = Detector.of(cfg)
 
     def do(self, app: AppContext, *args, **kwargs):
