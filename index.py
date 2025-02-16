@@ -1,6 +1,7 @@
 import sys
 from functools import wraps
 from typing import Dict, List, Optional
+from uuid import uuid4
 
 import eel
 
@@ -124,6 +125,8 @@ def launchDetectionTask(cfg_dto: Dict[str, object]) -> str:
     for sub in cfg_dto["configs"]:
         sub["type"] = DetectionTaskType.of(sub["type"])
     cfg_dto = schemas.DetectionTaskCfgData.model_validate(cfg_dto)
+    if not cfg_dto.uuid:
+        cfg_dto.uuid = uuid4()
     cfg, _ = APP.det_repo.fetch_or_create_config(cfg_dto)
     job = APP.det_repo.init_job(cfg)
     task = DetectionTask(cfg=cfg, job=job)

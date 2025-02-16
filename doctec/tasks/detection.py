@@ -1,6 +1,7 @@
 import os
 from concurrent.futures import Future
 from dataclasses import dataclass
+import traceback
 from typing import List, Callable, Tuple
 
 from future.backports.datetime import datetime
@@ -31,10 +32,13 @@ class DetectionTask(BaseTask[DetectionTaskCfg, DetectionTaskJob]):
         # noinspection PyUnresolvedReferences
         import doctec.tasks.detectors
 
+        self._detectors = {}
+        self._detector_cfgs = {}
         for config in self.cfg.configs:
             cfg = detection_task_cfg_of_dict(config)
             cfg.type = DetectionTaskType.of(cfg.type)
             self._detectors[cfg.type] = Detector.of(cfg)
+            self._detector_cfgs[cfg.type] = cfg
 
     def do(self, app: AppContext, *args, **kwargs):
         """Detect embedded files in parallel."""
@@ -96,6 +100,8 @@ class DetectionTask(BaseTask[DetectionTaskCfg, DetectionTaskJob]):
                 _LOGGER.error(
                     f"TaskJob#{self.job.uuid} failed while detecting {filepath}: {e}"
                 )
+                full_error_stack = traceback.format_exc()
+                print("full_error_stack", full_error_stack)
                 failed.append((filepath, repr(e)))
 
             n_processed += 1
@@ -144,7 +150,7 @@ class DetectionTask(BaseTask[DetectionTaskCfg, DetectionTaskJob]):
                 result = detector.detect(filepath)
 
             except Exception as e:
-                _LOGGER.error(f"Failed to detect {filepath}: {e}")
+                _LOGGER.error(f"Failed to detect {filepath}: {traceback.format_exc()}")
                 result = None
 
             # handle embedded files specially
@@ -152,13 +158,12 @@ class DetectionTask(BaseTask[DetectionTaskCfg, DetectionTaskJob]):
                 result.parentId = None if parent is None else parent.id
 
                 if early_break() or depth >= self._detector_cfgs[task_type].maxDepth:
-                    # ignore embedded files if the job is cancelled or the depth is reached
-                    result.childIds = []
-                    result.append(result)
+                    result.children = []
+                    results.append(result)
                     break
 
                 child_ids = []
-                for emb_filepath in result.childIds:
+                for emb_filepath in result.children:
                     # not stored yet, so it's a str
                     assert isinstance(emb_filepath, str)
                     child = self._detect_iteratively(
@@ -169,7 +174,11 @@ class DetectionTask(BaseTask[DetectionTaskCfg, DetectionTaskJob]):
 
             results.append(result)
 
-        detected_file.results = results
+        for i, res in enumerate(results):
+            res = res.model_dump() if res else None
+            res["type"] = res["type"].value
+            detected_file.results[i] = res
+
         detected_file.save()
 
         _LOGGER.debug(f"Detected {filepath}")

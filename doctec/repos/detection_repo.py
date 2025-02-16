@@ -46,10 +46,7 @@ class DetectionRepo:
     def fetch_or_create_config(
         cfg: DetectionTaskCfgData,
     ) -> Tuple[DetectionTaskCfg, bool]:
-        print('cfg', cfg)
-        x = DetectionTaskCfg.get_or_create(**cfg.model_dump())
-        print('x', x)
-        return x
+        return DetectionTaskCfg.get_or_create(**cfg.model_dump())
 
     @staticmethod
     def init_job(cfg: DetectionTaskCfg) -> DetectionTaskJob:
@@ -173,7 +170,7 @@ class DetectionRepo:
         return DetectedFile.create(
             job=job,
             metadata=metadata,
-            results=[result.model_dump() for result in results],
+            results=[result.model_dump() if result else None for result in results],
         )
 
     @staticmethod

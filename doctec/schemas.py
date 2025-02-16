@@ -250,6 +250,11 @@ class EmbeddedFileDetectionTaskResData(SchemaBaseModel):
     The IDs of the DetectedFile children embedded in this file.
     """
 
+    children: list[str]
+    """
+    The paths of the DetectedFile children embedded in this file.
+    """
+
     type: Literal[DetectionTaskType.EMBEDDED_FILE] = DetectionTaskType.EMBEDDED_FILE
 
     @classmethod

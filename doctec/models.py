@@ -121,9 +121,6 @@ class FileMetadata(BaseModel):
     creator: str = CharField(max_length=50)
     modifier: str = CharField(max_length=50)
 
-    class Meta:
-        indexes = ((("path", "created"), True),)
-
     @property
     def size(self) -> int:
         return self.data.size

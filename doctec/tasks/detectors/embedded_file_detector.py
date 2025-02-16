@@ -40,9 +40,9 @@ class EmbeddedFileDetector(Detector, task_type=DetectionTaskType.EMBEDDED_FILE):
 
         extractor = Extractor()
         extractor.SaveToFolder(doc, out)
-        # noinspection PyTypeChecker
-        #   as we are sure returning a list of files instead of id list
+
         return EmbeddedFileDetectionTaskResData(
             parentId=None,
-            childIds=[os.path.join(out, file) for file in os.listdir(out)],
+            childIds=[],
+            children=[os.path.join(out, file) for file in os.listdir(out)],
         )
