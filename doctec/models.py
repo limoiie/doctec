@@ -140,7 +140,7 @@ class DetectionTaskCfg(BaseModel):
     uuid: UUID = UUIDField(primary_key=True, unique=True, default=uuid4)
     targetDirs: List[str] = JSONField(null=False)
     saveDir: str = TextField(null=False)
-    parameters: List[dict] = JSONField(null=False)
+    configs: List[dict] = JSONField(null=False)
 
     class Meta:
         database = DB_PROXY

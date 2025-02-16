@@ -8,6 +8,7 @@ from doctec import schemas
 from doctec.ctx import AppContext
 from doctec.models import User, UserSession, init_db
 from doctec.schemas import UserData
+from doctec.tasks.types import DetectionTaskType
 from doctec.utils.loggings import get_logger, init_logging
 
 
@@ -119,8 +120,13 @@ def launchDetectionTask(cfg_dto: Dict[str, object]) -> str:
     """
     from doctec.tasks.detection import DetectionTask
 
+    for sub in cfg_dto['configs']:
+        sub['type'] = DetectionTaskType.of(sub['type'])
     cfg_dto = schemas.DetectionTaskCfgData.model_validate(cfg_dto)
     cfg, _ = APP.det_repo.fetch_or_create_config(cfg_dto)
+    for sub in cfg.configs:
+        sub.type = DetectionTaskType.of(sub.type)
+
     job = APP.det_repo.init_job(cfg)
     task = DetectionTask(cfg=cfg, job=job)
     APP.executor.submit(task.do, app=APP)

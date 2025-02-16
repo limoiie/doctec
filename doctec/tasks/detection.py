@@ -28,8 +28,8 @@ class DetectionTask(BaseTask[DetectionTaskCfg, DetectionTaskJob]):
     _detector_cfgs: dict[DetectionTaskType, DetectionTaskCfgData] = None
 
     def __post_init__(self):
-        for parameters in self.cfg.parameters:
-            cfg = detection_task_cfg_of_dict(parameters)
+        for config in self.cfg.configs:
+            cfg = detection_task_cfg_of_dict(config)
             self._detectors[cfg.type] = Detector.of(cfg)
 
     def do(self, app: AppContext, *args, **kwargs):
@@ -131,7 +131,7 @@ class DetectionTask(BaseTask[DetectionTaskCfg, DetectionTaskJob]):
 
         metadata = self._repo.create_file_metadata(filepath, creator="-", modifier="-")
         detected_file = self._repo.store_detected_file(
-            self.job, metadata, results=[None] * len(self.cfg.parameters)
+            self.job, metadata, results=[None] * len(self.cfg.configs)
         )
 
         results = []

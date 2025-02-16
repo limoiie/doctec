@@ -173,7 +173,7 @@ class DetectionTaskCfgData(SchemaBaseModel):
             uuid=m.uuid.hex if isinstance(m.uuid, UUID) else m.uuid,
             targetDirs=m.targetDirs,
             saveDir=m.saveDir,
-            configs=[cls.parse_config(config) for config in m.parameters],
+            configs=[cls.parse_config(config) for config in m.configs],
         )
 
     @classmethod
@@ -290,12 +290,12 @@ DetectionTaskCfgDataType = Union[
 ]
 
 
-def detection_task_cfg_of_dict(parameters: dict):
-    parameters["type"] = DetectionTaskType.of(parameters["type"])
-    match parameters["type"]:
+def detection_task_cfg_of_dict(config: dict):
+    config["type"] = DetectionTaskType.of(config["type"])
+    match config["type"]:
         case DetectionTaskType.EMBEDDED_FILE:
-            return EmbeddedFileDetectionTaskCfgData.model_validate(parameters)
+            return EmbeddedFileDetectionTaskCfgData.model_validate(config)
         case DetectionTaskType.MALICIOUS_DOC:
-            return MaliciousDocDetectionTaskCfgData.model_validate(parameters)
+            return MaliciousDocDetectionTaskCfgData.model_validate(config)
         case typ:
             raise ValueError(f"Unsupported task type: {typ}")
