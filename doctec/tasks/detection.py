@@ -175,8 +175,9 @@ class DetectionTask(BaseTask[DetectionTaskCfg, DetectionTaskJob]):
             results.append(result)
 
         for i, res in enumerate(results):
-            res = res.model_dump() if res else None
-            res["type"] = res["type"].value
+            if res:
+                res = res.model_dump()
+                res["type"] = res["type"].value
             detected_file.results[i] = res
 
         detected_file.save()

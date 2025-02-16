@@ -60,7 +60,7 @@ def check_file(filename):
             ]
         else:
             file_type = os.path.basename(filename).split(".")[-1].upper()
-            result = [filename, file_type, "", ""]
+            result = [filename, file_type, 0, ""]
     except:
         raise
     return result
