@@ -43,6 +43,12 @@ class DetectionRepo:
         return DetectionTaskCfg.get_by_id(config_id)
 
     @staticmethod
+    def create_one_config(
+        cfg: DetectionTaskCfgData,
+    ) -> Tuple[DetectionTaskCfg, bool]:
+        return DetectionTaskCfg.create(**cfg.model_dump())
+
+    @staticmethod
     def fetch_or_create_config(
         cfg: DetectionTaskCfgData,
     ) -> Tuple[DetectionTaskCfg, bool]:
