@@ -13,11 +13,12 @@ import {
 } from "@/components/ui/table"
 import { TrashIcon } from "lucide-react";
 import { DialogDemo } from "@/components/new-user-button";
+import { formatDateTime } from "@/utils";
 
 export function UserDetails() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [users, setUsers] = useState<UserData[] | null>(null);
+  const [users, setUsers] = useState<UserData[]>([]);
 
   function loadData() {
     setLoading(true);
@@ -83,10 +84,10 @@ export function UserDetails() {
                     </span>
                   </TableCell>
                   <TableCell>
-                    {user.created_at ? new Date(String(user.created_at)).toLocaleDateString() : 'N/A'}
+                    {formatDateTime(user.created)}
                   </TableCell>
                   <TableCell>
-                    {user.updated_at ? new Date(String(user.updated_at)).toLocaleDateString() : 'N/A'}
+                    {formatDateTime(user.updated)}
                   </TableCell>
                   <TableCell className="text-right">
                     <button 

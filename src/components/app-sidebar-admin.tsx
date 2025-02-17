@@ -33,6 +33,7 @@ export function AppSidebar({ activeItem, ...props }: AppSidebarProps) {
       <Sidebar
         collapsible="icon"
         className="!w-50 border-r"
+        {...props}
       >
         <SidebarHeader>
           <SidebarMenu>
@@ -82,6 +83,7 @@ export function AppSidebar({ activeItem, ...props }: AppSidebarProps) {
         </SidebarContent>
         <SidebarFooter>
           <div className="flex flex-col items-center gap-4">
+            
             <NavUser user={user!} />
           </div>
         </SidebarFooter>

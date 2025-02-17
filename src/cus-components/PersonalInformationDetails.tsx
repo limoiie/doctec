@@ -7,14 +7,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-
+import { useAuth } from "@/contexts/auth-context";
+import { formatDateTime } from "@/utils";
 
 export function PersonalInformationDetails() {
-  const [userData, setUserData] = useState({
-    username: "User123",
-    email: "user@example.com"
-  });
-  
+  const { user } = useAuth();
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -22,6 +19,11 @@ export function PersonalInformationDetails() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handlePasswordChange = async () => {
+    if (newPassword.length < 6) {
+      setPasswordError("密码长度至少6位");
+      return;
+    }
+    
     if (newPassword !== confirmPassword) {
       setPasswordError("新密码不一致");
       return;
@@ -30,7 +32,7 @@ export function PersonalInformationDetails() {
     try {
       setIsSubmitting(true);
       // 调用后端接口修改密码
-      await eel.update_password(oldPassword, newPassword)();
+      await eel.update_password(user?.sessionToken, oldPassword, newPassword)();
       setPasswordError("");
       // 清空表单
       setOldPassword("");
@@ -44,19 +46,41 @@ export function PersonalInformationDetails() {
   };
 
   return (
-    <Card className="max-w-2xl mx-auto">
+    <Card className="max-w-2xl w-full mx-auto my-4">
       <CardHeader>
         <CardTitle>个人信息</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
           <Label>用户名</Label>
-          <Input value={userData.username} disabled />
+          <Input 
+            value={user?.username || "加载中..."} 
+            disabled 
+          />
         </div>
         
         <div className="space-y-2">
-          <Label>邮箱</Label>
-          <Input value={userData.email} disabled />
+          <Label>身份</Label>
+          <Input 
+            value={user ? (user.is_admin ? "管理员" : "普通用户") : "加载中..."} 
+            disabled 
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label>创建时间</Label>
+          <Input 
+            value={user ?.created || "加载中..."} 
+            disabled 
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label>更新时间</Label>
+          <Input 
+            value={user ?.updated || "加载中..."} 
+            disabled 
+          />
         </div>
 
         <Dialog>

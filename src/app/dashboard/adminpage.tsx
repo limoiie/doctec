@@ -24,12 +24,10 @@ import {
 import { UserDetails } from "@/cus-components/UserDetails";
 import { PersonalInformationDetails } from "@/cus-components/PersonalInformationDetails";
 import { navMain } from "@/cus-components/SidebarNavDataAdmin";
-import { ThemeToggle } from "@/components/theme-toggle";
-import { NewDetectionButton } from "@/components/new-detection-button";
 
 // Create a wrapper component to get the URL parameter
 
-export default function DashboardPage() {
+export default function AdminDashboardPage() {
   const location = useLocation();
 
   // Get active item based on current URL
@@ -47,44 +45,7 @@ export default function DashboardPage() {
     >
       <AppSidebar activeItem={activeItem} />
       <SidebarInset>
-        <header className="sticky top-0 flex shrink-0 items-center gap-2 border-b bg-background p-4">
-          <SidebarTrigger className="-ml-1" />
-          <Separator orientation="vertical" className="mr-2 h-4" />
-          <Breadcrumb>
-            <BreadcrumbList>
-              {location.pathname
-                .split("/")
-                .filter((item) => item.length > 0)
-                .slice(0, -1)
-                .map((item, index, array) => (
-                  <React.Fragment key={`breadcrumb-${index}`}>
-                    <BreadcrumbItem
-                      className={
-                        index === array.length - 1 ? "hidden md:block" : ""
-                      }
-                    >
-                      <BreadcrumbLink href="#">{item}</BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator className="hidden md:block" />
-                  </React.Fragment>
-                ))}
-              <BreadcrumbItem>
-                <BreadcrumbPage>
-                  {
-                    location.pathname
-                      .split("/")
-                      .filter((item) => item.length > 0)
-                      .slice(-1)[0]
-                  }
-                </BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
-
-          <div className="ml-auto">
-            <ThemeToggle />
-          </div>
-        </header>
+        
         <div className="m-4">
           <Routes>
             <Route
@@ -97,7 +58,9 @@ export default function DashboardPage() {
             />
            
           </Routes>
+        
         </div>
+        
       </SidebarInset>
     </SidebarProvider>
   );

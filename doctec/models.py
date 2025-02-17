@@ -67,6 +67,14 @@ class User(BaseModel):
         return bcrypt.checkpw(
             password.encode("utf-8"), self.password_hash.encode("utf-8")
         )
+    
+    def update_password(self, password: str):
+        """Update user password with new hash and update timestamp"""
+        self.password_hash = bcrypt.hashpw(
+            password.encode("utf-8"), bcrypt.gensalt()
+        ).decode("utf-8")
+        self.updated_at = datetime.datetime.now()
+        self.save()
 
     def create_session(self, expires_in_days: int = 1) -> "UserSession":
         """Create a new session for the user."""

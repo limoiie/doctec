@@ -266,15 +266,15 @@ def update_password(token: str, old_password: str, new_password: str) -> bool:
     
     # 获取用户对象
     user = session.user
-    
+    print("333333333333333333")
+    print(old_password)
     # 验证旧密码
     if not user.verify_password(old_password):
         raise Exception("旧密码不正确")
     
     # 更新密码
     try:
-        user.set_password(new_password)
-        user.save()
+        user.update_password(new_password)
         return True
     except Exception as e:
         _LOGGER.error(f"密码更新失败: {str(e)}")

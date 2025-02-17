@@ -16,14 +16,14 @@ export interface NavItem {
 export const navMain: NavItem[] = [
   {
     title: "用户管理",
-    url: "admin/dashboard/user-management",
+    url: "user-management",
     icon: UserPlus,
     isActive: true,
     module: Modules.USER_MANAGEMENT,
   },
   {
     title: "个人信息",
-    url: "admin/dashboard/personal-information",
+    url: "personal-information",
     icon: Pencil,
     isActive: false,
     module: Modules.PERSONAL_INFORMATION,
