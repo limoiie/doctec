@@ -222,7 +222,7 @@ def generate_fake_data():
         cfg = DetectionTaskCfg.create(
             targetDirs=[f"/dir{j}" for j in range(random.randint(1, 3))],
             saveDir=f"/results/task{i}",
-            parameters=[
+            configs=[
                 {
                     "type": DetectionTaskType.EMBEDDED_FILE.name,
                     "maxDepth": random.randint(1, 5),

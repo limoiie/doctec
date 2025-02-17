@@ -1,6 +1,7 @@
 import sys
 from functools import wraps
 from typing import Dict, List, Optional
+from uuid import uuid4
 
 import eel
 
@@ -8,6 +9,7 @@ from doctec import schemas
 from doctec.ctx import AppContext
 from doctec.models import User, UserSession, init_db
 from doctec.schemas import UserData
+from doctec.tasks.types import DetectionTaskType
 from doctec.utils.loggings import get_logger, init_logging
 
 
@@ -127,8 +129,16 @@ def launchDetectionTask(cfg_dto: Dict[str, object]) -> str:
     # print("2222222222")
     # print(cfg_dto)
 
+    # noinspection PyTypeChecker
+    for sub in cfg_dto["configs"]:
+        sub["type"] = DetectionTaskType.of(sub["type"])
     cfg_dto = schemas.DetectionTaskCfgData.model_validate(cfg_dto)
-    cfg, _ = APP.det_repo.fetch_or_create_config(cfg_dto)
+    if cfg_dto.uuid:
+        cfg = APP.det_repo.fetch_one_config_by_id(cfg_dto.uuid)
+    else:
+        cfg_dto.uuid = uuid4().hex
+        cfg = APP.det_repo.create_one_config(cfg_dto)
+
     job = APP.det_repo.init_job(cfg)
     task = DetectionTask(cfg=cfg, job=job)
     APP.executor.submit(task.do, app=APP)

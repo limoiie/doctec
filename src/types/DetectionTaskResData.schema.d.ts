@@ -47,6 +47,7 @@ export interface MaliciousDocDetectionTaskResData {
 export interface EmbeddedFileDetectionTaskResData {
   parentId: number | null;
   childIds: number[];
+  children: string[];
   type?: "embedded-file";
   [k: string]: unknown;
 }

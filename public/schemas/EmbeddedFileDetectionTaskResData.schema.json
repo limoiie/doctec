@@ -16,6 +16,12 @@
       },
       "type": "array"
     },
+    "children": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
     "type": {
       "const": "embedded-file",
       "default": "embedded-file",
@@ -27,7 +33,8 @@
   },
   "required": [
     "parentId",
-    "childIds"
+    "childIds",
+    "children"
   ],
   "title": "EmbeddedFileDetectionTaskResData",
   "type": "object"

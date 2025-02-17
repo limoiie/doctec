@@ -21,4 +21,4 @@ class DetectionTaskType(enum.Enum):
         ):
             if name in (e.name, e.value):
                 return e
-        raise ValueError("No such enum name:", name)
+        raise ValueError("No such enum name or value:", name)
