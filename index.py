@@ -40,6 +40,8 @@ def fetchDetectionTaskJobs(
     :return: a list of detection results in JSON format
     """
     jobs = APP.det_repo.fetch_jobs(page_no, page_size)
+    print("555555555555")
+    print(jobs)
     return [
         schemas.DetectionTaskJobData.from_pw_model(job).model_dump() for job in jobs
     ]
@@ -120,14 +122,6 @@ def launchDetectionTask(cfg_dto: Dict[str, object]) -> str:
     :return: uuid of the detection job
     """
     from doctec.tasks.detection import DetectionTask
-    from doctec.tasks.types import DetectionTaskType
-    print("111111111111111")
-    print(cfg_dto)
-    for config in cfg_dto.get("configs", []):
-        if "type" in config:
-            config["type"] = DetectionTaskType.of(config["type"])
-    # print("2222222222")
-    # print(cfg_dto)
 
     # noinspection PyTypeChecker
     for sub in cfg_dto["configs"]:

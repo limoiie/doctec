@@ -158,7 +158,7 @@ export function EmbeddedFileList({
           })),
         },
       ]}
-      searchColumnKey="文件路径"
+      searchColumnKey="filepath"
     />
   );
 }

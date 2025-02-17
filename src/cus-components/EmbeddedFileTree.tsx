@@ -81,7 +81,7 @@ export function EmbeddedFileTree({
           })),
         },
       ]}
-      searchColumnKey="文件路径"
+      searchColumnKey="filepath"
     />
   );
 }
