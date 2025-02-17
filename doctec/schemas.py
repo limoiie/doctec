@@ -73,6 +73,7 @@ class UserData(SchemaBaseModel):
     uuid: str
     username: str
     avatar: Optional[str]
+    is_admin: bool
     sessionToken: str
     created: str
     updated: str
@@ -83,6 +84,7 @@ class UserData(SchemaBaseModel):
             uuid=m.uuid.hex if isinstance(m.uuid, UUID) else m.uuid,
             username=m.username,
             avatar=m.avatar,
+            is_admin=m.is_admin,
             sessionToken="",
             created=str(m.created_at),
             updated=str(m.updated_at),

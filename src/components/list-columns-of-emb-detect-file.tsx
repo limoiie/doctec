@@ -32,7 +32,7 @@ const basicColumns: ColumnDef<DetectedFileVO>[] = [
     id: "filepath",
     accessorFn: (row) => row.data.metadata.path,
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="FilePath" />
+      <DataTableColumnHeader column={column} title="文件路径" />
     ),
     cell: ({ row }) => <div>{row.getValue("filepath")}</div>,
   },
@@ -40,7 +40,7 @@ const basicColumns: ColumnDef<DetectedFileVO>[] = [
     id: "size",
     accessorFn: (row) => row.data.metadata.data.size,
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Size" />
+      <DataTableColumnHeader column={column} title="文件大小" />
     ),
     cell: ({ row }) => (
       <div className="text-nowrap text-right">
@@ -54,16 +54,15 @@ const basicColumns: ColumnDef<DetectedFileVO>[] = [
     id: "md5",
     accessorFn: (row) => row.data.metadata.data.md5,
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="MD5" />
+      <DataTableColumnHeader column={column} title="MD5值" />
     ),
     cell: ({ row }) => {
       const md5Value = row.getValue("md5") as string;
       return (
         <Tooltip>
           <TooltipTrigger className="font-mono">
-            <span className="inline-block">{md5Value.substring(0, 8)}</span>
+            <span className="inline-block">{md5Value}</span>
           </TooltipTrigger>
-          <TooltipContent>{md5Value}</TooltipContent>
         </Tooltip>
       );
     },
@@ -72,7 +71,7 @@ const basicColumns: ColumnDef<DetectedFileVO>[] = [
     id: "kind",
     accessorFn: (row) => row.data.metadata.data.kind,
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Kind" />
+      <DataTableColumnHeader column={column} title="文件类型" />
     ),
     cell: ({ row }) => <div>{row.getValue("kind")}</div>,
     filterFn: (row, id, value) => {
@@ -83,7 +82,7 @@ const basicColumns: ColumnDef<DetectedFileVO>[] = [
     id: "created",
     accessorFn: (row) => row.data.metadata.created,
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Created" />
+      <DataTableColumnHeader column={column} title="创建时间" />
     ),
     cell: ({ row }) => <div>{formatDateTime(row.getValue("created"))}</div>,
   },
@@ -91,7 +90,7 @@ const basicColumns: ColumnDef<DetectedFileVO>[] = [
     id: "modified",
     accessorFn: (row) => row.data.metadata.modified,
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Modified" />
+      <DataTableColumnHeader column={column} title="修改时间" />
     ),
     cell: ({ row }) => <div>{formatDateTime(row.getValue("modified"))}</div>,
   },
@@ -99,7 +98,7 @@ const basicColumns: ColumnDef<DetectedFileVO>[] = [
     id: "creator",
     accessorFn: (row) => row.data.metadata.creator,
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Creator" />
+      <DataTableColumnHeader column={column} title="创建者" />
     ),
     cell: ({ row }) => <div>{row.getValue("creator")}</div>,
     filterFn: (row, id, value) => {
@@ -110,7 +109,7 @@ const basicColumns: ColumnDef<DetectedFileVO>[] = [
     id: "modifier",
     accessorFn: (row) => row.data.metadata.modifier,
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Modifier" />
+      <DataTableColumnHeader column={column} title="修改者" />
     ),
     cell: ({ row }) => <div>{row.getValue("modifier")}</div>,
     filterFn: (row, id, value) => {
@@ -119,14 +118,49 @@ const basicColumns: ColumnDef<DetectedFileVO>[] = [
   },
 ];
 
-const embeddedFileColumns: ColumnDef<DetectedFileVO>[] = [];
+const embeddedFileColumns: ColumnDef<DetectedFileVO>[] = [
+  {
+    id: "file-embedded",
+    accessorFn: (row) => resultOf("embedded-file", row.data.results).confidence,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="是否嵌套" />
+    ),
+  }
+];
 
 const maliciousDocColumns: ColumnDef<DetectedFileVO>[] = [
+  {
+    id: "mal-confidence",
+    accessorFn: (row) => resultOf("malicious-doc", row.data.results).confidence,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="恶意置信度" />
+    ),
+    cell: ({ row }) => {
+      const res: MaliciousDocDetectionTaskResData = resultOf(
+        "malicious-doc",
+        row.original.data.results,
+      ) as MaliciousDocDetectionTaskResData;
+      return (
+        <div>
+          {res.confidence}{" "}
+          {
+            res.severity === "high" ? (
+              <span className="text-xs text-red-500">({"高风险"})</span>
+            ) : res.severity === "medium" ? (
+              <span className="text-xs text-yellow-500">({"中风险"})</span>
+            ) : (
+              <span className="text-xs text-green-500">({"低风险"})</span>
+            )
+          }
+        </div>
+      );
+    },
+  },
   {
     id: "mal-category",
     accessorFn: (row) => resultOf("malicious-doc", row.data.results).confidence,
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Mal Category" />
+      <DataTableColumnHeader column={column} title="恶意描述" />
     ),
     cell: ({ row }) => {
       const res: MaliciousDocDetectionTaskResData = resultOf(
@@ -141,33 +175,6 @@ const maliciousDocColumns: ColumnDef<DetectedFileVO>[] = [
             </TooltipTrigger>
             <TooltipContent>{res.description}</TooltipContent>
           </Tooltip>
-        </div>
-      );
-    },
-  },
-  {
-    id: "mal-confidence",
-    accessorFn: (row) => resultOf("malicious-doc", row.data.results).confidence,
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Mal Confidence" />
-    ),
-    cell: ({ row }) => {
-      const res: MaliciousDocDetectionTaskResData = resultOf(
-        "malicious-doc",
-        row.original.data.results,
-      ) as MaliciousDocDetectionTaskResData;
-      return (
-        <div>
-          {res.confidence}{" "}
-          {
-            res.severity === "high" ? (
-              <span className="text-xs text-red-500">({res.severity})</span>
-            ) : res.severity === "medium" ? (
-              <span className="text-xs text-yellow-500">({res.severity})</span>
-            ) : (
-              <span className="text-xs text-green-500">({res.severity})</span>
-            )
-          }
         </div>
       );
     },

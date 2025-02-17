@@ -139,7 +139,7 @@ export function TreeTable<TData, TValue>({
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  No results.
+                  没有结果。
                 </TableCell>
               </TableRow>
             )}

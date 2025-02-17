@@ -19,19 +19,19 @@ export function DetectionResDetails({ res }: { res: DetectionTaskResData }) {
         setJob(job);
       })
       .catch((reason: any) => {
-        toast.error("Failed to fetch job by uuid:", reason);
+        toast.error("获取检测任务失败：", reason);
       });
   }, [res.jobUuid]);
 
   return (
     <div className="h-[calc(100%-42px)] flex flex-col gap-2 items-baseline">
-      <Tabs defaultValue="List" className="w-full">
+      <Tabs defaultValue="Tree" className="w-full">
         <TabsList className="grid w-24 grid-cols-2">
-          <TabsTrigger value="List">
-            <ListIcon size={16} />
-          </TabsTrigger>
           <TabsTrigger value="Tree">
             <ListTreeIcon size={16} />
+          </TabsTrigger>
+          <TabsTrigger value="List">
+            <ListIcon size={16} />
           </TabsTrigger>
         </TabsList>
         <TabsContent value="List">

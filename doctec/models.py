@@ -47,17 +47,19 @@ class User(BaseModel):
     username: str = CharField(unique=True)
     password_hash: str = CharField()
     avatar: str = CharField(null=True)
+    is_admin: bool = BooleanField(default=False)
     created_at = DateTimeField(default=datetime.datetime.now)
     updated_at = DateTimeField(default=datetime.datetime.now)
 
     @classmethod
-    def create_user(cls, username: str, password: str) -> "User":
+    def create_user(cls, username: str, password: str, is_admin: bool = False) -> "User":
         """Create a new user with hashed password."""
         password_hash = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
         return cls.create(
             username=username,
             password_hash=password_hash.decode("utf-8"),
             avatar="/avatars/shadcn.jpg",
+            is_admin=is_admin
         )
 
     def verify_password(self, password: str) -> bool:

@@ -62,9 +62,9 @@ export function DetectionJobDetails({ jobUuid }: { jobUuid: string }) {
 
       {error && (
         <span>
-          Failed to load data,{" "}
+          加载数据失败，{" "}
           <a className="text-blue-600" onClick={loadData}>
-            try again
+          再试一次
           </a>
           ?
         </span>

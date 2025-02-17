@@ -178,6 +178,7 @@ def generate_fake_data():
                 f"password{i}".encode("utf-8"), bcrypt.gensalt()
             ).decode("utf-8"),
             avatar=f"/avatars/shadcn.jpg",
+            is_admin = random.choice([True, False]),
             created_at=datetime.datetime.now(),
             updated_at=datetime.datetime.now(),
         )
@@ -187,6 +188,8 @@ def generate_fake_data():
     for user in users:
         for _ in range(2):  # 2 sessions per user
             UserSession.create_session(user, expires_in_days=random.randint(1, 30))
+    
+    
 
     # Generate FileData
     file_data_entries = []

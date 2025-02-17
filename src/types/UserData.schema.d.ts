@@ -9,6 +9,7 @@ export interface UserData {
   uuid: string;
   username: string;
   avatar: string | null;
+  is_admin: boolean;
   sessionToken: string;
   created: string;
   updated: string;

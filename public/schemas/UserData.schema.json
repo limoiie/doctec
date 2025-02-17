@@ -16,6 +16,9 @@
         }
       ]
     },
+    "is_admin": {
+      "type": "boolean"
+    },
     "sessionToken": {
       "type": "string"
     },
@@ -30,6 +33,7 @@
     "uuid",
     "username",
     "avatar",
+    "is_admin",
     "sessionToken",
     "created",
     "updated"

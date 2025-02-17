@@ -15,8 +15,10 @@ class DetectionTaskType(enum.Enum):
 
     @classmethod
     def of(cls, name: str):
-        if name == DetectionTaskType.EMBEDDED_FILE.name:
-            return DetectionTaskType.EMBEDDED_FILE
-        if name == DetectionTaskType.MALICIOUS_DOC.name:
-            return DetectionTaskType.MALICIOUS_DOC
+        for e in (
+            DetectionTaskType.EMBEDDED_FILE, 
+            DetectionTaskType.MALICIOUS_DOC,
+        ):
+            if name in (e.name, e.value):
+                return e
         raise ValueError("No such enum name:", name)

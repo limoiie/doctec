@@ -118,6 +118,14 @@ def launchDetectionTask(cfg_dto: Dict[str, object]) -> str:
     :return: uuid of the detection job
     """
     from doctec.tasks.detection import DetectionTask
+    from doctec.tasks.types import DetectionTaskType
+    print("111111111111111")
+    print(cfg_dto)
+    for config in cfg_dto.get("configs", []):
+        if "type" in config:
+            config["type"] = DetectionTaskType.of(config["type"])
+    # print("2222222222")
+    # print(cfg_dto)
 
     cfg_dto = schemas.DetectionTaskCfgData.model_validate(cfg_dto)
     cfg, _ = APP.det_repo.fetch_or_create_config(cfg_dto)
@@ -215,7 +223,74 @@ def logout(token: str) -> bool:
 
 @eel.expose
 @log_on_calling
-def register(username: str, password: str) -> UserData:
+def fetchAllUsers() -> list[dict]:
+    """
+    Fetch all users from the database.
+    
+    :return: List of user dictionaries containing id, username, is_admin and created_at
+    :raise: Exception if query fails
+    """
+    try:
+        users = User.select()
+        return [UserData.from_pw_model(user).model_dump() for user in users]
+    except Exception as e:
+        raise Exception(f"Failed to fetch users: {str(e)}")
+
+
+@eel.expose
+@log_on_calling
+def update_password(token: str, old_password: str, new_password: str) -> bool:
+    """
+    更新用户密码
+    
+    :param token: 用户会话token
+    :param old_password: 旧密码
+    :param new_password: 新密码
+    :return: 是否更新成功
+    :raise: Exception 当验证失败时抛出异常
+    """
+    # 验证会话有效性
+    session = UserSession.get_valid_session(token)
+    if not session:
+        raise Exception("无效的会话，请重新登录")
+    
+    # 获取用户对象
+    user = session.user
+    
+    # 验证旧密码
+    if not user.verify_password(old_password):
+        raise Exception("旧密码不正确")
+    
+    # 更新密码
+    try:
+        user.set_password(new_password)
+        user.save()
+        return True
+    except Exception as e:
+        _LOGGER.error(f"密码更新失败: {str(e)}")
+        raise Exception("密码更新失败，请稍后重试")
+
+
+@eel.expose
+@log_on_calling
+def deleteUser(username: str) -> bool:
+    """
+    删除指定用户
+    :param username: 要删除的用户名
+    :return: 是否删除成功
+    """
+    try:
+        user = User.get(User.username == username)
+        user.delete_instance(recursive=True)  # 级联删除关联的session
+        return True
+    except User.DoesNotExist:
+        raise Exception("用户不存在")
+    except Exception as e:
+        raise Exception(f"删除失败: {str(e)}")
+
+@eel.expose
+@log_on_calling
+def register(username: str, password: str, is_admin:bool) -> UserData:
     """
     Register a new user.
 
@@ -230,7 +305,7 @@ def register(username: str, password: str) -> UserData:
             raise Exception("Username already taken")
 
         # Create new user
-        user = User.create_user(username=username, password=password)
+        user = User.create_user(username=username, password=password, is_admin=is_admin)
         return UserData.from_pw_model(user).model_dump()
     except Exception as e:
         raise Exception(f"Registration failed: {str(e)}")

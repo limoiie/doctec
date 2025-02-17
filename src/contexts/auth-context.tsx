@@ -71,9 +71,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       localStorage.setItem("user", JSON.stringify(user));
       setUser(user);
       setIsAuthenticated(true);
-      toast.success("Successfully logged in");
-
-      navigate("/dashboard");
+      toast.success("登录成功");
+      if (user.is_admin) {
+        navigate("/admin/dashboard"); // 管理员界面
+      } else {
+        navigate("/dashboard");// 普通用户界面
+      }
     } catch (error) {
       console.error("Login error:", error);
       toast.error(error instanceof Error ? error.message : "Login failed");

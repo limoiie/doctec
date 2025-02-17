@@ -16,11 +16,10 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { SidebarDetectionTaskJobs } from "@/cus-components/SidebarDetectionTaskJobs";
-import { SidebarDetectionTaskCfgs } from "@/cus-components/SidebarDetectionTaskCfgs";
-import { Modules, NavItem, navMain } from "@/cus-components/SidebarNavData";
-import { ThemeToggle } from "@/components/theme-toggle";
+
+import { Modules, NavItem, navMain } from "@/cus-components/SidebarNavDataAdmin";
 import { useAuth } from "@/contexts/auth-context";
+
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   activeItem: NavItem;
@@ -31,29 +30,24 @@ export function AppSidebar({ activeItem, ...props }: AppSidebarProps) {
   const { user } = useAuth();
 
   return (
-    <Sidebar
-      collapsible="icon"
-      className="overflow-hidden [&>[data-sidebar=sidebar]]:flex-row"
-      {...props}
-    >
-      {/* This is the first sidebar */}
-      {/* We disable collapsible and adjust width to icon. */}
-      {/* This will make the sidebar appear as icons. */}
       <Sidebar
-        collapsible="none"
-        className="!w-[calc(var(--sidebar-width-icon)_+_1px)] border-r"
+        collapsible="icon"
+        className="!w-50 border-r"
       >
         <SidebarHeader>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton size="lg" asChild className="md:h-8 md:p-0">
-                <Link to="/dashboard">
+              <SidebarMenuButton 
+                size="lg" 
+                asChild 
+                className="md:h-8 md:p-0"
+              >
+                <Link to="admin/dashboard">
                   <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                     <Radar className="size-4" />
                   </div>
                   <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-semibold">IIE Inc</span>
-                    <span className="truncate text-xs">Institute</span>
+                    <span className="truncate font-semibold">文件违规流转检测工具</span>
                   </div>
                 </Link>
               </SidebarMenuButton>
@@ -88,44 +82,9 @@ export function AppSidebar({ activeItem, ...props }: AppSidebarProps) {
         </SidebarContent>
         <SidebarFooter>
           <div className="flex flex-col items-center gap-4">
-            <ThemeToggle />
             <NavUser user={user!} />
           </div>
         </SidebarFooter>
       </Sidebar>
-
-      {/* This is the second sidebar */}
-      {/* We disable collapsible and let it fill remaining space */}
-      <Sidebar collapsible="none" className="hidden flex-1 md:flex">
-        <SidebarHeader className="gap-3.5 border-b p-4">
-          <div className="flex w-full items-center justify-between">
-            <div className="text-base font-medium text-foreground">
-              {activeItem.title}
-            </div>
-            {/*<Label className="flex items-center gap-2 text-sm">*/}
-            {/*  <span>Done</span>*/}
-            {/*  <Switch className="shadow-none" />*/}
-            {/*</Label>*/}
-          </div>
-          <SidebarInput placeholder="搜索..." />
-        </SidebarHeader>
-        <SidebarContent>
-          <SidebarGroup className="px-0">
-            <SidebarGroupContent>
-              {(() => {
-                switch (activeItem.module) {
-                  case Modules.DETECTION_TASK_JOBS:
-                    return <SidebarDetectionTaskJobs />;
-                  case Modules.DETECTION_TASK_CFGS:
-                    return <SidebarDetectionTaskCfgs />;
-                  default:
-                    return null;
-                }
-              })()}
-            </SidebarGroupContent>
-          </SidebarGroup>
-        </SidebarContent>
-      </Sidebar>
-    </Sidebar>
   );
 }

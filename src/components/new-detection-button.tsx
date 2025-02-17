@@ -58,7 +58,18 @@ export function NewDetectionButton() {
       saveDir: saveDir,
       configs: configs,
     };
-
+    
+    // {"uuid": "",
+    // "targetDirs": ["C:\\\\Projects\\samples"],
+    // "saveDir": "C:\\\\Projects\\samples_to_save",
+    // "configs": [
+    //     {
+    //         "maxDepth": 3,
+    //         "type": "embedded-file"
+    //     }
+    //   ]
+    // }
+    console.log(cfg)
     eel
       .launchDetectionTask(cfg)()
       .then((jobUuid: string) => {
@@ -71,20 +82,20 @@ export function NewDetectionButton() {
       <DialogTrigger asChild>
         <Button variant="outline">
           <CirclePlusIcon className="w-4 h-4 mr-2" />
-          New Detection
+          开始一个新检测
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-3xl">
         <DialogHeader>
-          <DialogTitle>New Detection</DialogTitle>
+          <DialogTitle>新检测</DialogTitle>
           <DialogDescription>
-            Create a new detection task to analyze your files.
+          创建一个新的检测任务来分析您的文件。
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-6">
           <div className="grid gap-4">
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label className="text-right">Target Directories</Label>
+              <Label className="text-right">检测文件目录</Label>
               <Input
                 value={targetDirs}
                 onChange={(e) => setTargetDirs(e.target.value)}
@@ -93,7 +104,7 @@ export function NewDetectionButton() {
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label className="text-right">Save Directory</Label>
+              <Label className="text-right">保存目录</Label>
               <Input
                 value={saveDir}
                 onChange={(e) => setSaveDir(e.target.value)}
@@ -107,7 +118,7 @@ export function NewDetectionButton() {
             <Card>
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <CardTitle>Embedded File Detection</CardTitle>
+                  <CardTitle>嵌入文件检测</CardTitle>
                   <Switch
                     checked={enableEmbeddedFile}
                     onCheckedChange={setEnableEmbeddedFile}
@@ -117,7 +128,7 @@ export function NewDetectionButton() {
               <CardContent>
                 {enableEmbeddedFile && (
                   <div className="grid grid-cols-4 items-center gap-4">
-                    <Label className="text-right">Max Depth</Label>
+                    <Label className="text-right">最大深度</Label>
                     <Input
                       type="number"
                       value={embeddedFileConfig.maxDepth}
@@ -135,7 +146,7 @@ export function NewDetectionButton() {
             <Card>
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <CardTitle>Malicious Document Detection</CardTitle>
+                  <CardTitle>恶意文档检测</CardTitle>
                   <Switch
                     checked={enableMaliciousDoc}
                     onCheckedChange={setEnableMaliciousDoc}
@@ -145,7 +156,7 @@ export function NewDetectionButton() {
               <CardContent>
                 {enableMaliciousDoc && (
                   <div className="grid grid-cols-4 items-center gap-4">
-                    <Label className="text-right">Severity Threshold</Label>
+                    <Label className="text-right">阈值</Label>
                     <Input
                       type="number"
                       step="0.1"
@@ -169,7 +180,7 @@ export function NewDetectionButton() {
               onClick={detect} 
               disabled={!enableEmbeddedFile && !enableMaliciousDoc}
             >
-              Create Detection Task
+              开始检测
             </Button>
           </div>
         </div>
