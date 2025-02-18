@@ -28,7 +28,7 @@ export function SidebarDetectionTaskJobs() {
 
   const handleDelete = async (uuid: string) => {
     try {
-      eel.deleteDetectionTaskJobByUuid(uuid)();
+      eel.deleteDetectedFileByUuid(uuid)();
       setDetectRuns(prev => prev.filter(job => job.uuid !== uuid));
       alert("删除成功：" + uuid);
       navigate("/dashboard/detection/task-job");

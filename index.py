@@ -142,14 +142,14 @@ def launchDetectionTask(cfg_dto: Dict[str, object]) -> str:
 # noinspection PyPep8Naming
 @eel.expose
 @log_on_calling
-def deleteDetectionTaskJobByUuid(job_uuid: str) -> bool:
+def deleteDetectedFileByUuid(job_uuid: str) -> bool:
     """
     Delete the detection job by uuid.
 
     :param job_uuid: the uuid of the detection job
     :return: whether the deletion is successful
     """
-    return APP.det_repo.delete_job_by_uuid(job_uuid)
+    return APP.det_repo.delete_detectedfile_by_uuid(job_uuid)
 
 
 @eel.expose
@@ -313,6 +313,25 @@ def register(username: str, password: str, is_admin:bool) -> UserData:
         return UserData.from_pw_model(user).model_dump()
     except Exception as e:
         raise Exception(f"Registration failed: {str(e)}")
+    
+@eel.expose
+@log_on_calling
+def getfiletype(file_id: int) -> str:
+    """
+    从 filemetadata 表中获取文件类型
+    
+    :param file_id: 文件ID
+    :return: 文件类型字符串
+    """
+    try:
+        print("000000000000")
+        print(file_id)
+        # 从数据库中查询文件类型
+        kind = APP.det_repo.fetch_file_type_by_id(file_id)
+        return kind
+    except Exception as e:
+        _LOGGER.error(f"Error fetching file type: {str(e)}")
+        raise Exception(f"Failed to get file type: {str(e)}")
 
 
 if __name__ == "__main__":

@@ -58,7 +58,8 @@
   "required": [
     "md5",
     "size",
-    "kind"
+    "kind",
+    "isLocallyCreated"
   ],
   "title": "FileDataData",
   "type": "object"

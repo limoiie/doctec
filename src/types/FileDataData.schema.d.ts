@@ -13,7 +13,7 @@ export interface FileDataData {
   body?: string | null;
   is_embedded?: boolean;
   is_nested?: boolean;
-  isLocallyCreated?: boolean;
+  isLocallyCreated: string;
   description?: string | null;
   [k: string]: unknown;
 }

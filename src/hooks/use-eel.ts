@@ -37,7 +37,7 @@ interface Eel {
 
   launchDetectionTask(cfg: any): () => Promise<string>;
 
-  deleteDetectionTaskJobByUuid(job_uuid: string): () => Promise<boolean>;
+  deleteDetectedFileByUuid(job_uuid: string): () => Promise<boolean>;
 
   login(username: string, password: string): () => Promise<UserData>;
 
