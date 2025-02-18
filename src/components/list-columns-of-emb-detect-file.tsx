@@ -116,16 +116,43 @@ const basicColumns: ColumnDef<DetectedFileVO>[] = [
       return value.includes(row.getValue(id));
     },
   },
-];
-
-const embeddedFileColumns: ColumnDef<DetectedFileVO>[] = [
   {
-    id: "file-embedded",
-    accessorFn: (row) => resultOf("embedded-file", row.data.results).confidence,
+    id: "is_embedded",
+    accessorFn: (row) => row.data.metadata.is_embedded,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="是否夹带" />
+    ),
+    cell: ({ row }) => <div>{row.getValue("is_embedded")}</div>,
+  },
+  {
+    id: "is_nested",
+    accessorFn: (row) => row.data.metadata.is_nested,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="是否嵌套" />
     ),
-  }
+    cell: ({ row }) => <div>{row.getValue("is_nested")}</div>,
+  },
+  {
+    id: "isLocallyCreated",
+    accessorFn: (row) => row.data.metadata.isLocallyCreated,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="是否本机创建" />
+    ),
+    cell: ({ row }) => <div>{row.getValue("isLocallyCreated")}</div>,
+  },
+  {
+    id: "description",
+    accessorFn: (row) => row.data.metadata.description,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="描述" />
+    ),
+    cell: ({ row }) => <div>{row.getValue("description")}</div>,
+  },
+
+];
+
+const embeddedFileColumns: ColumnDef<DetectedFileVO>[] = [
+  
 ];
 
 const maliciousDocColumns: ColumnDef<DetectedFileVO>[] = [

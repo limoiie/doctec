@@ -33,6 +33,10 @@ export interface FileDataData {
   kind: string;
   mime?: string | null;
   body?: string | null;
+  is_embedded?: boolean;
+  is_nested?: boolean;
+  isLocallyCreated?: boolean;
+  description?: string | null;
   [k: string]: unknown;
 }
 export interface MaliciousDocDetectionTaskResData {

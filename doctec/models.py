@@ -114,6 +114,10 @@ class FileData(BaseModel):
     mime: str = CharField(max_length=50, null=False)
     kind: str = CharField(max_length=50, null=False)
     body: bytes = BlobField(null=False)
+    is_embedded = BooleanField(default=False)
+    is_nested = BooleanField(default=False)
+    isLocallyCreated = BooleanField(default=True)
+    description = TextField(null=True, default="")
 
     class Meta:
         database = DB_PROXY

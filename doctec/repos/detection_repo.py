@@ -140,15 +140,21 @@ class DetectionRepo:
     def fetch_or_create_file_data(filepath: str) -> Tuple[FileData, bool]:
         md5 = hashlib.md5()
         with open(filepath, "rb") as f:
+            # 一次性读取初始字节用于magic检测
+            initial_bytes = f.read(1024)
+            
+            # 重置文件指针到开头
+            f.seek(0)
+            
+            # 计算完整MD5
             while chunk := f.read(4096):
                 md5.update(chunk)
 
-        # TODO: decide if we want to store the file body in the database
         return FileData.get_or_create(
             md5=md5.hexdigest(),
             size=os.path.getsize(filepath),
-            mime=magic.from_file(filepath, mime=True) or "application/octet-stream",
-            kind=magic.from_file(filepath, mime=False) or "unknown",
+            mime=magic.from_buffer(initial_bytes, mime=True) or "application/octet-stream",
+            kind=magic.from_buffer(initial_bytes, mime=False) or "unknown",
             body=b"todo",
         )
 

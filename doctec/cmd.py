@@ -19,7 +19,7 @@ def add_user(username: str = None):
 
     db_path = "app.db"
     init_db(db_path)
-    User.create_user(username=username, password=password)
+    User.create_user(username=username, password=password, is_admin = True)
 
     print("User added successfully")
 

@@ -101,6 +101,10 @@ class FileDataData(SchemaBaseModel):
     kind: str
     mime: Optional[str] = None
     body: Optional[bytes] = None
+    is_embedded: bool = False
+    is_nested: bool = False
+    isLocallyCreated:bool = True
+    description: Optional[str] = ""
 
     @classmethod
     def from_pw_model(cls, m: FileData):
@@ -109,6 +113,10 @@ class FileDataData(SchemaBaseModel):
             size=m.size,
             kind=m.kind,
             mime=m.mime,
+            is_embedded = m.is_embedded,
+            is_nested = m.is_nested,
+            isLocallyCreated = m.isLocallyCreated,
+            description = m.description
         )
 
 
