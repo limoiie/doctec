@@ -6,6 +6,7 @@ import winreg
 import aspose.cells as ac
 import aspose.words as aw
 import aspose.slides as asl
+import re
 
 def get_system_information():
 
@@ -115,7 +116,7 @@ def get_reg_value(reg_path, key_path, software_list):
                 software_list.append((display_name, install_date))
     return software_list
 
-import re
+
 
 def filter_software_list(software_list):
     keywords = ["Office", "PDF","word","excel","ppt", "文档","表格","幻灯片", "Reader", "wps", "foxit","福昕阅读器","永中"]
@@ -277,58 +278,65 @@ def get_metadata_excel(file_path):
     return metadata
 
 def compare(file_path):
-
-
-    metadata = get_metadata(file_path)
+    try:
+        metadata = get_metadata(file_path)
+    except ValueError:
+        return {"is_local": "unknown", "message": "unknown"}
+        
     creator = metadata["author"]
 
     created_date = metadata["created_time"].strftime("%Y-%m-%d") # 2022-12-07 str
     created_date = datetime.strptime(created_date, "%Y-%m-%d")
 
     software = get_software_install_time()
-    print(software)
     system_information = get_system_information()
 
-    flag = 0
-    massage=''
     computer_name = system_information["computer_name"]
     current_user = system_information["current_user"]
 
     # 用户名
-    if creator!=current_user or computer_name!=computer_name:
-        flag=1
-        massage = f"文件创建者为{creator}，计算机名为{computer_name}，当前用户为{current_user}，不一致"
+    # 预处理系统信息中的时间
+    computer_install_date = datetime.strptime(system_information["computer_install_time"], "%Y-%m-%d")
+    user_creation_date = datetime.strptime(system_information["creation_time"], "%Y-%m-%d")
+    
+    messages = []
+    result = {"is_local": True, "message": "文件符合本机创建条件"}
+    
+    # 1. 校验创建者与当前用户
+    if creator != current_user:
+        messages.append(f"文件创建者'{creator}'与当前用户'{current_user}'不一致")
+    
+    # 2. 校验文件创建时间与系统关键时间
+    if created_date < computer_install_date or created_date < user_creation_date:
+        time_comparison = [
+            f"系统安装时间({system_information['computer_install_time']})",
+            f"用户创建时间({system_information['creation_time']})"
+        ]
+        messages.append(f"文件创建时间({created_date.strftime('%Y-%m-%d')})早于{'/'.join(time_comparison)}")
+    
+    # 3. 校验软件安装时间（始终执行检查）
+    late_software = [
+        (name, datetime.strptime(date, "%Y-%m-%d"))
+        for name, date in software
+        if created_date < datetime.strptime(date, "%Y-%m-%d")
+    ]
+    if late_software:
+        latest_software = max(late_software, key=lambda x: x[1])
+        messages.append(f"文件创建时间({created_date.strftime('%Y-%m-%d')})早于'{latest_software[0]}'的安装时间({latest_software[1].strftime('%Y-%m-%d')})")
 
+    # 综合所有错误信息
+    if messages:
+        result = {
+            "is_local": False,
+            "message": "；".join(messages)
+        }
 
-    # 创建时间与操作系统比较
-    elif created_date < datetime.strptime(system_information["computer_install_time"], "%Y-%m-%d") or created_date < datetime.strptime(system_information["creation_time"], "%Y-%m-%d"):
-        flag =1
-        massage = f"文件创建时间为{created_date}，操作系统安装时间为{system_information['computer_install_time']}，当前用户创建时间{system_information['creation_time']},文件创建时间更早"
+    print(result)
+    return result
 
-    # 创建时间与安装软件比较
-    else:
-        latest_install_time = None
-        for software_name, install_date in software:
-            install_date = datetime.strptime(install_date, "%Y-%m-%d")
-            if created_date < install_date:
-                # 文件创建时间早于当前软件安装时间，找到区间
-                if latest_install_time is None or install_date > latest_install_time:
-                    latest_install_time = install_date
-                    latest_software = software_name
-
-        if latest_install_time is not None:
-            flag = 1
-            massage = f"文件创建时间{created_date}早于软件'{latest_software}'的安装时间{latest_install_time}"
-
-    if flag == 0:
-        massage = "文件符合本机创建条件"
-
-    function4_result = {"flag": flag, "massage": massage}
-    print(function4_result)
-    return function4_result
-
-file_path = r'C:\Users\yule_\Desktop\复盘.xlsx'
-compare(file_path)
+def test():
+    file_path = r'E:\Project\maldoctect\teset_data_simple\hello.docx'
+    compare(file_path)
 
 
 

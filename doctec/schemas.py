@@ -103,7 +103,7 @@ class FileDataData(SchemaBaseModel):
     body: Optional[bytes] = None
     is_embedded: bool = False
     is_nested: bool = False
-    isLocallyCreated:bool = True
+    isLocallyCreated:str
     description: Optional[str] = ""
 
     @classmethod

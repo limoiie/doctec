@@ -116,7 +116,7 @@ class FileData(BaseModel):
     body: bytes = BlobField(null=False)
     is_embedded = BooleanField(default=False)
     is_nested = BooleanField(default=False)
-    isLocallyCreated = BooleanField(default=True)
+    isLocallyCreated = CharField(max_length=50, null=False)
     description = TextField(null=True, default="")
 
     class Meta:

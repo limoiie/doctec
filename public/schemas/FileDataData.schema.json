@@ -41,8 +41,7 @@
       "type": "boolean"
     },
     "isLocallyCreated": {
-      "default": true,
-      "type": "boolean"
+      "type": "string"
     },
     "description": {
       "anyOf": [

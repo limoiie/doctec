@@ -318,7 +318,6 @@ def register(username: str, password: str, is_admin:bool) -> UserData:
 if __name__ == "__main__":
     init_logging(level="INFO")
     init_db(db_path="app.db")
-    User.create_user(username="admin", password="admin", is_admin = True)
 
     _LOGGER = get_logger(__name__)
 

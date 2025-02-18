@@ -3,7 +3,7 @@ import os
 from datetime import UTC, datetime
 from typing import List, Tuple, Union, Optional
 from uuid import UUID
-
+from doctec.tasks.islocallycreated import compare
 import magic
 
 from doctec.models import (
@@ -139,6 +139,9 @@ class DetectionRepo:
     @staticmethod
     def fetch_or_create_file_data(filepath: str) -> Tuple[FileData, bool]:
         md5 = hashlib.md5()
+        
+        local = compare(filepath)
+
         with open(filepath, "rb") as f:
             # 一次性读取初始字节用于magic检测
             initial_bytes = f.read(1024)
@@ -155,6 +158,8 @@ class DetectionRepo:
             size=os.path.getsize(filepath),
             mime=magic.from_buffer(initial_bytes, mime=True) or "application/octet-stream",
             kind=magic.from_buffer(initial_bytes, mime=False) or "unknown",
+            isLocallyCreated=local["is_local"],
+            description=local["message"],
             body=b"todo",
         )
 

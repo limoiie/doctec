@@ -134,15 +134,15 @@ const basicColumns: ColumnDef<DetectedFileVO>[] = [
   },
   {
     id: "isLocallyCreated",
-    accessorFn: (row) => row.data.metadata.isLocallyCreated,
+    accessorFn: (row) => row.data.metadata.data.isLocallyCreated,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="是否本机创建" />
     ),
-    cell: ({ row }) => <div>{row.getValue("isLocallyCreated")}</div>,
+    cell: ({ row }) => <div>{row.getValue("isLocallyCreated") ? "否" : "是"}</div>,
   },
   {
     id: "description",
-    accessorFn: (row) => row.data.metadata.description,
+    accessorFn: (row) => row.data.metadata.data.description,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="描述" />
     ),
