@@ -260,7 +260,7 @@ export function listColumnsOfEmbDetectFile(
       },
     },
     {
-      id: "description",
+      id: "description", 
       accessorFn: (row) => row.data.metadata.data.description,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="描述" />
@@ -268,7 +268,10 @@ export function listColumnsOfEmbDetectFile(
       cell: ({ row }) => {
         const isLocallyCreated = row.getValue("isLocallyCreated");
         return (
-          <div className={isLocallyCreated ? "text-red-500" : ""}>
+          <div 
+            className={`${isLocallyCreated ? "text-red-500" : ""} max-w-[1500px]`}
+            title={row.getValue("description")}
+          >
             {row.getValue("description")}
           </div>
         );

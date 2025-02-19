@@ -245,7 +245,7 @@ def fetchAllUsers() -> list[dict]:
 @log_on_calling
 def update_password(token: str, old_password: str, new_password: str) -> bool:
     """
-    更新用户密码
+    更新用户密码并使所有会话失效
     
     :param token: 用户会话token
     :param old_password: 旧密码
@@ -260,15 +260,16 @@ def update_password(token: str, old_password: str, new_password: str) -> bool:
     
     # 获取用户对象
     user = session.user
-    print("333333333333333333")
-    print(old_password)
+
     # 验证旧密码
     if not user.verify_password(old_password):
         raise Exception("旧密码不正确")
     
     # 更新密码
     try:
+        print("正在更新密码")
         user.update_password(new_password)
+        # 使该用户的所有会话失效
         return True
     except Exception as e:
         _LOGGER.error(f"密码更新失败: {str(e)}")

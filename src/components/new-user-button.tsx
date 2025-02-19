@@ -14,6 +14,8 @@ import { CirclePlusIcon } from "lucide-react";
 import { useState } from "react";
 import { eel } from "@/eel";
 import type { UserData } from "@/types/UserData.schema";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 export function DialogDemo() {
   const [formData, setFormData] = useState({
@@ -22,20 +24,29 @@ export function DialogDemo() {
     password: '',
     confirmPassword: ''
   });
+  const [open, setOpen] = useState(false);
+  const [passwordError, setPasswordError] = useState("");
+  const navigate = useNavigate();
 
   
   const register = async () => {
     try {
       // 添加表单验证
       if (!formData.username || !formData.role || !formData.password) {
-        alert('请填写所有必填字段');
+        setPasswordError('请填写所有必填字段');
+        return;
+      }
+      
+      if (formData.password.length < 6) {
+        setPasswordError("密码长度至少6位");
         return;
       }
 
       if (formData.password !== formData.confirmPassword) {
-        alert('两次输入的密码不一致');
+        setPasswordError("新密码不一致");
         return;
       }
+      
 
       // 转换角色为is_admin布尔值
       const isAdmin = formData.role === 'admin';
@@ -47,26 +58,30 @@ export function DialogDemo() {
         isAdmin
       )();
       
-      alert('用户创建成功');
+      toast.success("用户创建成功");
+      
       
       console.log('注册结果:', result);
       
-      // 清空表单
+      
+      // 关闭对话框
+      setOpen(false);
+      navigate(0);
+      
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "注册失败，用户名已存在");
       setFormData({
         username: '',
         role: '',
         password: '',
         confirmPassword: ''
       });
-      
-      // 这里可以添加关闭对话框的逻辑
-    } catch (error) {
-      console.error("注册失败:", error);
-  }}
+    }
+  }
 
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
       <Button variant="outline" className="bg-blue-500 hover:bg-blue-600 text-white">
           <CirclePlusIcon className="w-4 h-4 mr-2" />
@@ -131,6 +146,9 @@ export function DialogDemo() {
                 className="col-span-3" 
               />
             </div>
+            {passwordError && (
+                <div className="text-red-500 text-sm">{passwordError}</div>
+              )}
           </div>
           <DialogFooter>
             <Button onClick={register} type="button">确认</Button>

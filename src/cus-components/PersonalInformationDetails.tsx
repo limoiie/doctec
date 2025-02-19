@@ -11,12 +11,13 @@ import { useAuth } from "@/contexts/auth-context";
 import { formatDateTime } from "@/utils";
 
 export function PersonalInformationDetails() {
-  const { user } = useAuth();
+  const { user,logout } = useAuth();
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
 
   const handlePasswordChange = async () => {
     if (newPassword.length < 6) {
@@ -38,6 +39,7 @@ export function PersonalInformationDetails() {
       setOldPassword("");
       setNewPassword("");
       setConfirmPassword("");
+      await logout();
     } catch (error) {
       setPasswordError("修改密码失败，请检查旧密码是否正确");
     } finally {

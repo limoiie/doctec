@@ -43,7 +43,7 @@ export function AppSidebar({ activeItem, ...props }: AppSidebarProps) {
                 asChild 
                 className="md:h-8 md:p-0"
               >
-                <Link to="admin/dashboard">
+                <Link to="user-management">
                   <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                     <Radar className="size-4" />
                   </div>
@@ -63,10 +63,7 @@ export function AppSidebar({ activeItem, ...props }: AppSidebarProps) {
                   <SidebarMenuItem key={item.title}>
                     <Link to={item.url}>
                       <SidebarMenuButton
-                        tooltip={{
-                          children: item.title,
-                          hidden: false,
-                        }}
+                       
                         onClick={() => setOpen(true)}
                         isActive={activeItem.module === item.module}
                         className="px-2.5 md:px-2"

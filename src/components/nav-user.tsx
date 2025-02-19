@@ -104,7 +104,7 @@ export function NavUser({ user }: { user: UserData }) {
                 onClick={() => setShowLogoutConfirmDialog(true)}
               >
                 <LogOut />
-                退出
+                退出登录
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -115,7 +115,7 @@ export function NavUser({ user }: { user: UserData }) {
           <AlertDialogHeader>
             <AlertDialogTitle>您确定退出吗？</AlertDialogTitle>
             <AlertDialogDescription>
-            立即退出，您未完成的任务将被终止并且永远不能够撤销。请在退出之前三思而后行。
+            确认退出将终止所有未完成任务，且此操作不可逆。请审慎考虑后再行决定。
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

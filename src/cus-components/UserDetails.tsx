@@ -11,14 +11,37 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import { TrashIcon } from "lucide-react";
 import { DialogDemo } from "@/components/new-user-button";
 import { formatDateTime } from "@/utils";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/auth-context";
+import React from "react";
 
 export function UserDetails() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [userToDelete, setUserToDelete] = useState<string | null>(null);
   const [users, setUsers] = useState<UserData[]>([]);
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const [showLogoutConfirmDialog, setShowLogoutConfirmDialog] =
+    React.useState<boolean>(false);
+
+
+  const currentUser = user?.username
+
 
   function loadData() {
     setLoading(true);
@@ -35,9 +58,11 @@ export function UserDetails() {
       });
   }
   function handleDelete(username: string) {
+    setShowLogoutConfirmDialog(false);
     eel.deleteUser(username)()
       .then(() => {
-        loadData(); // 删除成功后重新加载数据
+        setUserToDelete(null);
+        navigate(0);
       })
       .catch((error: any) => {
         setError('删除失败: ' + error.toString());
@@ -50,6 +75,7 @@ export function UserDetails() {
   }, []);
 
   return (
+    <>
     <div className="p-4">
       {loading && <p>加载中...</p>}
       {error && <p className="text-red-500">加载失败: {error}</p>}
@@ -91,17 +117,20 @@ export function UserDetails() {
                   </TableCell>
                   <TableCell className="text-right">
                     <button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDelete(user.username);
-                      }}
-                      className="p-2 rounded-lg hover:bg-red-50 text-red-500 hover:text-red-600 transition-colors flex items-center gap-2"
+                      onClick={() => setUserToDelete(user.username)}
+                      disabled={user.username === currentUser}
+                      className={`p-2 rounded-lg flex items-center gap-2 ${
+                        user.username === currentUser 
+                          ? 'opacity-50 cursor-not-allowed bg-gray-100 text-gray-400'
+                          : 'hover:bg-red-50 text-red-500 hover:text-red-600 transition-colors'
+                      }`}
                       title="删除用户"
                     >
                       <TrashIcon className="h-4 w-4" />
                       <span className="text-sm">删除</span>
                     </button>
                   </TableCell>
+
                 </TableRow>
               ))}
             </TableBody>
@@ -109,5 +138,26 @@ export function UserDetails() {
         </div>
       )}
     </div>
+    <AlertDialog open={!!userToDelete} onOpenChange={(open) => !open && setUserToDelete(null)}>
+    <AlertDialogContent>
+      <AlertDialogHeader>
+        <AlertDialogTitle>你确定删除吗？</AlertDialogTitle>
+        <AlertDialogDescription>
+          此操作无法撤消。这将永久删除该帐户。
+        </AlertDialogDescription>
+      </AlertDialogHeader>
+      <AlertDialogFooter>
+        <AlertDialogCancel onClick={() => setUserToDelete(null)}>
+          取消
+        </AlertDialogCancel>
+        <AlertDialogAction 
+          onClick={() => userToDelete && handleDelete(userToDelete)}
+        >
+          删除  
+        </AlertDialogAction>
+      </AlertDialogFooter>
+    </AlertDialogContent>
+  </AlertDialog>
+    </>
   );
 }
