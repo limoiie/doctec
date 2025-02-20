@@ -9,6 +9,9 @@
     "data": {
       "$ref": "FileDataData.schema.json#"
     },
+    "created_content": {
+      "type": "string"
+    },
     "created": {
       "type": "string"
     },
@@ -26,6 +29,7 @@
     "id",
     "path",
     "data",
+    "created_content",
     "created",
     "modified",
     "creator",

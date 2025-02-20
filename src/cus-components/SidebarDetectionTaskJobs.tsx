@@ -7,12 +7,25 @@ import { DetectionTaskJobData } from "@/types/DetectionTaskJobData.schema";
 import { StatusIcon } from "@/cus-components/StatusIcon";
 import { formatDateTime } from "@/utils";
 import { useEel } from "@/hooks/use-eel";
-
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import { useState } from "react";
+import { toast } from "sonner";
 
 export function SidebarDetectionTaskJobs() {
   const [detectRuns, setDetectRuns] = React.useState<DetectionTaskJobData[]>(
     [],
   );
+  const [jobToDelete, setJobToDelete] = useState<string | null>(null);
   const { eel } = useEel();
   const navigate = useNavigate();
 
@@ -29,8 +42,9 @@ export function SidebarDetectionTaskJobs() {
   const handleDelete = async (uuid: string) => {
     try {
       eel.deleteDetectedFileByUuid(uuid)();
+      setJobToDelete(null);
       setDetectRuns(prev => prev.filter(job => job.uuid !== uuid));
-      alert("删除成功：" + uuid);
+      toast.success("删除成功：" + uuid);
       navigate("/dashboard/detection/task-job");
     } catch (error) {
       console.error("删除任务失败:", error);
@@ -69,10 +83,7 @@ export function SidebarDetectionTaskJobs() {
           <div className="flex items-center justify-between w-full gap-1">
             <StatusIcon status={job.status} size={16} />
             <button 
-              onClick={(e) => {
-                e.stopPropagation();
-                handleDelete(job.uuid);
-              }}
+              onClick={() => setJobToDelete(job.uuid)}
               className="ml-auto p-1 rounded hover:bg-red-500/20 text-red-500 hover:text-red-600 transition-colors"
               title="删除任务"
             >
@@ -81,6 +92,26 @@ export function SidebarDetectionTaskJobs() {
           </div>
         </Link>
       ))}
+    <AlertDialog open={!!jobToDelete} onOpenChange={(open) => !open && setJobToDelete(null)}>
+    <AlertDialogContent>
+      <AlertDialogHeader>
+        <AlertDialogTitle>你确定删除吗？</AlertDialogTitle>
+        <AlertDialogDescription>
+          此操作无法撤消。这将永久删除该检测记录。
+        </AlertDialogDescription>
+      </AlertDialogHeader>
+      <AlertDialogFooter>
+        <AlertDialogCancel onClick={() => setJobToDelete(null)}>
+          取消
+        </AlertDialogCancel>
+        <AlertDialogAction 
+          onClick={() => jobToDelete && handleDelete(jobToDelete)}
+        >
+          删除  
+        </AlertDialogAction>
+      </AlertDialogFooter>
+    </AlertDialogContent>
+  </AlertDialog>
       
     </>
   );

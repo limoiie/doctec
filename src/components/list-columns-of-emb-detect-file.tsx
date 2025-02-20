@@ -19,13 +19,12 @@ import { Loader2 } from "lucide-react";
 
 // 文件类型判断函数
 function isNonExecutableType(fileType: string): boolean {
-  const nonExecutableTypes = ['Zip archive data, at least v2.0 to extract'];
-  return nonExecutableTypes.includes(fileType);
+  const nonExecutableTypes = ['Zip archive data', "Composite Document File","PDF document"];
+  return nonExecutableTypes.some(type => fileType.includes(type));
 }
 
 function isExecutableType(fileType: string): boolean {
-  const executableTypes = ['PE32 executable (GUI) Intel 80386, for MS Windows'];
-  return executableTypes.includes(fileType);
+  return !isNonExecutableType(fileType);
 }
 
 // 获取文件类型的函数
@@ -130,7 +129,7 @@ const maliciousDocColumns: ColumnDef<DetectedFileVO>[] = [
     },
   },
   {
-    id: "mal-category",
+    id: "mal-description",
     accessorFn: (row) => resultOf("malicious-doc", row.data.results).confidence,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="恶意描述" />
@@ -206,6 +205,16 @@ export function listColumnsOfEmbDetectFile(
       },
     },
     {
+      id:"created_content",
+      accessorFn: (row) => row.data.metadata.created_content,
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="创建内容时间" />
+      ),
+      cell: ({ row }) => <div>{
+        
+        row.getValue("created_content") === '-' ? '-' : formatDateTime(row.getValue("created_content"))}</div>,
+    },
+    {
       id: "created",
       accessorFn: (row) => row.data.metadata.created,
       header: ({ column }) => (
@@ -236,7 +245,7 @@ export function listColumnsOfEmbDetectFile(
       id: "modifier",
       accessorFn: (row) => row.data.metadata.modifier,
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="修改者" />
+        <DataTableColumnHeader column={column} title="编辑者" />
       ),
       cell: ({ row }) => <div>{row.getValue("modifier")}</div>,
       filterFn: (row, id, value) => {
@@ -253,8 +262,8 @@ export function listColumnsOfEmbDetectFile(
       cell: ({ row }) => {
         const isLocallyCreated = row.getValue("isLocallyCreated");
         return (
-          <div className={isLocallyCreated ? "text-red-500" : ""}>
-            {isLocallyCreated ? "否" : "是"}
+          <div className={isLocallyCreated === 'False' ? "text-red-500" : ""}>
+            {isLocallyCreated === 'False' ? "否" : isLocallyCreated === 'True' ? "是" : "-"}
           </div>
         );
       },
@@ -269,7 +278,7 @@ export function listColumnsOfEmbDetectFile(
         const isLocallyCreated = row.getValue("isLocallyCreated");
         return (
           <div 
-            className={`${isLocallyCreated ? "text-red-500" : ""} max-w-[1500px]`}
+            className={isLocallyCreated === 'False' ? "text-red-500" : ""}
             title={row.getValue("description")}
           >
             {row.getValue("description")}

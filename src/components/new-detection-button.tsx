@@ -22,8 +22,9 @@ import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export function NewDetectionButton() {
-  const [targetDirs, setTargetDirs] = useState("C:\\\\Projects\\samples");
+  const [targetDirs, setTargetDirs] = useState("E:\\Project\\maldoctect\\teset_data_simple");
   const [saveDir, setSaveDir] = useState("C:\\\\Projects\\samples_to_save");
+  const [open, setOpen] = useState(false);
   
   // Configuration toggles
   const [enableEmbeddedFile, setEnableEmbeddedFile] = useState(false);
@@ -59,28 +60,20 @@ export function NewDetectionButton() {
       configs: configs,
     };
     
-    // {"uuid": "",
-    // "targetDirs": ["C:\\\\Projects\\samples"],
-    // "saveDir": "C:\\\\Projects\\samples_to_save",
-    // "configs": [
-    //     {
-    //         "maxDepth": 3,
-    //         "type": "embedded-file"
-    //     }
-    //   ]
-    // }
     console.log(cfg)
     eel
       .launchDetectionTask(cfg)()
       .then((jobUuid: string) => {
+        setOpen(false);
         navigate("/dashboard/detection/task-job/" + jobUuid);
+        setTimeout(() => navigate(0), 5000);
       });
   }
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">
+        <Button variant="outline" className="bg-blue-500 hover:bg-blue-600 text-white">
           <CirclePlusIcon className="w-4 h-4 mr-2" />
           开始一个新检测
         </Button>
@@ -100,7 +93,7 @@ export function NewDetectionButton() {
                 value={targetDirs}
                 onChange={(e) => setTargetDirs(e.target.value)}
                 className="col-span-3"
-                placeholder="Enter directories separated by semicolon"
+                placeholder="输入以分号分隔的目录"
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
@@ -109,7 +102,7 @@ export function NewDetectionButton() {
                 value={saveDir}
                 onChange={(e) => setSaveDir(e.target.value)}
                 className="col-span-3"
-                placeholder="Enter save directory path"
+                placeholder="输入保存目录路径"
               />
             </div>
           </div>

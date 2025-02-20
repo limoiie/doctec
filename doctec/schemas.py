@@ -124,6 +124,7 @@ class FileMetadataData(SchemaBaseModel):
     id: int
     path: str
     data: FileDataData
+    created_content:str
     created: str
     modified: str
     creator: str
@@ -135,6 +136,7 @@ class FileMetadataData(SchemaBaseModel):
             id=m.id,
             path=m.path,
             data=FileDataData.from_pw_model(m.data),
+            created_content=str(m.created_content),
             created=str(m.created),
             modified=str(m.modified),
             creator=m.creator,

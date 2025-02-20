@@ -106,7 +106,7 @@ export function AppSidebar({ activeItem, ...props }: AppSidebarProps) {
             {/*  <Switch className="shadow-none" />*/}
             {/*</Label>*/}
           </div>
-          <SidebarInput placeholder="搜索..." />
+          
         </SidebarHeader>
         <SidebarContent>
           <SidebarGroup className="px-0">

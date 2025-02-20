@@ -198,12 +198,15 @@ class DetectionRepo:
             mata = get_metadata(filepath)
             creator = mata.get('author')
             modifier = mata.get('last_saved_by')
+            created_content = mata.get('created_time')
         except ValueError:
-            creator = "不知道"
-            modifier = "不知道"
+            creator = "-"
+            modifier = "-"
+            created_content = '-'
         metadata = FileMetadata.create(
             path=filepath,
             data=data,
+            created_content = created_content,
             created=datetime.fromtimestamp(os.path.getctime(filepath)),
             modified=datetime.fromtimestamp(os.path.getmtime(filepath)),
             creator=creator,

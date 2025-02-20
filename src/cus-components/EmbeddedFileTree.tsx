@@ -54,7 +54,7 @@ export function EmbeddedFileTree({
       data={dataSource}
       getChildrenData={getChildren}
       columns={treeColumnsOfEmbDetectFile(job.cfg)}
-      initInvisibleColumns={["created", "modified"]}
+      initInvisibleColumns={["created", "modified","description","md5","mal-description"]}
       facedFilters={[
         {
           columnKey: "kind",

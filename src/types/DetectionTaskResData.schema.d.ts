@@ -21,6 +21,7 @@ export interface FileMetadataData {
   id: number;
   path: string;
   data: FileDataData;
+  created_content: string;
   created: string;
   modified: string;
   creator: string;

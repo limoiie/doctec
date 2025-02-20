@@ -131,7 +131,7 @@ export function EmbeddedFileList({
     <ListTable
       data={dataSource}
       columns={listColumnsOfEmbDetectFile(job.cfg)}
-      initInvisibleColumns={["created", "modified"]}
+      initInvisibleColumns={["created", "modified","description","md5","mal-description"]}
       facedFilters={[
         {
           columnKey: "kind",

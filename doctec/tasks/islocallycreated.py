@@ -7,6 +7,7 @@ import aspose.cells as ac
 import aspose.words as aw
 import aspose.slides as asl
 import re
+import PyPDF2
 
 def get_system_information():
 
@@ -139,8 +140,30 @@ def get_metadata(file_path):
         return get_metadata_excel(file_path)
     elif extension in ['.ppt', '.pptx']:
         return get_metadata_ppt(file_path)
+    elif extension in ['pdf']:
+        return get_metadata_pdf(file_path)
     else:
         raise ValueError(f"Unsupported file type: {extension}")
+
+def get_metadata_pdf(file_path):
+    with open(file_path, 'rb') as file:
+        reader = PyPDF2.PdfReader(file)
+        info = reader.metadata
+        if info:
+            metadata = {
+                "author": info.get('/Author', '-'),
+                "last_saved_by": info.get('/Producer', '-'), 
+                "created_time": info.get('/CreationDate', '-'),
+                "last_saved_time": info.get('/ModDate', '-')
+            }
+        else:
+            metadata = {
+                "author": "-",
+                "last_saved_by": "-",
+                "created_time": "-", 
+                "last_saved_time": "-"
+            }
+        return metadata
 
 
 def get_metadata_word(file_path):
@@ -281,7 +304,7 @@ def compare(file_path):
     try:
         metadata = get_metadata(file_path)
     except ValueError:
-        return {"is_local": "unknown", "message": "unknown"}
+        return {"is_local": "-", "message": "-"}
         
     creator = metadata["author"]
 

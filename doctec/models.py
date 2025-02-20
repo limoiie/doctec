@@ -128,6 +128,7 @@ class FileMetadata(BaseModel):
     id: int = AutoField(primary_key=True)
     path: str = CharField(index=True, max_length=1024)
     data: FileData = ForeignKeyField(FileData, backref="metadata", on_delete="CASCADE")
+    created_content: datetime.datetime = DateTimeField(index=True)
     created: datetime.datetime = DateTimeField(index=True)
     modified: datetime.datetime = DateTimeField(index=True)
     creator: str = CharField(max_length=50)
