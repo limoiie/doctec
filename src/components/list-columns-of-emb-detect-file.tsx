@@ -84,17 +84,59 @@ function FileTypeCheck({
 
 const embeddedFileColumns: ColumnDef<DetectedFileVO>[] = [
   {
+    id: "is_embedded",
+    accessorFn: (row) => {
+      const filekind = row.data.metadata.data.kind;
+      const res = resultOf("embedded-file", row.data.results) as EmbeddedFileDetectionTaskResData;
+      return { filekind, childIds: res.childIds }; // Return an object with filekind and childIds
+    },
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="是否夹带" />
+    ),
+    cell: ({ row }) => {
+      const { childIds } = row.getValue("is_nested") as { filekind: string; childIds: number[] }; // Destructure to get childIds
+      const filekind = row.getValue("kind") as string; // Ensure filekind is treated as a string
+      const nonExecutableTypes = ['Zip archive data', "Composite Document File"];
+      if (typeof filekind !== 'string' || !nonExecutableTypes.some(type => filekind.includes(type))) return <div>-</div>;
+      if (!Array.isArray(childIds)) return <div>否</div>;
+      return <FileTypeCheck childIds={childIds} checkType="executable" />;
+    },
+  },
+  {
+    id: "is_nested",
+    accessorFn: (row) => {
+      const filekind = row.data.metadata.data.kind;
+      const res = resultOf("embedded-file", row.data.results) as EmbeddedFileDetectionTaskResData;
+      return { filekind, childIds: res.childIds }; // Return an object with filekind and childIds
+    },
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="是否嵌套" />
+    ),
+    cell: ({ row }) => {
+      const { childIds } = row.getValue("is_nested") as { filekind: string; childIds: number[] }; // Destructure to get childIds
+      const filekind = row.getValue("kind") as string; // Ensure filekind is treated as a string
+      const nonExecutableTypes = ['Zip archive data', "Composite Document File"];
+      if (typeof filekind !== 'string' || !nonExecutableTypes.some(type => filekind.includes(type))) return <div>-</div>;
+      if (!Array.isArray(childIds)) return <div>否</div>;
+      return <FileTypeCheck childIds={childIds} checkType="nonExecutable" />;
+    }
+  },
+  {
     id: "embedded_files_count",
     accessorFn: (row) => {
+      const filekind = row.data.metadata.data.kind;
       const res = resultOf("embedded-file", row.data.results) as EmbeddedFileDetectionTaskResData;
-      return res.childIds?.length || 0;
+      return { filekind, childIds: res.childIds};
     },
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="嵌入文件数量" />
     ),
     cell: ({ row }) => {
-      const count = row.getValue("embedded_files_count") as number;
-      return <div className="text-center">{count}</div>;
+      const filekind = row.getValue("kind") as string; 
+      const { childIds } = row.getValue("embedded_files_count") as { filekind: string; childIds: number[] };
+      const nonExecutableTypes = ['Zip archive data', "Composite Document File"];
+      if (typeof filekind !== 'string' || !nonExecutableTypes.some(type => filekind.includes(type))) return <div className="text-center">-</div>;
+      return <div className="text-center">{childIds.length}</div>;
     },
   },
   // 可以在这里添加更多与嵌入文件相关的列
@@ -286,36 +328,7 @@ export function listColumnsOfEmbDetectFile(
         );
       },
     },
-    {
-      id: "is_embedded",
-      accessorFn: (row) => {
-        const res = resultOf("embedded-file", row.data.results) as EmbeddedFileDetectionTaskResData;
-        return res.childIds;
-      },
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="是否夹带" />
-      ),
-      cell: ({ row }) => {
-        const childIds = row.getValue("is_embedded") as number[];
-        if (!Array.isArray(childIds)) return <div>否</div>;
-        return <FileTypeCheck childIds={childIds} checkType="executable" />;
-      },
-    },
-    {
-      id: "is_nested",
-      accessorFn: (row) => {
-        const res = resultOf("embedded-file", row.data.results) as EmbeddedFileDetectionTaskResData;
-        return res.childIds;
-      },
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="是否嵌套" />
-      ),
-      cell: ({ row }) => {
-        const childIds = row.getValue("is_nested") as number[];
-        if (!Array.isArray(childIds)) return <div>否</div>;
-        return <FileTypeCheck childIds={childIds} checkType="nonExecutable" />;
-      },
-    },
+    
   ];
 
   let columns: ColumnDef<DetectedFileVO>[] = [...basicColumns];
