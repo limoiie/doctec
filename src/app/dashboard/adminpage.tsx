@@ -32,7 +32,7 @@ export default function AdminDashboardPage() {
 
   // Get active item based on current URL
   const activeItem =
-    navMain.find((item) => location.pathname.startsWith(item.url)) ||
+    navMain.find((item) => location.pathname.endsWith(item.url)) ||
     navMain[0];
 
   return (

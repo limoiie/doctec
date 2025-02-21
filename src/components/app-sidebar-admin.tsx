@@ -64,10 +64,14 @@ export function AppSidebar({ activeItem, ...props }: AppSidebarProps) {
                     <Link to={item.url}>
                       <SidebarMenuButton
                        
-                        onClick={() => setOpen(true)}
+                        onClick={() => {
+                          setOpen(true);
+                
+                        }}
                         isActive={activeItem.module === item.module}
                         className="px-2.5 md:px-2"
                       >
+
                         <item.icon />
                         <span>{item.title}</span>
                       </SidebarMenuButton>

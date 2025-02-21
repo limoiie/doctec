@@ -140,7 +140,7 @@ def get_metadata(file_path):
         return get_metadata_excel(file_path)
     elif extension in ['.ppt', '.pptx']:
         return get_metadata_ppt(file_path)
-    elif extension in ['pdf']:
+    elif extension in ['.pdf']:
         return get_metadata_pdf(file_path)
     else:
         raise ValueError(f"Unsupported file type: {extension}")
@@ -150,11 +150,20 @@ def get_metadata_pdf(file_path):
         reader = PyPDF2.PdfReader(file)
         info = reader.metadata
         if info:
+            created_time = info.get('/CreationDate', '-')
+            last_saved_time = info.get('/ModDate', '-')
+            
+            # 处理创建时间和最后保存时间
+            if isinstance(created_time, str):
+                created_time = parse_pdf_date(created_time) or os.path.getctime(file_path)
+            if isinstance(last_saved_time, str):
+                last_saved_time = parse_pdf_date(last_saved_time) or os.path.getmtime(file_path)
+
             metadata = {
                 "author": info.get('/Author', '-'),
                 "last_saved_by": info.get('/Producer', '-'), 
-                "created_time": info.get('/CreationDate', '-'),
-                "last_saved_time": info.get('/ModDate', '-')
+                "created_time": created_time,
+                "last_saved_time": last_saved_time
             }
         else:
             metadata = {
@@ -165,6 +174,12 @@ def get_metadata_pdf(file_path):
             }
         return metadata
 
+def parse_pdf_date(date_str):
+    """解析 PDF 日期字符串为 datetime 对象"""
+    if date_str.startswith('D:'):
+        date_str = date_str[2:10]  # 取出日期部分
+        return datetime.strptime(date_str, "%Y%m%d")  # 转换为 datetime 对象
+    return None
 
 def get_metadata_word(file_path):
     doc = aw.Document(file_path)
@@ -303,6 +318,7 @@ def get_metadata_excel(file_path):
 def compare(file_path):
     try:
         metadata = get_metadata(file_path)
+        print(metadata)
     except ValueError:
         return {"is_local": "-", "message": "-"}
         
@@ -326,8 +342,8 @@ def compare(file_path):
     result = {"is_local": True, "message": "文件符合本机创建条件"}
     
     # 1. 校验创建者与当前用户
-    if creator != current_user:
-        messages.append(f"文件创建者'{creator}'与当前用户'{current_user}'不一致")
+    if creator != current_user and creator != computer_name:
+        messages.append(f"文件创建者'{creator}'与当前用户'{current_user}'/计算机用户'{computer_name}'不一致")
     
     # 2. 校验文件创建时间与系统关键时间
     if created_date < computer_install_date or created_date < user_creation_date:
@@ -358,8 +374,10 @@ def compare(file_path):
     return result
 
 def test():
-    file_path = r'E:\Project\maldoctect\teset_data_simple\hello.docx'
+    file_path = r'E:\Project\maldoctect\teset_data_simple\hello.pdf'
+    print(file_path)
     compare(file_path)
+
 
 
 

@@ -243,6 +243,20 @@ def fetchAllUsers() -> list[dict]:
 
 @eel.expose
 @log_on_calling
+def fetchAdminUser() -> bool:
+    """
+    Check if the user with the username 'Admin' exists in the database.
+
+    :return: True if the user exists, False otherwise
+    """
+    try:
+        admin_user = User.get(User.username == 'admin')
+        return True  # 用户存在
+    except User.DoesNotExist:
+        return False  # 用户不存在
+
+@eel.expose
+@log_on_calling
 def update_password(token: str, old_password: str, new_password: str) -> bool:
     """
     更新用户密码并使所有会话失效
@@ -338,8 +352,10 @@ def getfiletype(file_id: int) -> str:
 if __name__ == "__main__":
     init_logging(level="INFO")
     init_db(db_path="app.db")
-
     _LOGGER = get_logger(__name__)
+    if not fetchAdminUser():  # 直接使用返回值进行判断
+        User.create_user(username="admin", password="admin", is_admin=True)
+    
 
     with AppContext() as APP:
         # NOTE: uncomment the following line if you have only Microsoft Edge installed
