@@ -171,6 +171,29 @@ const maliciousDocColumns: ColumnDef<DetectedFileVO>[] = [
     },
   },
   {
+    id: "mal-category",
+    accessorFn: (row) => resultOf("malicious-doc", row.data.results).category,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="恶意类别" />
+    ),
+    cell: ({ row }) => {
+      const res: MaliciousDocDetectionTaskResData = resultOf(
+        "malicious-doc",
+        row.original.data.results,
+      ) as MaliciousDocDetectionTaskResData;
+      return (
+        <div>
+          {res.category === "恶意的" ? (
+            <span className="text-red-500">{res.category}</span>
+          ) : (
+            res.category
+          )}
+            
+        </div>
+      );
+    },
+  },
+  {
     id: "mal-description",
     accessorFn: (row) => resultOf("malicious-doc", row.data.results).confidence,
     header: ({ column }) => (

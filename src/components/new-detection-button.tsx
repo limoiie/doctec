@@ -37,7 +37,7 @@ export function NewDetectionButton() {
   });
   
   const [maliciousDocConfig, setMaliciousDocConfig] = useState<MaliciousDocDetectionTaskCfgData>({
-    severityThreshold: 0.5,
+    severityThreshold: 0.7,
     type: "malicious-doc"
   });
 
