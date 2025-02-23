@@ -1,3 +1,4 @@
+from doctec.models import DetectionTaskCfg
 from doctec.schemas import (
     MaliciousDocDetectionTaskResData,
     MaliciousDocDetectionTaskCfgData,
@@ -8,9 +9,11 @@ from doctec.tasks.detection import DetectionTaskType
 
 
 class MaliciousDocDetector(Detector, task_type=DetectionTaskType.MALICIOUS_DOC):
-    def __init__(self, config: MaliciousDocDetectionTaskCfgData):
-        assert isinstance(config, MaliciousDocDetectionTaskCfgData)
-        super().__init__(config)
+    def __init__(
+        self, cfg: MaliciousDocDetectionTaskCfgData, common_cfg: DetectionTaskCfg
+    ):
+        assert isinstance(cfg, MaliciousDocDetectionTaskCfgData)
+        super().__init__(cfg, common_cfg)
 
     def before(self):
         pass
