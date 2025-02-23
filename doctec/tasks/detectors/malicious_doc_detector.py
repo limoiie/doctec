@@ -20,6 +20,7 @@ class MaliciousDocDetector(Detector, task_type=DetectionTaskType.MALICIOUS_DOC):
 
     def detect(self, doc) -> MaliciousDocDetectionTaskResData:
         filename, filetype, confidence, description = check_file(doc)
+        confidence = float(confidence)
         return MaliciousDocDetectionTaskResData(
             severity=(
                 "high"
