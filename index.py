@@ -257,7 +257,7 @@ if __name__ == "__main__":
 
     with AppContext() as APP:
         # NOTE: uncomment the following line if you have only Microsoft Edge installed
-        getattr(eel, "_start_args")["mode"] = "edge"
+        # getattr(eel, "_start_args")["mode"] = "edge"
 
         if len(sys.argv) > 1 and sys.argv[1] == "--develop":
             eel.init("client")
@@ -265,4 +265,4 @@ if __name__ == "__main__":
             eel.start({"port": 3000}, host="localhost", port=8888)
         else:
             eel.init("build")
-            eel.start("index.html")
+            eel.start("index.html", port=8888)
