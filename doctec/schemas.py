@@ -285,7 +285,7 @@ class MaliciousDocDetectionTaskResData(SchemaBaseModel):
     severity: str  # e.g., "high", "medium", "low"
     category: str  # e.g., "shellcode", "malform", "upload"
     description: str
-    confidence: float
+    confidence: str
     remediation: str  # Suggested fix or mitigation
     type: Literal[DetectionTaskType.MALICIOUS_DOC] = DetectionTaskType.MALICIOUS_DOC
 

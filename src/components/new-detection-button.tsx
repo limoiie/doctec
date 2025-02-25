@@ -32,7 +32,7 @@ export function NewDetectionButton() {
   
   // Configuration values
   const [embeddedFileConfig, setEmbeddedFileConfig] = useState<EmbeddedFileDetectionTaskCfgData>({
-    maxDepth: 3,
+    maxDepth: 5,
     type: "embedded-file"
   });
   
@@ -45,6 +45,7 @@ export function NewDetectionButton() {
   const navigate = useNavigate();
 
   function detect() {
+    setOpen(false);
     const configs = [];
     if (enableEmbeddedFile) {
       configs.push(embeddedFileConfig);
@@ -64,9 +65,10 @@ export function NewDetectionButton() {
     eel
       .launchDetectionTask(cfg)()
       .then((jobUuid: string) => {
-        setOpen(false);
-        navigate("/dashboard/detection/task-job/" + jobUuid);
-        setTimeout(() => navigate(0), 5000);
+        console.log(jobUuid)
+        navigate("/dashboard/detection/task-job/"+ jobUuid);
+        
+        setTimeout(() => navigate("/dashboard/detection/task-job/" + jobUuid), 5000);
       });
   }
 

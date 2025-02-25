@@ -17,7 +17,9 @@ import type { UserData } from "@/types/UserData.schema";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
-export function DialogDemo() {
+export function DialogDemo({ onUserCreated }: { 
+  onUserCreated: () => void 
+}) {
   const [formData, setFormData] = useState({
     username: '',
     role: '',
@@ -66,7 +68,8 @@ export function DialogDemo() {
       
       // 关闭对话框
       setOpen(false);
-      navigate(0);
+      onUserCreated();
+      // navigate("/admin/dashboard");
       
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "注册失败，用户名已存在");

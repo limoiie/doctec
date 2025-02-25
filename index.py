@@ -359,12 +359,26 @@ if __name__ == "__main__":
 
     with AppContext() as APP:
         # NOTE: uncomment the following line if you have only Microsoft Edge installed
-        getattr(eel, "_start_args")["mode"] = "edge"
+        # getattr(eel, "_start_args")["mode"] = "edge"
+        # if getattr(sys, 'frozen', False):
+        #     base_dir = sys._MEIPASS  # 打包后的资源路径
+        # else:
+        #     base_dir = os.path.dirname(os.path.abspath(__file__))  # 开发环境路径
 
+        # chrome_portable_path = os.path.join(base_dir, 'chrome_portable', 'APP','Chrome-bin','chrome.exe')
+        # print("chrome_portable_path:",chrome_portable_path)
+        
         if len(sys.argv) > 1 and sys.argv[1] == "--develop":
             eel.init("client")
             # noinspection PyTypeChecker
-            eel.start({"port": 3000}, host="localhost", port=8888)
+            eel.start({"port": 3000}, host="localhost", port=8888, mode='edge')
+           
         else:
             eel.init("build")
-            eel.start("index.html")
+            #eel.start("index.html", port=8888, mode='custom',cmdline_args=[chrome_portable_path, '--app=%s'])
+            # eel.start("index.html", port=8888, mode='edge')
+            eel.browsers.set_path(
+                "chrome",
+                "chromium\\X-Chromium",
+            )
+            eel.start("index.html", port=8888, mode="chrome")

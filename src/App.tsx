@@ -1,10 +1,12 @@
 import { Navigate, Route, Routes } from "react-router-dom";
-import "./App.css";
-import DashboardPage from "@/app/dashboard/page";
-import AdminDashboardPage from "./app/dashboard/adminpage";
-import { AuthProvider } from "@/contexts/auth-context";
-import { ProtectedRoute } from "@/components/protected-route";
 import LoginPage from "@/app/login/page";
+import DashboardPage from "@/app/dashboard/page";
+import AdminDashboardPage from "@/app/dashboard/adminpage";
+import { ProtectedRoute } from "@/components/protected-route";
+import { AuthProvider } from "@/contexts/auth-context";
+
+
+import "./App.css";
 
 function App() {
   return (
@@ -27,7 +29,10 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route
+          path="/*"
+          element={<Navigate to="/dashboard/detection/task-job" replace />}
+        />
       </Routes>
     </AuthProvider>
   );

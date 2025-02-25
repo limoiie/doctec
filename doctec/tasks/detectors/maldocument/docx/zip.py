@@ -8,6 +8,7 @@ import zlib
 import re
 import time
 import joblib
+import sys
 
 # 在文件顶部添加配置常量
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
@@ -254,7 +255,13 @@ def predict_file(file_path):
     :return: 包含预测结果、概率和特征的字典
     """
     # 加载训练好的模型
-    MODEL_SAVE_PATH = os.path.join(os.path.dirname(__file__), 'malicious_docx_classifier.pkl')
+    # runtime_workspace = __file__[:__file__.index('doctec')]
+    if getattr(sys, 'frozen', False):
+        base_dir = os.path.join(__file__[:__file__.index('doctec')],'build')  # 打包后的资源路径
+    else:
+        base_dir = 'E:\Project\maldoctect\doctec\public'  # 开发环境路径
+    
+    MODEL_SAVE_PATH = os.path.join(base_dir, 'checkpoints', 'malicious_docx_classifier.pkl')
 
     clf = joblib.load(MODEL_SAVE_PATH)
     

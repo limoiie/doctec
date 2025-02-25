@@ -11,6 +11,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_selection import RFECV
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
+import sys
 
 # 配置常量
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
@@ -312,8 +313,13 @@ def predict_file(file_path):
         "probability": '-',
         "reasons":""
     }
-    MODEL_SAVE_PATH1 = os.path.join(os.path.dirname(__file__), 'enhanced_ole_model.pkl')
-    MODEL_SAVE_PATH2 = os.path.join(os.path.dirname(__file__), 'feature_selector.pkl')
+    if getattr(sys, 'frozen', False):
+        base_dir = os.path.join(__file__[:__file__.index('doctec')],'build')  # 打包后的资源路径
+    else:
+        base_dir = 'E:\Project\maldoctect\doctec\public'  # 开发环境路径
+
+    MODEL_SAVE_PATH1 = os.path.join(base_dir, 'checkpoints', 'enhanced_ole_model.pkl')
+    MODEL_SAVE_PATH2 = os.path.join(base_dir, 'checkpoints', 'feature_selector.pkl')
 
     # 加载模型和选择器
     clf = joblib.load(MODEL_SAVE_PATH1)

@@ -70,7 +70,7 @@ def create_detected_files_for_job(
                                 "Malformed document structure",
                             ]
                         ),
-                        "confidence": round(random.uniform(0.5, 1.0), 2),
+                        "confidence": str(round(random.uniform(0.5, 1.0), 2)),
                         "remediation": random.choice(
                             [
                                 "Review and disable macros",

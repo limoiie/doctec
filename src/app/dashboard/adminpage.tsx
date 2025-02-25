@@ -49,11 +49,11 @@ export default function AdminDashboardPage() {
         <div className="m-4">
           <Routes>
             <Route
-              path="user-management"
+              path="/user-management"
               element={<UserDetails />}
             />
             <Route
-              path="personal-information"
+              path="/personal-information"
               element={<PersonalInformationDetails />}
             />
            

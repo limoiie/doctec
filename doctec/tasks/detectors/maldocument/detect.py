@@ -13,7 +13,7 @@ def check_file(file_path):
     extension = file_path.split('.')[-1]
     results = {
         "file_type": "",
-        "probability": 0,
+        "probability": "",
         "reasons": []
     }
     if file_type == 'application/CDFV2':

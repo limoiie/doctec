@@ -62,7 +62,8 @@ export function UserDetails() {
     eel.deleteUser(username)()
       .then(() => {
         setUserToDelete(null);
-        navigate(0);
+        loadData();
+        //navigate(0);
       })
       .catch((error: any) => {
         setError('删除失败: ' + error.toString());
@@ -84,7 +85,7 @@ export function UserDetails() {
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-bold text-gray-900">用户管理</h2>
-            <DialogDemo />
+            <DialogDemo onUserCreated={loadData}/>
           </div>
 
           <Table>

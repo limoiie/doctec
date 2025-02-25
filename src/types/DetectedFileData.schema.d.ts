@@ -39,7 +39,7 @@ export interface MaliciousDocDetectionTaskResData {
   severity: string;
   category: string;
   description: string;
-  confidence: number;
+  confidence: string;
   remediation: string;
   type?: "malicious-doc";
   [k: string]: unknown;

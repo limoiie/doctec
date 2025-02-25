@@ -6,6 +6,7 @@ from typing import override
 
 import clr
 
+from doctec.models import DetectionTaskCfg
 from doctec.schemas import (
     EmbeddedFileDetectionTaskCfgData,
     EmbeddedFileDetectionTaskResData,
@@ -18,16 +19,24 @@ clr.AddReference(os.path.abspath("./public/pkgs/OfficeExtractor/OfficeExtractor.
 
 
 class EmbeddedFileDetector(Detector, task_type=DetectionTaskType.EMBEDDED_FILE):
-    def __init__(self, config: EmbeddedFileDetectionTaskCfgData):
-        assert isinstance(config, EmbeddedFileDetectionTaskCfgData)
-        super().__init__(config)
+    def __init__(
+        self, cfg: EmbeddedFileDetectionTaskCfgData, common_cfg: DetectionTaskCfg
+    ):
+        assert isinstance(cfg, EmbeddedFileDetectionTaskCfgData)
+        super().__init__(cfg, common_cfg)
         self._workspace = None
 
     def before(self):
-        self._workspace = tempfile.mkdtemp()
+        self._workspace = (
+            tempfile.mkdtemp()
+            if not self.common_cfg.saveDir
+            else self.common_cfg.saveDir
+        )
+        if not os.path.exists(self._workspace):
+            os.makedirs(self._workspace)
 
     def after(self):
-        if self._workspace:
+        if self._workspace and not self.common_cfg.saveDir:
             shutil.rmtree(self._workspace)
 
     @override

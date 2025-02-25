@@ -3,8 +3,14 @@ import joblib
 import pandas as pd
 from .utils import str2num,header2num,extract_features
 import os
+import sys
 
-MODEL_SAVE_PATH = os.path.join(os.path.dirname(__file__), "random_forest_model.pkl")
+
+if getattr(sys, 'frozen', False):
+        base_dir = os.path.join(__file__[:__file__.index('doctec')],'build')  # 打包后的资源路径
+else:
+        base_dir = r'E:\Project\maldoctect\doctec\public'  # 开发环境路径
+MODEL_SAVE_PATH = os.path.join(base_dir, 'checkpoints', "random_forest_model.pkl")
 feature_names = [
         'pdfsize', 'metadata size', 'pages', 'xref length', 'title characters',
         'isEncrypted', 'embedded files', 'images', 'text',

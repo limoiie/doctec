@@ -10,7 +10,7 @@
       "type": "string"
     },
     "confidence": {
-      "type": "number"
+      "type": "string"
     },
     "remediation": {
       "type": "string"

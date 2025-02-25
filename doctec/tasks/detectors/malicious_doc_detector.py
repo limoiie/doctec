@@ -1,3 +1,4 @@
+from doctec.models import DetectionTaskCfg
 from doctec.schemas import (
     MaliciousDocDetectionTaskResData,
     MaliciousDocDetectionTaskCfgData,
@@ -8,10 +9,11 @@ from doctec.tasks.detection import DetectionTaskType
 
 
 class MaliciousDocDetector(Detector, task_type=DetectionTaskType.MALICIOUS_DOC):
-    def __init__(self, config: MaliciousDocDetectionTaskCfgData):
-        assert isinstance(config, MaliciousDocDetectionTaskCfgData)
-        super().__init__(config)
-        self.config = config
+    def __init__(
+        self, cfg: MaliciousDocDetectionTaskCfgData, common_cfg: DetectionTaskCfg
+    ):
+        assert isinstance(cfg, MaliciousDocDetectionTaskCfgData)
+        super().__init__(cfg, common_cfg)
 
     def before(self):
         pass
@@ -20,6 +22,7 @@ class MaliciousDocDetector(Detector, task_type=DetectionTaskType.MALICIOUS_DOC):
         pass
 
     def detect(self, doc) -> MaliciousDocDetectionTaskResData:
+        print("doc:",doc)
         """Detect malicious documents and return analysis results.
         
         Args:
@@ -31,11 +34,6 @@ class MaliciousDocDetector(Detector, task_type=DetectionTaskType.MALICIOUS_DOC):
         # Constants for maintainability
         MALICIOUS_LABEL = "恶意的"
         BENIGN_LABEL = "良性的"
-        SEVERITY_THRESHOLDS = [
-            (0.8, "high"),
-            (0.3, "medium"),
-            (0.0, "low")
-        ]
         ROUNDING_PRECISION = 2
         
         results = check_file(doc)
@@ -43,21 +41,16 @@ class MaliciousDocDetector(Detector, task_type=DetectionTaskType.MALICIOUS_DOC):
             return MaliciousDocDetectionTaskResData(
             severity='-',
             category='-',
-            description=results["reasons"],
+            description='-',
             confidence='-',
             remediation="-",
         )
-        confidence = round(results["probability"], ROUNDING_PRECISION)
+        confidence = round(float(results["probability"]), ROUNDING_PRECISION)
         
         # Determine document category
-        threshold = self.config.severityThreshold
+        threshold = self.cfg.severityThreshold
+        print("threshold:",threshold)
         category = MALICIOUS_LABEL if confidence > threshold else BENIGN_LABEL
-        
-        # Determine severity level using threshold ranges
-        severity_level = next(
-            level for threshold, level in SEVERITY_THRESHOLDS 
-            if confidence > threshold
-        )
         
         # Build description based on detection results
         def build_description() -> str:
@@ -67,9 +60,13 @@ class MaliciousDocDetector(Detector, task_type=DetectionTaskType.MALICIOUS_DOC):
             return ';'.join(reason for reason in results["reasons"]) or "综合分析为恶意"  # Handle empty string case
 
         return MaliciousDocDetectionTaskResData(
-            severity=severity_level,
+            severity=(
+                "high"
+                if confidence > 0.8
+                else ("medium" if confidence > 0.3 else "low")
+            ),
             category=category,
             description=build_description(),
-            confidence=confidence,
+            confidence=str(confidence),
             remediation="-",
         )
