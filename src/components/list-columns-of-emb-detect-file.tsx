@@ -13,143 +13,141 @@ import { DetectionTaskCfgData } from "@/types/DetectionTaskCfgData.schema";
 import { EmbeddedFileDetectionTaskResData } from "@/types/EmbeddedFileDetectionTaskResData.schema";
 import { MaliciousDocDetectionTaskResData } from "@/types/MaliciousDocDetectionTaskResData.schema";
 import { Badge } from "./ui/badge";
+import { eel } from "@/eel";
+import { useState, useEffect } from "react";
+import { Loader2 } from "lucide-react";
 
-export function listColumnsOfEmbDetectFile(
-  cfg: DetectionTaskCfgData,
-): ColumnDef<DetectedFileVO>[] {
-  let columns: ColumnDef<DetectedFileVO>[] = [...basicColumns];
-  if (cfg.configs.some((c) => c.type === "embedded-file")) {
-    columns = [...columns, ...embeddedFileColumns];
-  }
-  if (cfg.configs.some((c) => c.type === "malicious-doc")) {
-    columns = [...columns, ...maliciousDocColumns];
-  }
-  return columns;
+// 文件类型判断函数
+function isNonExecutableType(fileType: string): boolean {
+  const nonExecutableTypes = ['Zip archive data', "Composite Document File","PDF document"];
+  return nonExecutableTypes.some(type => fileType.includes(type));
 }
 
-const basicColumns: ColumnDef<DetectedFileVO>[] = [
+function isExecutableType(fileType: string): boolean {
+  return !isNonExecutableType(fileType);
+}
+
+// 获取文件类型的函数
+function getFileType(fileId: number): Promise<string> {
+  return eel.getfiletype(fileId)()
+    .then((type: string) => {
+      return type;
+    })
+    .catch((error: Error) => {
+      console.error('Error getting file type:', error);
+      return '';
+    });
+}
+
+// 异步文件类型检查组件
+function FileTypeCheck({ 
+  childIds, 
+  checkType 
+}: { 
+  childIds: number[], 
+  checkType: "executable" | "nonExecutable" 
+}) {
+  const [result, setResult] = useState<boolean | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const checkFiles = async () => {
+      try {
+        const fileTypes = await Promise.all(childIds.map(id => getFileType(id)));
+        console.log(fileTypes)
+        const hasMatchingFiles = fileTypes.some(type => 
+          checkType === "executable" ? isExecutableType(type) : isNonExecutableType(type)
+        );
+        setResult(hasMatchingFiles);
+      } catch (error) {
+        console.error('Error checking file types:', error);
+        setResult(false);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (childIds.length > 0) {
+      checkFiles();
+    } else {
+      setResult(false);
+      setLoading(false);
+    }
+  }, [childIds, checkType]);
+
+  if (loading) {
+    return <div className="flex items-center"><Loader2 className="h-4 w-4 animate-spin mr-2" />检查中...</div>;
+  }
+
+  return <div>{result ? "是" : "否"}</div>;
+}
+
+const embeddedFileColumns: ColumnDef<DetectedFileVO>[] = [
   {
-    id: "filepath",
-    accessorFn: (row) => row.data.metadata.path,
+    id: "is_embedded",
+    accessorFn: (row) => {
+      const filekind = row.data.metadata.data.kind;
+      const res = resultOf("embedded-file", row.data.results) as EmbeddedFileDetectionTaskResData;
+      return { filekind, childIds: res.childIds }; // Return an object with filekind and childIds
+    },
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="FilePath" />
-    ),
-    cell: ({ row }) => <div>{row.getValue("filepath")}</div>,
-  },
-  {
-    id: "size",
-    accessorFn: (row) => row.data.metadata.data.size,
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Size" />
-    ),
-    cell: ({ row }) => (
-      <div className="text-nowrap text-right">
-        <span className="inline-block">
-          {bytesToSize(row.getValue("size"))}
-        </span>
-      </div>
-    ),
-  },
-  {
-    id: "md5",
-    accessorFn: (row) => row.data.metadata.data.md5,
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="MD5" />
+      <DataTableColumnHeader column={column} title="是否夹带" />
     ),
     cell: ({ row }) => {
-      const md5Value = row.getValue("md5") as string;
-      return (
-        <Tooltip>
-          <TooltipTrigger className="font-mono">
-            <span className="inline-block">{md5Value.substring(0, 8)}</span>
-          </TooltipTrigger>
-          <TooltipContent>{md5Value}</TooltipContent>
-        </Tooltip>
-      );
+      const { childIds } = row.getValue("is_nested") as { filekind: string; childIds: number[] }; // Destructure to get childIds
+      const filekind = row.getValue("kind") as string; // Ensure filekind is treated as a string
+      const nonExecutableTypes = ['Zip archive data', "Composite Document File"];
+      if (typeof filekind !== 'string' || !nonExecutableTypes.some(type => filekind.includes(type))) return <div>-</div>;
+      if (!Array.isArray(childIds)) return <div>否</div>;
+      return <FileTypeCheck childIds={childIds} checkType="executable" />;
     },
   },
   {
-    id: "kind",
-    accessorFn: (row) => row.data.metadata.data.kind,
+    id: "is_nested",
+    accessorFn: (row) => {
+      const filekind = row.data.metadata.data.kind;
+      const res = resultOf("embedded-file", row.data.results) as EmbeddedFileDetectionTaskResData;
+      return { filekind, childIds: res.childIds }; // Return an object with filekind and childIds
+    },
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Kind" />
+      <DataTableColumnHeader column={column} title="是否嵌套" />
     ),
-    cell: ({ row }) => <div>{row.getValue("kind")}</div>,
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id));
+    cell: ({ row }) => {
+      const { childIds } = row.getValue("is_nested") as { filekind: string; childIds: number[] }; // Destructure to get childIds
+      const filekind = row.getValue("kind") as string; // Ensure filekind is treated as a string
+      const nonExecutableTypes = ['Zip archive data', "Composite Document File"];
+      if (typeof filekind !== 'string' || !nonExecutableTypes.some(type => filekind.includes(type))) return <div>-</div>;
+      if (!Array.isArray(childIds)) return <div>否</div>;
+      return <FileTypeCheck childIds={childIds} checkType="nonExecutable" />;
+    }
+  },
+  {
+    id: "embedded_files_count",
+    accessorFn: (row) => {
+      const filekind = row.data.metadata.data.kind;
+      const res = resultOf("embedded-file", row.data.results) as EmbeddedFileDetectionTaskResData;
+      return { filekind, childIds: res.childIds};
+    },
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="嵌入文件数量" />
+    ),
+    cell: ({ row }) => {
+      const filekind = row.getValue("kind") as string; 
+      const { childIds } = row.getValue("embedded_files_count") as { filekind: string; childIds: number[] };
+      const nonExecutableTypes = ['Zip archive data', "Composite Document File"];
+      if (typeof filekind !== 'string' || !nonExecutableTypes.some(type => filekind.includes(type))) return <div className="text-center">-</div>;
+      return <div className="text-center">{childIds.length}</div>;
     },
   },
-  {
-    id: "created",
-    accessorFn: (row) => row.data.metadata.created,
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Created" />
-    ),
-    cell: ({ row }) => <div>{formatDateTime(row.getValue("created"))}</div>,
-  },
-  {
-    id: "modified",
-    accessorFn: (row) => row.data.metadata.modified,
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Modified" />
-    ),
-    cell: ({ row }) => <div>{formatDateTime(row.getValue("modified"))}</div>,
-  },
-  {
-    id: "creator",
-    accessorFn: (row) => row.data.metadata.creator,
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Creator" />
-    ),
-    cell: ({ row }) => <div>{row.getValue("creator")}</div>,
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id));
-    },
-  },
-  {
-    id: "modifier",
-    accessorFn: (row) => row.data.metadata.modifier,
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Modifier" />
-    ),
-    cell: ({ row }) => <div>{row.getValue("modifier")}</div>,
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id));
-    },
-  },
+  // 可以在这里添加更多与嵌入文件相关的列
 ];
 
-const embeddedFileColumns: ColumnDef<DetectedFileVO>[] = [];
-
 const maliciousDocColumns: ColumnDef<DetectedFileVO>[] = [
-  {
-    id: "mal-category",
-    accessorFn: (row) => resultOf("malicious-doc", row.data.results).confidence,
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Mal Category" />
-    ),
-    cell: ({ row }) => {
-      const res: MaliciousDocDetectionTaskResData = resultOf(
-        "malicious-doc",
-        row.original.data.results,
-      ) as MaliciousDocDetectionTaskResData;
-      return (
-        <div>
-          <Tooltip>
-            <TooltipTrigger>
-              <Badge variant="outline">{res.category}</Badge>
-            </TooltipTrigger>
-            <TooltipContent>{res.description}</TooltipContent>
-          </Tooltip>
-        </div>
-      );
-    },
-  },
   {
     id: "mal-confidence",
     accessorFn: (row) => resultOf("malicious-doc", row.data.results).confidence,
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Mal Confidence" />
+      <DataTableColumnHeader column={column} title="恶意置信度" />
     ),
     cell: ({ row }) => {
       const res: MaliciousDocDetectionTaskResData = resultOf(
@@ -172,17 +170,208 @@ const maliciousDocColumns: ColumnDef<DetectedFileVO>[] = [
       );
     },
   },
+  {
+    id: "mal-category",
+    accessorFn: (row) => resultOf("malicious-doc", row.data.results).category,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="恶意类别" />
+    ),
+    cell: ({ row }) => {
+      const res: MaliciousDocDetectionTaskResData = resultOf(
+        "malicious-doc",
+        row.original.data.results,
+      ) as MaliciousDocDetectionTaskResData;
+      return (
+        <div>
+          {res.category === "恶意的" ? (
+            <span className="text-red-500">{res.category}</span>
+          ) : (
+            res.category
+          )}
+            
+        </div>
+      );
+    },
+  },
+  {
+    id: "mal-description",
+    accessorFn: (row) => resultOf("malicious-doc", row.data.results).confidence,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="恶意描述" />
+    ),
+    cell: ({ row }) => {
+      const res: MaliciousDocDetectionTaskResData = resultOf(
+        "malicious-doc",
+        row.original.data.results,
+      ) as MaliciousDocDetectionTaskResData;
+      if (res.description === '') res.description = "无";
+      return (
+        <div>
+          {res.description}
+        </div>
+      );
+    },
+  },
+  
 ];
+
+export function listColumnsOfEmbDetectFile(
+  cfg: DetectionTaskCfgData,
+): ColumnDef<DetectedFileVO>[] {
+  const basicColumns: ColumnDef<DetectedFileVO>[] = [
+    {
+      id: "filepath",
+      accessorFn: (row) => row.data.metadata.path,
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="文件路径" />
+      ),
+      cell: ({ row }) => <div>{row.getValue("filepath")}</div>,
+    },
+    {
+      id: "size",
+      accessorFn: (row) => row.data.metadata.data.size,
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="文件大小" />
+      ),
+      cell: ({ row }) => (
+        <div className="text-nowrap text-right">
+          <span className="inline-block">
+            {bytesToSize(row.getValue("size"))}
+          </span>
+        </div>
+      ),
+    },
+    {
+      id: "md5",
+      accessorFn: (row) => row.data.metadata.data.md5,
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="MD5值" />
+      ),
+      cell: ({ row }) => {
+        const md5Value = row.getValue("md5") as string;
+        return (
+          <Tooltip>
+            <TooltipTrigger className="font-mono">
+              <span className="inline-block">{md5Value}</span>
+            </TooltipTrigger>
+          </Tooltip>
+        );
+      },
+    },
+    {
+      id: "kind",
+      accessorFn: (row) => row.data.metadata.data.kind,
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="文件类型" />
+      ),
+      cell: ({ row }) => <div>{row.getValue("kind")}</div>,
+      filterFn: (row, id, value) => {
+        return value.includes(row.getValue(id));
+      },
+    },
+    {
+      id:"created_content",
+      accessorFn: (row) => row.data.metadata.created_content,
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="创建内容时间" />
+      ),
+      cell: ({ row }) => <div>{
+        
+        row.getValue("created_content") === '-' ? '-' : formatDateTime(row.getValue("created_content"))}</div>,
+    },
+    {
+      id: "created",
+      accessorFn: (row) => row.data.metadata.created,
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="创建时间" />
+      ),
+      cell: ({ row }) => <div>{formatDateTime(row.getValue("created"))}</div>,
+    },
+    {
+      id: "modified",
+      accessorFn: (row) => row.data.metadata.modified,
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="修改时间" />
+      ),
+      cell: ({ row }) => <div>{formatDateTime(row.getValue("modified"))}</div>,
+    },
+    {
+      id: "creator",
+      accessorFn: (row) => row.data.metadata.creator,
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="创建者" />
+      ),
+      cell: ({ row }) => <div>{row.getValue("creator")}</div>,
+      filterFn: (row, id, value) => {
+        return value.includes(row.getValue(id));
+      },
+    },
+    {
+      id: "modifier",
+      accessorFn: (row) => row.data.metadata.modifier,
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="编辑者" />
+      ),
+      cell: ({ row }) => <div>{row.getValue("modifier")}</div>,
+      filterFn: (row, id, value) => {
+        return value.includes(row.getValue(id));
+      },
+    },
+    
+    {
+      id: "isLocallyCreated",
+      accessorFn: (row) => row.data.metadata.data.isLocallyCreated,
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="是否本机创建" />
+      ),
+      cell: ({ row }) => {
+        const isLocallyCreated = row.getValue("isLocallyCreated");
+        return (
+          <div className={isLocallyCreated === 'False' ? "text-red-500" : ""}>
+            {isLocallyCreated === 'False' ? "否" : isLocallyCreated === 'True' ? "是" : "-"}
+          </div>
+        );
+      },
+    },
+    {
+      id: "description", 
+      accessorFn: (row) => row.data.metadata.data.description,
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="描述" />
+      ),
+      cell: ({ row }) => {
+        const isLocallyCreated = row.getValue("isLocallyCreated");
+        return (
+          <div 
+            className={isLocallyCreated === 'False' ? "text-red-500" : ""}
+            title={row.getValue("description")}
+          >
+            {row.getValue("description")}
+          </div>
+        );
+      },
+    },
+    
+  ];
+
+  let columns: ColumnDef<DetectedFileVO>[] = [...basicColumns];
+  
+  if (cfg.configs.some((c) => c.type === "embedded-file")) {
+    columns = [...columns, ...embeddedFileColumns];
+  }
+  if (cfg.configs.some((c) => c.type === "malicious-doc")) {
+    columns = [...columns, ...maliciousDocColumns];
+  }
+  
+  return columns;
+}
 
 function resultOf(
   type: "malicious-doc" | "embedded-file",
-  results: (
-    | MaliciousDocDetectionTaskResData
-    | EmbeddedFileDetectionTaskResData
-  )[],
+  results: (MaliciousDocDetectionTaskResData | EmbeddedFileDetectionTaskResData)[],
 ) {
   for (const result of results) {
-    if (result.type == type) {
+    if (result.type === type) {
       return result;
     }
   }

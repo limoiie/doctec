@@ -72,8 +72,8 @@ class SchemaBaseModel(BaseModel):
 class UserData(SchemaBaseModel):
     uuid: str
     username: str
-    email: str
     avatar: Optional[str]
+    is_admin: bool
     sessionToken: str
     created: str
     updated: str
@@ -83,8 +83,8 @@ class UserData(SchemaBaseModel):
         return UserData(
             uuid=m.uuid.hex if isinstance(m.uuid, UUID) else m.uuid,
             username=m.username,
-            email=m.email,
             avatar=m.avatar,
+            is_admin=m.is_admin,
             sessionToken="",
             created=str(m.created_at),
             updated=str(m.updated_at),
@@ -101,6 +101,10 @@ class FileDataData(SchemaBaseModel):
     kind: str
     mime: Optional[str] = None
     body: Optional[bytes] = None
+    is_embedded: bool = False
+    is_nested: bool = False
+    isLocallyCreated:str
+    description: Optional[str] = ""
 
     @classmethod
     def from_pw_model(cls, m: FileData):
@@ -109,6 +113,10 @@ class FileDataData(SchemaBaseModel):
             size=m.size,
             kind=m.kind,
             mime=m.mime,
+            is_embedded = m.is_embedded,
+            is_nested = m.is_nested,
+            isLocallyCreated = m.isLocallyCreated,
+            description = m.description
         )
 
 
@@ -116,6 +124,7 @@ class FileMetadataData(SchemaBaseModel):
     id: int
     path: str
     data: FileDataData
+    created_content:str
     created: str
     modified: str
     creator: str
@@ -127,6 +136,7 @@ class FileMetadataData(SchemaBaseModel):
             id=m.id,
             path=m.path,
             data=FileDataData.from_pw_model(m.data),
+            created_content=str(m.created_content),
             created=str(m.created),
             modified=str(m.modified),
             creator=m.creator,
@@ -275,7 +285,7 @@ class MaliciousDocDetectionTaskResData(SchemaBaseModel):
     severity: str  # e.g., "high", "medium", "low"
     category: str  # e.g., "shellcode", "malform", "upload"
     description: str
-    confidence: float
+    confidence: str
     remediation: str  # Suggested fix or mitigation
     type: Literal[DetectionTaskType.MALICIOUS_DOC] = DetectionTaskType.MALICIOUS_DOC
 

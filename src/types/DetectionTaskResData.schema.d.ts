@@ -21,6 +21,7 @@ export interface FileMetadataData {
   id: number;
   path: string;
   data: FileDataData;
+  created_content: string;
   created: string;
   modified: string;
   creator: string;
@@ -33,13 +34,17 @@ export interface FileDataData {
   kind: string;
   mime?: string | null;
   body?: string | null;
+  is_embedded?: boolean;
+  is_nested?: boolean;
+  isLocallyCreated: string;
+  description?: string | null;
   [k: string]: unknown;
 }
 export interface MaliciousDocDetectionTaskResData {
   severity: string;
   category: string;
   description: string;
-  confidence: number;
+  confidence: string;
   remediation: string;
   type?: "malicious-doc";
   [k: string]: unknown;

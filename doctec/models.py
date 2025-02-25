@@ -45,21 +45,21 @@ class BaseModel(Model):
 class User(BaseModel):
     uuid: UUID = UUIDField(primary_key=True, unique=True, default=uuid4)
     username: str = CharField(unique=True)
-    email: str = CharField(unique=True)
     password_hash: str = CharField()
     avatar: str = CharField(null=True)
+    is_admin: bool = BooleanField(default=False)
     created_at = DateTimeField(default=datetime.datetime.now)
     updated_at = DateTimeField(default=datetime.datetime.now)
 
     @classmethod
-    def create_user(cls, username: str, email: str, password: str) -> "User":
+    def create_user(cls, username: str, password: str, is_admin: bool = False) -> "User":
         """Create a new user with hashed password."""
         password_hash = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
         return cls.create(
             username=username,
-            email=email,
             password_hash=password_hash.decode("utf-8"),
             avatar="/avatars/shadcn.jpg",
+            is_admin=is_admin
         )
 
     def verify_password(self, password: str) -> bool:
@@ -67,6 +67,14 @@ class User(BaseModel):
         return bcrypt.checkpw(
             password.encode("utf-8"), self.password_hash.encode("utf-8")
         )
+    
+    def update_password(self, password: str):
+        """Update user password with new hash and update timestamp"""
+        self.password_hash = bcrypt.hashpw(
+            password.encode("utf-8"), bcrypt.gensalt()
+        ).decode("utf-8")
+        self.updated_at = datetime.datetime.now()
+        self.save()
 
     def create_session(self, expires_in_days: int = 1) -> "UserSession":
         """Create a new session for the user."""
@@ -106,6 +114,10 @@ class FileData(BaseModel):
     mime: str = CharField(max_length=50, null=False)
     kind: str = CharField(max_length=50, null=False)
     body: bytes = BlobField(null=False)
+    is_embedded = BooleanField(default=False)
+    is_nested = BooleanField(default=False)
+    isLocallyCreated = CharField(max_length=50, null=False)
+    description = TextField(null=True, default="")
 
     class Meta:
         database = DB_PROXY
@@ -116,6 +128,7 @@ class FileMetadata(BaseModel):
     id: int = AutoField(primary_key=True)
     path: str = CharField(index=True, max_length=1024)
     data: FileData = ForeignKeyField(FileData, backref="metadata", on_delete="CASCADE")
+    created_content: datetime.datetime = DateTimeField(index=True)
     created: datetime.datetime = DateTimeField(index=True)
     modified: datetime.datetime = DateTimeField(index=True)
     creator: str = CharField(max_length=50)

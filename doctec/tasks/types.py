@@ -16,7 +16,7 @@ class DetectionTaskType(enum.Enum):
     @classmethod
     def of(cls, name: str):
         for e in (
-            DetectionTaskType.EMBEDDED_FILE,
+            DetectionTaskType.EMBEDDED_FILE, 
             DetectionTaskType.MALICIOUS_DOC,
         ):
             if name in (e.name, e.value):

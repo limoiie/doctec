@@ -6,9 +6,6 @@
     "username": {
       "type": "string"
     },
-    "email": {
-      "type": "string"
-    },
     "avatar": {
       "anyOf": [
         {
@@ -18,6 +15,9 @@
           "type": "null"
         }
       ]
+    },
+    "is_admin": {
+      "type": "boolean"
     },
     "sessionToken": {
       "type": "string"
@@ -32,8 +32,8 @@
   "required": [
     "uuid",
     "username",
-    "email",
     "avatar",
+    "is_admin",
     "sessionToken",
     "created",
     "updated"

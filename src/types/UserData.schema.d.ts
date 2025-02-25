@@ -8,8 +8,8 @@
 export interface UserData {
   uuid: string;
   username: string;
-  email: string;
   avatar: string | null;
+  is_admin: boolean;
   sessionToken: string;
   created: string;
   updated: string;

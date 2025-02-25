@@ -59,16 +59,16 @@ export function DetectionTaskCfgDetails({
         {!loading && !error && config && (
             <Button onClick={startDetection} variant="outline">
               <PlayCircleIcon />
-              New Detection With Current Config
+              使用当前配置进行新检测
             </Button>
         )}
       </div>
 
       {error && (
         <span>
-          Failed to load data,{" "}
+          加载数据失败，{" "}
           <a className="text-blue-600" onClick={loadData}>
-            try again
+          再试一次
           </a>
           ?
         </span>

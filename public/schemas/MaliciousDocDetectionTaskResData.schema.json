@@ -10,7 +10,7 @@
       "type": "string"
     },
     "confidence": {
-      "type": "number"
+      "type": "string"
     },
     "remediation": {
       "type": "string"
@@ -18,6 +18,9 @@
     "type": {
       "const": "malicious-doc",
       "default": "malicious-doc",
+      "enum": [
+        "malicious-doc"
+      ],
       "type": "string"
     }
   },

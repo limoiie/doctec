@@ -54,11 +54,11 @@ export function EmbeddedFileTree({
       data={dataSource}
       getChildrenData={getChildren}
       columns={treeColumnsOfEmbDetectFile(job.cfg)}
-      initInvisibleColumns={["created", "modified"]}
+      initInvisibleColumns={["created", "modified","description","md5","mal-description"]}
       facedFilters={[
         {
           columnKey: "kind",
-          title: "Kind",
+          title: "文件类型",
           options: [...kinds].map((kind) => ({
             label: kind,
             value: kind,
@@ -66,7 +66,7 @@ export function EmbeddedFileTree({
         },
         {
           columnKey: "creator",
-          title: "Creator",
+          title: "创建者",
           options: [...creators].map((creator) => ({
             label: creator,
             value: creator,
@@ -74,7 +74,7 @@ export function EmbeddedFileTree({
         },
         {
           columnKey: "modifier",
-          title: "Modifier",
+          title: "编辑者",
           options: [...modifiers].map((modifier) => ({
             label: modifier,
             value: modifier,

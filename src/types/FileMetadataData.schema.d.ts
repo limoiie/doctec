@@ -9,6 +9,7 @@ export interface FileMetadataData {
   id: number;
   path: string;
   data: FileDataData;
+  created_content: string;
   created: string;
   modified: string;
   creator: string;
@@ -21,5 +22,9 @@ export interface FileDataData {
   kind: string;
   mime?: string | null;
   body?: string | null;
+  is_embedded?: boolean;
+  is_nested?: boolean;
+  isLocallyCreated: string;
+  description?: string | null;
   [k: string]: unknown;
 }

@@ -11,5 +11,9 @@ export interface FileDataData {
   kind: string;
   mime?: string | null;
   body?: string | null;
+  is_embedded?: boolean;
+  is_nested?: boolean;
+  isLocallyCreated: string;
+  description?: string | null;
   [k: string]: unknown;
 }

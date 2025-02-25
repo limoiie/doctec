@@ -40,6 +40,8 @@ def fetchDetectionTaskJobs(
     :return: a list of detection results in JSON format
     """
     jobs = APP.det_repo.fetch_jobs(page_no, page_size)
+    print("555555555555")
+    print(jobs)
     return [
         schemas.DetectionTaskJobData.from_pw_model(job).model_dump() for job in jobs
     ]
@@ -140,14 +142,14 @@ def launchDetectionTask(cfg_dto: Dict[str, object]) -> str:
 # noinspection PyPep8Naming
 @eel.expose
 @log_on_calling
-def deleteDetectionTaskJobByUuid(job_uuid: str) -> bool:
+def deleteDetectedFileByUuid(job_uuid: str) -> bool:
     """
     Delete the detection job by uuid.
 
     :param job_uuid: the uuid of the detection job
     :return: whether the deletion is successful
     """
-    return APP.det_repo.delete_job_by_uuid(job_uuid)
+    return APP.det_repo.delete_detectedfile_by_uuid(job_uuid)
 
 
 @eel.expose
@@ -163,18 +165,18 @@ def debug(msg: str):
 
 @eel.expose
 @log_on_calling
-def login(email: str, password: str) -> UserData:
+def login(username: str, password: str) -> UserData:
     """
     Authenticate a user and create a session.
 
-    :param email: User's email
+    :param username: User's username
     :param password: User's password
     :return: Dict containing user information and session token if authentication successful
     :raise: Exception if authentication fails
     """
     # noinspection PyUnresolvedReferences
     try:
-        user = User.get(User.email == email)
+        user = User.get(User.username == username)
         if user.verify_password(password):
             # Create a new session
             session = user.create_session(expires_in_days=1)
@@ -225,44 +227,158 @@ def logout(token: str) -> bool:
 
 @eel.expose
 @log_on_calling
-def register(username: str, email: str, password: str) -> UserData:
+def fetchAllUsers() -> list[dict]:
+    """
+    Fetch all users from the database.
+    
+    :return: List of user dictionaries containing id, username, is_admin and created_at
+    :raise: Exception if query fails
+    """
+    try:
+        users = User.select()
+        return [UserData.from_pw_model(user).model_dump() for user in users]
+    except Exception as e:
+        raise Exception(f"Failed to fetch users: {str(e)}")
+
+
+@eel.expose
+@log_on_calling
+def fetchAdminUser() -> bool:
+    """
+    Check if the user with the username 'Admin' exists in the database.
+
+    :return: True if the user exists, False otherwise
+    """
+    try:
+        admin_user = User.get(User.username == 'admin')
+        return True  # 用户存在
+    except User.DoesNotExist:
+        return False  # 用户不存在
+
+@eel.expose
+@log_on_calling
+def update_password(token: str, old_password: str, new_password: str) -> bool:
+    """
+    更新用户密码并使所有会话失效
+    
+    :param token: 用户会话token
+    :param old_password: 旧密码
+    :param new_password: 新密码
+    :return: 是否更新成功
+    :raise: Exception 当验证失败时抛出异常
+    """
+    # 验证会话有效性
+    session = UserSession.get_valid_session(token)
+    if not session:
+        raise Exception("无效的会话，请重新登录")
+    
+    # 获取用户对象
+    user = session.user
+
+    # 验证旧密码
+    if not user.verify_password(old_password):
+        raise Exception("旧密码不正确")
+    
+    # 更新密码
+    try:
+        print("正在更新密码")
+        user.update_password(new_password)
+        # 使该用户的所有会话失效
+        return True
+    except Exception as e:
+        _LOGGER.error(f"密码更新失败: {str(e)}")
+        raise Exception("密码更新失败，请稍后重试")
+
+
+@eel.expose
+@log_on_calling
+def deleteUser(username: str) -> bool:
+    """
+    删除指定用户
+    :param username: 要删除的用户名
+    :return: 是否删除成功
+    """
+    try:
+        user = User.get(User.username == username)
+        user.delete_instance(recursive=True)  # 级联删除关联的session
+        return True
+    except User.DoesNotExist:
+        raise Exception("用户不存在")
+    except Exception as e:
+        raise Exception(f"删除失败: {str(e)}")
+
+@eel.expose
+@log_on_calling
+def register(username: str, password: str, is_admin:bool) -> UserData:
     """
     Register a new user.
 
     :param username: Desired username
-    :param email: User's email
     :param password: User's password
     :return: Dict containing user information if registration successful
     :raise: Exception if registration fails
     """
     try:
         # Check if user already exists
-        if User.select().where(User.email == email).exists():
-            raise Exception("Email already registered")
         if User.select().where(User.username == username).exists():
             raise Exception("Username already taken")
 
         # Create new user
-        user = User.create_user(username=username, email=email, password=password)
+        user = User.create_user(username=username, password=password, is_admin=is_admin)
         return UserData.from_pw_model(user).model_dump()
     except Exception as e:
         raise Exception(f"Registration failed: {str(e)}")
+    
+@eel.expose
+@log_on_calling
+def getfiletype(file_id: int) -> str:
+    """
+    从 filemetadata 表中获取文件类型
+    
+    :param file_id: 文件ID
+    :return: 文件类型字符串
+    """
+    try:
+        print("000000000000")
+        print(file_id)
+        # 从数据库中查询文件类型
+        kind = APP.det_repo.fetch_file_type_by_id(file_id)
+        return kind
+    except Exception as e:
+        _LOGGER.error(f"Error fetching file type: {str(e)}")
+        raise Exception(f"Failed to get file type: {str(e)}")
 
 
 if __name__ == "__main__":
     init_logging(level="INFO")
     init_db(db_path="app.db")
-
     _LOGGER = get_logger(__name__)
+    if not fetchAdminUser():  # 直接使用返回值进行判断
+        User.create_user(username="admin", password="admin", is_admin=True)
+    
 
     with AppContext() as APP:
         # NOTE: uncomment the following line if you have only Microsoft Edge installed
         # getattr(eel, "_start_args")["mode"] = "edge"
+        # if getattr(sys, 'frozen', False):
+        #     base_dir = sys._MEIPASS  # 打包后的资源路径
+        # else:
+        #     base_dir = os.path.dirname(os.path.abspath(__file__))  # 开发环境路径
 
+        # chrome_portable_path = os.path.join(base_dir, 'chrome_portable', 'APP','Chrome-bin','chrome.exe')
+        # print("chrome_portable_path:",chrome_portable_path)
+        
         if len(sys.argv) > 1 and sys.argv[1] == "--develop":
             eel.init("client")
             # noinspection PyTypeChecker
-            eel.start({"port": 3000}, host="localhost", port=8888)
+            eel.start({"port": 3000}, host="localhost", port=8888, mode='edge')
+           
         else:
             eel.init("build")
-            eel.start("index.html", port=8888)
+            #eel.start("index.html", port=8888, mode='custom',cmdline_args=[chrome_portable_path, '--app=%s'])
+            # eel.start("index.html", port=8888, mode='edge')
+            eel.browsers.set_path(
+                "chrome",
+                "chromium\\X-Chromium",
+            )
+            eel.start("index.html", port=8888, mode="chrome")

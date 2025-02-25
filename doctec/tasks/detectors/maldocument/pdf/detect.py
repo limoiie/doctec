@@ -1,74 +1,30 @@
-# -*- coding:utf-8 -*-
-import os
-
+#-*- coding:utf-8 -*-
 import joblib
 import pandas as pd
+from .utils import str2num,header2num,extract_features
+import os
+import sys
 
-from .utils import str2num, header2num, extract_features
 
-MODEL_SAVE_PATH = os.path.join(os.path.dirname(__file__), "random_forest_model.pkl")
+if getattr(sys, 'frozen', False):
+        base_dir = os.path.join(__file__[:__file__.index('doctec')],'build')  # 打包后的资源路径
+else:
+        base_dir = r'E:\Project\maldoctect\doctec\public'  # 开发环境路径
+MODEL_SAVE_PATH = os.path.join(base_dir, 'checkpoints', "random_forest_model.pkl")
 feature_names = [
-    "pdfsize",
-    "metadata size",
-    "pages",
-    "xref length",
-    "title characters",
-    "isEncrypted",
-    "embedded files",
-    "images",
-    "text",
-    "header",
-    "obj",
-    "endobj",
-    "stream",
-    "endstream",
-    "xref",
-    "trailer",
-    "startxref",
-    "pageno",
-    "encrypt",
-    "ObjStm",
-    "JS",
-    "Javascript",
-    "AA",
-    "OpenAction",
-    "Acroform",
-    "JBIG2Decode",
-    "RichMedia",
-    "launch",
-    "EmbeddedFile",
-    "XFA",
-    "URI",
-    "Colors",
-]
-
+        'pdfsize', 'metadata size', 'pages', 'xref length', 'title characters',
+        'isEncrypted', 'embedded files', 'images', 'text',
+        'header', 'obj', 'endobj', 'stream', 'endstream', 'xref', 'trailer', 'startxref',
+        'pageno', 'encrypt', 'ObjStm', 'JS', 'Javascript', 'AA', 'OpenAction', 'Acroform',
+        'JBIG2Decode', 'RichMedia', 'launch', 'EmbeddedFile', 'XFA', 'URI', 'Colors'
+    ]
 
 def feature_clearn(features):
-    features[8] = (
-        1 if features[8] == "Yes" else (-1 if features[8] in ("unclear", "-1") else 0)
-    )
+    features[8] = 1 if features[8] == 'Yes' else (-1 if features[8] in ('unclear', '-1') else 0)
     features[9] = header2num(features[9])
     features[10:] = [str2num(value) for value in features[10:]]
 
     return features
-
-
-def predict_with_saved_model(f):
-    # 加载保存的模型
-    model = joblib.load(MODEL_SAVE_PATH)
-
-    # 读取新数据
-    features = extract_features(f)[
-        1:
-    ]  # [97, 291, 1, 25, 5, 0, 0, 0, 'No', '%PDF-1.5', '23', '23', '11', '11', '1', '1', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0']
-    features_clearn = feature_clearn(features)
-    feature_vector = pd.DataFrame([features_clearn], columns=feature_names)
-
-    # 进行预测
-    predictions = model.predict(feature_vector)
-
-    return features_clearn, predictions[0]
-
 
 def describe(features):
     descriptions = []
@@ -84,12 +40,30 @@ def describe(features):
     if features[30] > 0:
         descriptions.append("含有可疑链接")
 
-    return ", ".join(descriptions)
+    return '; '.join(descriptions)
+
+def predict_file(f):
+    # 加载保存的模型
+    model = joblib.load(MODEL_SAVE_PATH)
+    result = {
+        "reasons": [],
+        "probability": '-'
+    }
+    # 读取新数据
+    try:
+        features = extract_features(f)[1:]  # [97, 291, 1, 25, 5, 0, 0, 0, 'No', '%PDF-1.5', '23', '23', '11', '11', '1', '1', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0']
+        features_clearn = feature_clearn(features)
+        result['reasons'] = describe(features_clearn)
+    
+        feature_vector = pd.DataFrame([features_clearn], columns=feature_names)
+
+        # 进行预测
+        predictions = model.predict_proba(feature_vector)[0][1]
+        result['probability'] = float(predictions)
+    except:
+        result['reasons'] = ['文件格式错误']
+
+    return result
 
 
-def detect(filename):
-    feature_vector, predictions = predict_with_saved_model(filename)
-    result = ""
-    if predictions == 1:
-        result = describe(feature_vector)
-    return predictions, result
+

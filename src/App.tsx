@@ -1,9 +1,10 @@
 import { Navigate, Route, Routes } from "react-router-dom";
-
 import LoginPage from "@/app/login/page";
 import DashboardPage from "@/app/dashboard/page";
+import AdminDashboardPage from "@/app/dashboard/adminpage";
 import { ProtectedRoute } from "@/components/protected-route";
 import { AuthProvider } from "@/contexts/auth-context";
+
 
 import "./App.css";
 
@@ -17,6 +18,14 @@ function App() {
           element={
             <ProtectedRoute>
               <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/dashboard/*"
+          element={
+            <ProtectedRoute>
+              <AdminDashboardPage />
             </ProtectedRoute>
           }
         />

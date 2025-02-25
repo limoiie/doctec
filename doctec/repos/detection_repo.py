@@ -3,7 +3,7 @@ import os
 from datetime import UTC, datetime
 from typing import List, Tuple, Union, Optional
 from uuid import UUID
-
+from doctec.tasks.islocallycreated import compare,get_metadata
 import magic
 
 from doctec.models import (
@@ -95,11 +95,36 @@ class DetectionRepo:
         job_uuid: Union[str, UUID]
     ) -> list[DetectedFile]:
         return list(DetectedFile.select().where(DetectedFile.job == job_uuid))
+    
+    @staticmethod
+    def fetch_file_type_by_id(file_id):
+        try:
+            # 获取 DetectedFile 记录
+            detected_file = DetectedFile.get_by_id(file_id)
+            # 通过关联获取 FileData 的 kind
+            return detected_file.metadata.data.kind
+        except (DetectedFile.DoesNotExist, FileMetadata.DoesNotExist, FileData.DoesNotExist):
+            return None
 
     @staticmethod
-    def delete_job_by_uuid(job_uuid: Union[str, UUID]) -> bool:
-        job_to_delete = DetectionTaskJob.get(DetectionTaskJob.uuid == job_uuid)
-        job_to_delete.delete_instance(recursive=True)
+    def delete_detectedfile_by_uuid(job_uuid: Union[str, UUID]) -> bool:
+        """
+        Delete a detection job and its associated detected files by job UUID.
+        
+        Args:
+            job_uuid: UUID of the job to delete
+            
+        Returns:
+            bool: True if both job and files were deleted successfully
+        """
+
+                
+        # Delete the job itself
+        job_deleted = DetectionTaskJob.delete().where(
+                    DetectionTaskJob.uuid == job_uuid
+                ).execute()
+        
+                
         return True
 
     @staticmethod
@@ -135,20 +160,32 @@ class DetectionRepo:
                 )
             ),
         ).where(DetectionTaskJob.uuid == job_uuid).execute()
+    
 
     @staticmethod
     def fetch_or_create_file_data(filepath: str) -> Tuple[FileData, bool]:
         md5 = hashlib.md5()
+        
+        local = compare(filepath)
+
         with open(filepath, "rb") as f:
+            # 一次性读取初始字节用于magic检测
+            initial_bytes = f.read(1024)
+            
+            # 重置文件指针到开头
+            f.seek(0)
+            
+            # 计算完整MD5
             while chunk := f.read(4096):
                 md5.update(chunk)
 
-        # TODO: decide if we want to store the file body in the database
         return FileData.get_or_create(
             md5=md5.hexdigest(),
             size=os.path.getsize(filepath),
-            mime=magic.from_file(filepath, mime=True) or "application/octet-stream",
-            kind=magic.from_file(filepath, mime=False) or "unknown",
+            mime=magic.from_buffer(initial_bytes, mime=True) or "application/octet-stream",
+            kind=magic.from_buffer(initial_bytes, mime=False) or "unknown",
+            isLocallyCreated=local["is_local"],
+            description=local["message"],
             body=b"todo",
         )
 
@@ -157,9 +194,19 @@ class DetectionRepo:
         filepath: str, *, creator: str, modifier: str
     ) -> FileMetadata:
         data, _ = DetectionRepo.fetch_or_create_file_data(filepath)
+        try:
+            mata = get_metadata(filepath)
+            creator = mata.get('author')
+            modifier = mata.get('last_saved_by')
+            created_content = mata.get('created_time')
+        except ValueError:
+            creator = "-"
+            modifier = "-"
+            created_content = '-'
         metadata = FileMetadata.create(
             path=filepath,
             data=data,
+            created_content = created_content,
             created=datetime.fromtimestamp(os.path.getctime(filepath)),
             modified=datetime.fromtimestamp(os.path.getmtime(filepath)),
             creator=creator,
@@ -183,3 +230,8 @@ class DetectionRepo:
     def add_detected_file(job_uuid: Union[str, UUID], detected_file: DetectedFile):
         detected_file.job_id = job_uuid
         detected_file.save()
+    
+    
+
+    
+

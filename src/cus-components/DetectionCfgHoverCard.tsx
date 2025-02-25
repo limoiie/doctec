@@ -28,7 +28,7 @@ export function DetectionCfgHoverCard({ cfg }: { cfg: DetectionTaskCfgData }) {
             <Settings2Icon className="h-4 w-4" />
           </Button>
         </HoverCardTrigger>
-        <HoverCardContent className="w-80">
+        <HoverCardContent className="w-100">
           <div className="flex space-x-4">
             <Avatar>
               <Settings2Icon size={42} />
@@ -37,25 +37,22 @@ export function DetectionCfgHoverCard({ cfg }: { cfg: DetectionTaskCfgData }) {
               <div className="flex items-center pt-2">
                 <IdCardIcon className="mr-2 h-4 w-4 opacity-70" />{" "}
                 <span className="text-xs text-muted-foreground">
-                  UUID:{" "}
+                  配置编号：{" "}
                   <Tooltip>
                     <TooltipTrigger className="font-mono">
                       <span className="inline-block">
-                        {cfg.uuid.substring(0, 16)}
+                        {cfg.uuid}
                       </span>
                     </TooltipTrigger>
-                    <TooltipContent>{cfg.uuid}</TooltipContent>
                   </Tooltip>
                 </span>
               </div>
-              <div className="flex flex-col space-y-1">
-                <div className="flex items-center pt-2">
-                  <ScanSearchIcon className="mr-2 h-4 w-4 opacity-70" />{" "}
-                  <span className="text-xs text-muted-foreground">
-                    Target Directories:
-                  </span>{" "}
-                </div>
-                <div className="flex flex-wrap gap-2 pl-6">
+              <div className="flex items-center pt-2">
+                <ScanSearchIcon className="mr-2 h-4 w-4 opacity-70" />{" "}
+                <span className="text-xs text-muted-foreground">
+                  检测文件:
+                </span>{" "}
+                <div className="flex flex-wrap gap-2 ml-2">
                   {cfg.targetDirs.map((dir, index) => (
                     <Button
                       key={index}
@@ -71,7 +68,7 @@ export function DetectionCfgHoverCard({ cfg }: { cfg: DetectionTaskCfgData }) {
               <div className="flex items-center pt-2">
                 <SaveIcon className="mr-2 h-4 w-4 opacity-70" />{" "}
                 <span className="text-xs text-muted-foreground">
-                  Save Directory: <code>{cfg.saveDir}</code>
+                  保存目录：<code>{cfg.saveDir}</code>
                 </span>{" "}
               </div>
               {cfg.configs.map((config) => {
@@ -81,7 +78,7 @@ export function DetectionCfgHoverCard({ cfg }: { cfg: DetectionTaskCfgData }) {
                       <div className="flex items-center pt-2">
                         <RulerIcon className="mr-2 h-4 w-4 opacity-70" />{" "}
                         <span className="text-xs text-muted-foreground">
-                          Max Depth: {config.maxDepth}
+                          最大深度：{config.maxDepth}
                         </span>
                       </div>
                     );
@@ -90,7 +87,7 @@ export function DetectionCfgHoverCard({ cfg }: { cfg: DetectionTaskCfgData }) {
                       <div className="flex items-center pt-2">
                         <RulerIcon className="mr-2 h-4 w-4 opacity-70" />{" "}
                         <span className="text-xs text-muted-foreground">
-                          Severity Threshold: {config.severityThreshold}
+                          恶意阈值：{config.severityThreshold}
                         </span>
                       </div>
                     );

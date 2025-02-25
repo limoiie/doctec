@@ -22,7 +22,7 @@ export function treeColumnsOfEmbDetectFile(
         <DataTableExpandableColumnHeader
           column={column}
           table={table}
-          title="FilePath"
+          title="文件路径"
         />
       ),
       cell: ({ row }) => (

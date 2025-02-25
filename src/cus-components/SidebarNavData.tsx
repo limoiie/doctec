@@ -15,14 +15,14 @@ export interface NavItem {
 
 export const navMain: NavItem[] = [
   {
-    title: "Embed Detection Jobs",
+    title: "文件检测任务",
     url: "/dashboard/detection/task-job",
     icon: FileSearchIcon,
     isActive: true,
     module: Modules.DETECTION_TASK_JOBS,
   },
   {
-    title: "Embed Detection Configs",
+    title: "文件检测配置",
     url: "/dashboard/detection/task-cfg",
     icon: FileSlidersIcon,
     isActive: false,

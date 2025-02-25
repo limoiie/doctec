@@ -70,7 +70,7 @@ def create_detected_files_for_job(
                                 "Malformed document structure",
                             ]
                         ),
-                        "confidence": round(random.uniform(0.5, 1.0), 2),
+                        "confidence": str(round(random.uniform(0.5, 1.0), 2)),
                         "remediation": random.choice(
                             [
                                 "Review and disable macros",
@@ -174,11 +174,11 @@ def generate_fake_data():
     for i in range(20):
         user = User.create(
             username=f"user{i}",
-            email=f"user{i}@example.com",
             password_hash=bcrypt.hashpw(
                 f"password{i}".encode("utf-8"), bcrypt.gensalt()
             ).decode("utf-8"),
             avatar=f"/avatars/shadcn.jpg",
+            is_admin = random.choice([True, False]),
             created_at=datetime.datetime.now(),
             updated_at=datetime.datetime.now(),
         )
@@ -188,6 +188,8 @@ def generate_fake_data():
     for user in users:
         for _ in range(2):  # 2 sessions per user
             UserSession.create_session(user, expires_in_days=random.randint(1, 30))
+    
+    
 
     # Generate FileData
     file_data_entries = []

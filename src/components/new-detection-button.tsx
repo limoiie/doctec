@@ -22,8 +22,9 @@ import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export function NewDetectionButton() {
-  const [targetDirs, setTargetDirs] = useState("C:\\\\Projects\\samples");
+  const [targetDirs, setTargetDirs] = useState("E:\\Project\\maldoctect\\teset_data_simple");
   const [saveDir, setSaveDir] = useState("C:\\\\Projects\\samples_to_save");
+  const [open, setOpen] = useState(false);
   
   // Configuration toggles
   const [enableEmbeddedFile, setEnableEmbeddedFile] = useState(false);
@@ -31,12 +32,12 @@ export function NewDetectionButton() {
   
   // Configuration values
   const [embeddedFileConfig, setEmbeddedFileConfig] = useState<EmbeddedFileDetectionTaskCfgData>({
-    maxDepth: 3,
+    maxDepth: 5,
     type: "embedded-file"
   });
   
   const [maliciousDocConfig, setMaliciousDocConfig] = useState<MaliciousDocDetectionTaskCfgData>({
-    severityThreshold: 0.5,
+    severityThreshold: 0.7,
     type: "malicious-doc"
   });
 
@@ -44,6 +45,7 @@ export function NewDetectionButton() {
   const navigate = useNavigate();
 
   function detect() {
+    setOpen(false);
     const configs = [];
     if (enableEmbeddedFile) {
       configs.push(embeddedFileConfig);
@@ -58,47 +60,51 @@ export function NewDetectionButton() {
       saveDir: saveDir,
       configs: configs,
     };
-
+    
+    console.log(cfg)
     eel
       .launchDetectionTask(cfg)()
       .then((jobUuid: string) => {
-        navigate("/dashboard/detection/task-job/" + jobUuid);
+        console.log(jobUuid)
+        navigate("/dashboard/detection/task-job/"+ jobUuid);
+        
+        setTimeout(() => navigate("/dashboard/detection/task-job/" + jobUuid), 5000);
       });
   }
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">
+        <Button variant="outline" className="bg-blue-500 hover:bg-blue-600 text-white">
           <CirclePlusIcon className="w-4 h-4 mr-2" />
-          New Detection
+          开始一个新检测
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-3xl">
         <DialogHeader>
-          <DialogTitle>New Detection</DialogTitle>
+          <DialogTitle>新检测</DialogTitle>
           <DialogDescription>
-            Create a new detection task to analyze your files.
+          创建一个新的检测任务来分析您的文件。
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-6">
           <div className="grid gap-4">
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label className="text-right">Target Directories</Label>
+              <Label className="text-right">检测文件目录</Label>
               <Input
                 value={targetDirs}
                 onChange={(e) => setTargetDirs(e.target.value)}
                 className="col-span-3"
-                placeholder="Enter directories separated by semicolon"
+                placeholder="输入以分号分隔的目录"
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label className="text-right">Save Directory</Label>
+              <Label className="text-right">保存目录</Label>
               <Input
                 value={saveDir}
                 onChange={(e) => setSaveDir(e.target.value)}
                 className="col-span-3"
-                placeholder="Enter save directory path"
+                placeholder="输入保存目录路径"
               />
             </div>
           </div>
@@ -107,7 +113,7 @@ export function NewDetectionButton() {
             <Card>
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <CardTitle>Embedded File Detection</CardTitle>
+                  <CardTitle>嵌入文件检测</CardTitle>
                   <Switch
                     checked={enableEmbeddedFile}
                     onCheckedChange={setEnableEmbeddedFile}
@@ -117,7 +123,7 @@ export function NewDetectionButton() {
               <CardContent>
                 {enableEmbeddedFile && (
                   <div className="grid grid-cols-4 items-center gap-4">
-                    <Label className="text-right">Max Depth</Label>
+                    <Label className="text-right">最大深度</Label>
                     <Input
                       type="number"
                       value={embeddedFileConfig.maxDepth}
@@ -135,7 +141,7 @@ export function NewDetectionButton() {
             <Card>
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <CardTitle>Malicious Document Detection</CardTitle>
+                  <CardTitle>恶意文档检测</CardTitle>
                   <Switch
                     checked={enableMaliciousDoc}
                     onCheckedChange={setEnableMaliciousDoc}
@@ -145,7 +151,7 @@ export function NewDetectionButton() {
               <CardContent>
                 {enableMaliciousDoc && (
                   <div className="grid grid-cols-4 items-center gap-4">
-                    <Label className="text-right">Severity Threshold</Label>
+                    <Label className="text-right">阈值</Label>
                     <Input
                       type="number"
                       step="0.1"
@@ -169,7 +175,7 @@ export function NewDetectionButton() {
               onClick={detect} 
               disabled={!enableEmbeddedFile && !enableMaliciousDoc}
             >
-              Create Detection Task
+              开始检测
             </Button>
           </div>
         </div>

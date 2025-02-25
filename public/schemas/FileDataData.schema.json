@@ -31,12 +31,35 @@
         }
       ],
       "default": null
+    },
+    "is_embedded": {
+      "default": false,
+      "type": "boolean"
+    },
+    "is_nested": {
+      "default": false,
+      "type": "boolean"
+    },
+    "isLocallyCreated": {
+      "type": "string"
+    },
+    "description": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": ""
     }
   },
   "required": [
     "md5",
     "size",
-    "kind"
+    "kind",
+    "isLocallyCreated"
   ],
   "title": "FileDataData",
   "type": "object"
