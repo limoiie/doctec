@@ -37,7 +37,7 @@ class DetectionTask(BaseTask[DetectionTaskCfg, DetectionTaskJob]):
         for config in self.cfg.configs:
             cfg = detection_task_cfg_of_dict(config)
             cfg.type = DetectionTaskType.of(cfg.type)
-            self._detectors[cfg.type] = Detector.of(cfg)
+            self._detectors[cfg.type] = Detector.of(cfg, self.cfg)
             self._detector_cfgs[cfg.type] = cfg
 
     def do(self, app: AppContext, *args, **kwargs):

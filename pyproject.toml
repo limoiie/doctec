@@ -25,6 +25,10 @@ pcodedmp = "1.2.6"
 pandas = "^2.2.3"
 pymupdf = "^1.25.2"
 python-magic = "^0.4.27"
+aspose-cells = "^25.2.0"
+aspose-words = "^25.2.0"
+aspose-slides = "^25.2.0"
+pypdf2 = "^3.0.1"
 
 
 [tool.poetry.group.test.dependencies]
